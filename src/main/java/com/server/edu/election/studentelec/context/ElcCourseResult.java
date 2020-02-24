@@ -47,7 +47,11 @@ public class ElcCourseResult{
 	/** 开课学院 */
     @Code2Text(DictTypeEnum.X_YX)
 	private String faculty;
-	
+
+	/**校区*/
+	@Code2Text(DictTypeEnum.X_XQ)
+	private String campus;
+
 	/** 实际选课人数 */
 	private Integer currentNumber;
 	
@@ -72,7 +76,14 @@ public class ElcCourseResult{
 	
     private  Integer manArrangeFlag;
 
-	
+	public String getCampus() {
+		return campus;
+	}
+
+	public void setCampus(String campus) {
+		this.campus = campus;
+	}
+
 	public String getNature() {
 		return nature;
 	}

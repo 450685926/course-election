@@ -1,11 +1,13 @@
 package com.server.edu.election.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.election.entity.RebuildCourseNoChargeType;
 
 /**
  * @description:
@@ -74,6 +76,59 @@ public class RebuildCourseDto {
 
     @Code2Text(DictTypeEnum.X_XDLX)
     private Integer courseTakeType;
+
+    /**
+     * 不收费学生类型
+     */
+    private List<RebuildCourseNoChargeType> noStuPay = new ArrayList<>();
+
+    private Long abnormalEndTime;
+    private Long abnormalStartTime;
+
+    //学年
+    private Integer year;
+    //学期
+    private Integer semester;
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public Integer getSemester() {
+        return semester;
+    }
+
+    public void setSemester(Integer semester) {
+        this.semester = semester;
+    }
+
+    public Long getAbnormalEndTime() {
+        return abnormalEndTime;
+    }
+
+    public void setAbnormalEndTime(Long abnormalEndTime) {
+        this.abnormalEndTime = abnormalEndTime;
+    }
+
+    public Long getAbnormalStartTime() {
+        return abnormalStartTime;
+    }
+
+    public void setAbnormalStartTime(Long abnormalStartTime) {
+        this.abnormalStartTime = abnormalStartTime;
+    }
+
+    public List<RebuildCourseNoChargeType> getNoStuPay() {
+        return noStuPay;
+    }
+
+    public void setNoStuPay(List<RebuildCourseNoChargeType> noStuPay) {
+        this.noStuPay = noStuPay;
+    }
 
     public Integer getType() {
 		return type;

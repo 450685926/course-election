@@ -55,7 +55,7 @@ public class RebuildCourseNoChargeType implements Serializable {
      * 是否国际学生
      */
     @Column(name = "IS_OVERSEAS_")
-    private Integer isOverseas;
+    private String isOverseas;
 
     /**
      * 学籍异动状态
@@ -151,11 +151,11 @@ public class RebuildCourseNoChargeType implements Serializable {
         this.enrolMethods = enrolMethods;
     }
 
-    public Integer getIsOverseas() {
+    public String getIsOverseas() {
         return isOverseas;
     }
 
-    public void setIsOverseas(Integer isOverseas) {
+    public void setIsOverseas(String isOverseas) {
         this.isOverseas = isOverseas;
     }
 

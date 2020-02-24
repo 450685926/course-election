@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.mutual.entity.ElcMutualApplyCopyVo;
+import com.server.edu.mutual.rpc.CultureSerivceInvokerToMutual;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -19,12 +22,14 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
 import com.server.edu.mutual.Enum.MutualApplyAuditType;
 import com.server.edu.mutual.dao.ElcMutualApplyAuditLogsDao;
 import com.server.edu.mutual.dao.ElcMutualApplyDao;
 import com.server.edu.mutual.dao.ElcMutualApplySwitchDao;
+import com.server.edu.mutual.dao.ElcMutualListDao;
 import com.server.edu.mutual.dto.AgentApplyDto;
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.entity.ElcMutualApply;
@@ -58,6 +63,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 	@Autowired
 	private ElcMutualCommonService elcMutualCommonService;
+	
+	@Autowired
+	private ElcMutualListDao elcMutualListDao;
 
 	@Override
 	public PageInfo<ElcMutualApplyVo> collegeApplyCourseList(PageCondition<ElcMutualApplyDto> condition) {
@@ -66,7 +74,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		Session session = SessionUtils.getCurrentSession();
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
     	if (!isAcdemicDean) {
-    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
+    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
 
 		List<String> projectIds = new ArrayList<>();
@@ -84,7 +92,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		packageCollegeList(session,dto);
 		//封装部门数据
 		dto.setProjectIds(projectIds);
-
+		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
+		LOG.info("dto==condition.getCondition()?--->" + (dto == condition.getCondition()));
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyCourseList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
@@ -97,7 +106,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		Session session = SessionUtils.getCurrentSession();
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
     	if (!isAcdemicDean) {
-    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
+    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
         List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
@@ -107,8 +116,18 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			dto.setByType(Constants.FIRST);
             projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		}
+		/**
+		 * 解决本研互选bug10674 行政学院教务员要查询本学院或本学院管理的学生 2020-2-20
+		 */
+		packageCollegeList(session,dto);
+		/**
+		 * 功能描述: 解决本研互选bug 10896
+		 * @author: zhaoerhu
+		 * @date: 2020/2/21 14:29
+		 */
+//		dto.setProjectId(session.getCurrentManageDptId());
 		dto.setProjectIds(projectIds);
-		
+		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyStuList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
@@ -126,21 +145,26 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
     	}
 
-		List<String> projectIds = new ArrayList<>();
+		/**
+		 * 功能描述: 解决本研互选bug 10896
+		 * @author: zhaoerhu
+		 * @date: 2020/2/21 14:29
+		 */
+//		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
-			projectIds.add(Constants.PROJ_UNGRADUATE);
+//			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
-			projectIds = ProjectUtil.getProjectIds("1");
+//			projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 			dto.setByType(Constants.FIRST);
 		}
-		dto.setProjectIds(projectIds);
-//		dto.setProjectId(projectId);
+//		dto.setProjectIds(projectIds);
+		dto.setProjectId(projectId);
 //		dto.setOpenCollege(session.getFaculty());
 		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
-		if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
 			dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
 					MutualApplyAuditStatus.AUDITED_APPROVED.status(),MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
 		}
@@ -159,27 +183,34 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
     	if (!isAcdemicDean) {
-    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
+    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
 
-		List<String> projectIds = new ArrayList<>();
+		/**
+		 * 功能描述: 解决本研互选bug 10896
+		 * @author: zhaoerhu
+		 * @date: 2020/2/21 14:29
+		 */
+//		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
-			projectIds.add(Constants.PROJ_UNGRADUATE);
+//			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
-			projectIds = ProjectUtil.getProjectIds("1");
+//			projectIds = ProjectUtil.getProjectIds(projectId);
 			dto.setByType(Constants.FIRST);
 		}
 //		dto.setOpenCollege(session.getFaculty());
 		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
-		dto.setProjectIds(projectIds);
-//		dto.setProjectId(projectId);
-		
-		// 本科生只有行政学院审核通过，才能进行开课学院审核
-		if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+//		dto.setProjectIds(projectIds);
+		dto.setProjectId(projectId);
+
+		// 只有本科生发起的申请流程才走该逻辑：本科生申请，只有当本科生行政学院审核通过，才能进行开课学院审核
+		// 研究生发起的申请流程，本科生教务员直接进行开课学院审核
+//		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+		if (StringUtils.equals(projectId, Constants.PROJ_GRADUATE) || StringUtils.equals(projectId,Constants.PROJ_LINE_GRADUATE)) {
 			if (dto.getStatus() == null) {
 				dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
-						MutualApplyAuditStatus.AUDITED_APPROVED.status(),MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
+						MutualApplyAuditStatus.AUDITED_APPROVED.status(), MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
 			}
 		}
 		
@@ -242,6 +273,17 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			}
 		}
 		elcMutualApplyDao.updateByPrimaryKeySelective(elcMutualApply);
+		Integer mode = elcMutualApply.getMode();
+		if(Constants.BK_CROSS.equals(mode)) {
+			LOG.info("method updateCultureStuPlanRpc start...");
+			//更新培养计划
+			dto.setStatus(elcMutualApply.getStatus());
+			//测试数据
+//			dto.setStudentId("1351132");
+//			dto.setCourseCode("011091");
+			updateCultureStuPlanRpc(dto);
+			LOG.info("method updateCultureStuPlanRpc end...");
+		}
 	}
 	
 	/**保存互选审核日志
@@ -302,6 +344,12 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		apply.setUserId(session.realUid());
         apply.setMode(dto.getMode());
 		apply.setApplyAt(new Date());
+		int count = elcMutualListDao.countElectionCourse(String.valueOf(dto.getMutualCourseId()), dto.getStudentId());
+		if(count>0) {
+			apply.setCourseTakeType(CourseTakeType.RETAKE.type());
+		}else {
+			apply.setCourseTakeType(CourseTakeType.NORMAL.type());
+		}
 		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
 			apply.setStatus(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status());
 		}else {
@@ -322,10 +370,14 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	@Override
 	public List<ElcMutualApplyAuditLogsVo> queryAuditLogList(ElcMutualApplyAuditLogsVo vo) throws IllegalAccessException, InvocationTargetException {
 		ElcMutualApplyAuditLogsVo elcMutualApplyAuditLogsVo = new ElcMutualApplyAuditLogsVo();
-		ElcMutualApply elcMutualApply = elcMutualApplyService.getElcMutualApplyById(vo.getMuApplyId());
+		//ElcMutualApply elcMutualApply = elcMutualApplyService.getElcMutualApplyById(vo.getMuApplyId());
+		//查询学生本研互选申请记录
+		ElcMutualApplyCopyVo elcMutualApply = elcMutualApplyAuditLogsDao.getElcMutualApplyById(vo.getMuApplyId());
 		BeanUtil.copyProperties(elcMutualApplyAuditLogsVo, elcMutualApply);
-		
-		List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogList(vo);
+
+		//List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogList(vo);
+		//查询本研互选审核记录
+		List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogLists(vo);
 		list.add(0, elcMutualApplyAuditLogsVo);
 		return list;
 	}
@@ -347,7 +399,28 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	 */
 	private void packageCollegeList(Session session, ElcMutualApplyDto dto) {
 		//封装学院数据
-		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
+//		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
+		LOG.info("进入   packageCollegeList   。。。");
+		dto.setCollegeList(elcMutualCommonService.getCollegeList());
 	}
 
+	/**
+	 * 功能描述: 如果开课学院审核通过，则远程调用培养接口，更新学生培养计划选课状态
+	 *
+	 * @params: [elcMutualApply]
+	 * @return: void
+	 * @author: zhaoerhu
+	 * @date: 2020/2/18 11:07
+	 */
+	private void updateCultureStuPlanRpc(ElcMutualApplyDto elcMutualApply) {
+		if (elcMutualApply.getStatus().equals(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.AUDITED_APPROVED.status())))) {
+			LOG.info("updateCultureStuPlanRpc rpc begin");
+			RestResult result = CultureSerivceInvokerToMutual.updateCulturePlan4Stu(elcMutualApply);
+			if (result.getCode() != 200) {//更新培养计划异常，则手动抛出运行时异常，事务回滚
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApplyAudit.planFail"));
+			}
+			LOG.info("code --- > " + result.getCode());
+			LOG.info("updateCultureStuPlanRpc rpc end");
+		}
+	}
 }

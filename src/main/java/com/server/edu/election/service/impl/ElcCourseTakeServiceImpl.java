@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dto.StuHonorDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -58,7 +59,6 @@ import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
-import com.server.edu.election.dto.StuHonorDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Course;
@@ -720,36 +720,100 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
 
-	@Override
-	public String graduateAdd(ElcCourseTakeAddDto value, String currentRole, boolean adminFlag, String projId) {
-		Date date = new Date();
-		if (CollectionUtil.isEmpty(value.getStudentIds())) {
-			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noStudent",I18nUtil.getMsg("elecResultSwitch.noStudent")));
-		}
-    	//如果当前操作人是老师
+//	@Override
+//	public String graduateAdd(ElcCourseTakeAddDto value, String currentRole, boolean adminFlag, String projId) {
+//		Date date = new Date();
+//		if (CollectionUtil.isEmpty(value.getStudentIds())) {
+//			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noStudent",I18nUtil.getMsg("elecResultSwitch.noStudent")));
+//		}
+//    	//如果当前操作人是老师
+//        if ("1".equals(currentRole)&&!adminFlag)
+//        {
+//        	//判断选课结果开关状态
+//    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),projId);
+//    		if (elcResultSwitch.getStatus() == Constants.ZERO) {
+//    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
+//    		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
+//    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.operationalerror",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+//    		}
+//
+//    		//判断课程性质
+//
+//    		Example example = new Example(Course.class);
+//    		Criteria createCriteria = example.createCriteria();
+//    		createCriteria.andEqualTo("code",value.getCourseCode());
+//    		Course course = courseDao.selectOneByExample(example);
+//    		if(course.getIsElective().intValue() == Constants.ONE){
+//    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noPower",I18nUtil.getMsg("elecResultSwitch.noPower")));
+//    		}
+//
+//        }
+//        return this.graduateAddCourse(value);
+//	}
+
+    @Override
+    public String graduateAdd(ElcCourseTakeAddDto value, String currentRole, boolean adminFlag, String projId) {
+        Date date = new Date();
+        List<String> studentIds = value.getStudentIds();
+        if (CollectionUtil.isEmpty(studentIds)) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noStudent",I18nUtil.getMsg("elecResultSwitch.noStudent")));
+        }
+        //如果当前操作人是老师
         if ("1".equals(currentRole)&&!adminFlag)
         {
-        	//判断选课结果开关状态
-    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),projId);
-    		if (elcResultSwitch.getStatus() == Constants.ZERO) {
-    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
-    		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
-    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.operationalerror",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
-    		}
-    		
-    		//判断课程性质
-    		
-    		Example example = new Example(Course.class);
-    		Criteria createCriteria = example.createCriteria();
-    		createCriteria.andEqualTo("code",value.getCourseCode());
-    		Course course = courseDao.selectOneByExample(example);
-    		if(course.getIsElective().intValue() == Constants.ONE){
-    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noPower",I18nUtil.getMsg("elecResultSwitch.noPower")));
-    		}
+            //判断选课结果开关状态
+            ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),projId);
+            if (elcResultSwitch.getStatus() == Constants.ZERO) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
+            } else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
+                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.operationalerror",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+            }
+
+            //判断课程性质
+
+            Example example = new Example(Course.class);
+            Criteria createCriteria = example.createCriteria();
+            createCriteria.andEqualTo("code",value.getCourseCode());
+            Course course = courseDao.selectOneByExample(example);
+            if(course.getIsElective().intValue() == Constants.ONE){
+                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noPower",I18nUtil.getMsg("elecResultSwitch.noPower")));
+            }
+            String studentId = studentIds.get(0);
+            String courseCode = value.getCourseCode();
+            // 判断是否重修,重修不受任何规则限制，直接可以选
+            int retake = courseTakeDao.isRetake(studentId, courseCode);
+            if (retake == 0 ) {
+                // 不是重修，受容量和校区限制
+                List<Long> teachingClassIds = value.getTeachingClassIds();
+                Long teachingClassId = teachingClassIds.get(0);
+                TeachingClass teachingClass = teachingClassDao.selectByPrimaryKey(teachingClassId);
+                // 判断教学班容量
+                if (teachingClass.getElcNumber() + studentIds.size() > teachingClass.getNumber()) {
+                    throw new ParameterValidateException("教学班容量超出上限，请重新添加");
+                }
+
+                // 判断学生校区和课程校区
+                Example stuExample = new Example(Student.class);
+                stuExample.createCriteria()
+                        .andIn("studentCode", studentIds);
+                List<Student> students = studentDao.selectByExample(stuExample);
+                String campus = teachingClass.getCampus();
+                List<String> list = new ArrayList<>(studentIds.size());
+                for (Student student : students) {
+                    if (!campus.equals(student.getCampus())) {
+                        list.add(student.getStudentCode());
+                    }
+                }
+                if (CollectionUtil.isNotEmpty(list)) {
+                    throw new ParameterValidateException("学生"
+                            + String.join(",", list) +
+                            "所在校区与课程校区不一致，请重新添加学生");
+                }
+            }
 
         }
         return this.graduateAddCourse(value);
-	}
+    }
     @Transactional
     private String graduateAddCourse(ElcCourseTakeAddDto add)
     {
@@ -765,10 +829,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             {
                 Long teachingClassId = teachingClassIds.get(i);
                 ElcCourseTakeVo vo = courseTakeDao
-                    .getTeachingClassInfo(calendarId, teachingClassId, null);
+                        .getTeachingClassInfo(calendarId, teachingClassId, null);
                 if (null != vo && vo.getCourseCode() != null)
                 {
-                	graduateAddCourseTake(date, calendarId, studentId, vo, mode);
+                    graduateAddCourseTake(date, calendarId, studentId, vo, mode);
                 }
                 else
                 {
@@ -781,7 +845,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 }
             }
         }
-        
+
         if (sb.length() > 0)
         {
             return sb.substring(0, sb.length() - 1);
@@ -1697,6 +1761,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             ElcCourseTake elcCourseTake = value.get(i);
             ElcLog elcLog = new ElcLog();
             elcLog.setStudentId(elcCourseTake.getStudentId());
+            elcStudentVo.setStudentId(elcCourseTake.getStudentId());
             elcLog.setCourseCode(elcStudentVo.getCourseCode());
             elcLog.setCourseName(elcStudentVo.getCourseName());
             elcLog.setTeachingClassCode(elcStudentVo.getClassCode());

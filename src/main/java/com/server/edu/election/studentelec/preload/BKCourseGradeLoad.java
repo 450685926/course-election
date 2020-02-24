@@ -421,7 +421,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 c.setIsPass(studentScore.getIsPass());
                 c.setCourseLabelId(studentScore.getCourseLabelId());
                 c.setCheat(
-                    StringUtils.isBlank(studentScore.getTotalMarkScore()));
+                    StringUtils.isNotBlank(studentScore.getCheat()));
                 
                 if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
                 { // 已通过的课程

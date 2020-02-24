@@ -335,7 +335,7 @@
 			  class.REMARK_ remark
 		from course_open_t course
    			 left join teaching_task_t task on course.ID_ = task.COURSE_OPEN_ID_
-	         left join teaching_class_t class on task.ID_ = class.TASK_ID_
+	         left join teaching_class_t class (on task.ID_ = class.TASK_ID_ and class.DELETE_STATUS_ = 0)
 	         left join teaching_class_teacher_t teacher on class.ID_ = teacher.TEACHING_CLASS_ID_
 	         left join teaching_class_arrange_time_t time ON class.ID_ = time.TEACHING_CLASS_ID_
 		where 
@@ -373,13 +373,15 @@
 		class.ID_ teachClassId
 		from course_open_t course
 		left join teaching_task_t task on course.ID_ = task.COURSE_OPEN_ID_
-		left join teaching_class_t class on task.ID_ = class.TASK_ID_
+		left join teaching_class_t class on (task.ID_ = class.TASK_ID_ and class.DELETE_STATUS_ = 0)
 		left join teaching_class_teacher_t teacher on class.ID_ = teacher.TEACHING_CLASS_ID_
 		where
 		class.DELETE_STATUS_ = 0 and
 		class.MAN_ARRANGE_FLAG_ in(1,2,3) and
-		course.CALENDAR_ID_ = #{calendarId} and
-		course.TRAINING_LEVEL_ = #{trainingLevel}
+		course.CALENDAR_ID_ = #{calendarId}
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+			and course.TRAINING_LEVEL_ = #{trainingLevel}
+		</if>
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 			and course.PROJ_ID_ = #{projectId,jdbcType=VARCHAR}
 		</if>

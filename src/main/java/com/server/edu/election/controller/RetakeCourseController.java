@@ -9,6 +9,7 @@ import com.server.edu.election.service.RetakeCourseService;
 import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
 import com.server.edu.election.vo.RebuildCourseVo;
+import com.server.edu.election.vo.RebuildStuVo;
 import com.server.edu.election.vo.RetakeCourseCountVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -119,4 +120,40 @@ public class RetakeCourseController {
         return RestResult.success();
     }
 
+    /**
+     * 研究生重修代选课学生信息查询
+     * @param calendarId
+     * @param studentId
+     * @return
+     */
+    @ApiOperation(value = "研究生重修代选课学生信息查询")
+    @GetMapping("/findRebuildStu")
+    public RestResult<RebuildStuVo> findRebuildStu(@RequestParam("calendarId") Long calendarId,
+                                                   @RequestParam("studentId") String studentId)
+    {
+        RebuildStuVo rebuildStuVo = retakeCourseService.findRebuildStu(calendarId, studentId);
+        return RestResult.successData(rebuildStuVo);
+    }
+
+    @ApiOperation(value = "研究生重修代选课学生不及格课程列表")
+    @GetMapping("/failedCourses")
+    public RestResult<List<FailedCourseVo>> failedCourses(@RequestParam("calendarId") Long calendarId,
+                                                          @RequestParam("studentId") String studentId)
+    {
+        List<FailedCourseVo> list = retakeCourseService.failedCourses(calendarId, studentId);
+        return RestResult.successData(list);
+    }
+
+    /**
+     * 研究生重修代选课可选课程列表
+     *
+     * @param condition
+     * @return
+     */
+    @ApiOperation(value = "研究生重修代选课可选课程列表")
+    @PostMapping("/findRebuildCourses")
+    public RestResult<PageResult<RebuildCourseVo>> findRebuildCourses(@RequestBody PageCondition<RebuildCourseDto> condition) {
+        PageResult<RebuildCourseVo> rebuildCourseList = retakeCourseService.findRebuildCourses(condition);
+        return RestResult.successData(rebuildCourseList);
+    }
 }

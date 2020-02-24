@@ -300,11 +300,17 @@ public class ElcCourseTakeYjsController
     {
         ElcResultQuery cond = condition.getCondition();
         ValidatorUtil.validateAndThrow(cond);
-    	if(StringUtils.isEmpty(cond.getCourseTakeType())){
-            return RestResult.fail("修读类别不能为空");
-        }
+//    	if(StringUtils.isEmpty()){
+//            return RestResult.fail("修读类别不能为空");
+//        }
 
     	PageResult<Student4Elc> msg = null;
+        String courseTakeType = cond.getCourseTakeType();
+        // 只给正常修读的学生加课，重修或免修返回null
+        if (!"1".equals(courseTakeType)) {
+            return RestResult.successData(msg);
+        }
+
     	if(StringUtils.equalsIgnoreCase(cond.getCourseTakeType(),"1")){
             /**
              * 调用培养：个人培养计划中有该课程且又没有选课的学生名单，和成绩为不及格的学生名单

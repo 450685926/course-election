@@ -55,6 +55,26 @@ public class AgentApplyDto {
 	public void setCategory(Integer category) {
 		this.category = category;
 	}
-    
+
+	public AgentApplyDto(){
+		//无参构造
+	}
+
+	public AgentApplyDto(Long calendarId, String studentId, Long mutualCourseId, Integer category, Integer mode) {
+		setCalendarId(calendarId);
+		setStudentId(studentId);
+		setMutualCourseId(mutualCourseId);
+		setCategory(category);
+		setMode(mode);
+	}
+
+	@Override
+	public String toString() {
+		return "[calendarId = " + this.getCalendarId() + ";studentId = "
+				+ this.getStudentId() + ";mutualCourseId = "
+				+ this.getMutualCourseId() + ";category = "
+				+ this.getCategory() + ";mode = "
+				+ this.getMode() + "]";
+	}
 
 }

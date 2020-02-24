@@ -30,42 +30,58 @@
 		    ON t1.`STUDENT_ID_` = t2.`STUDENT_CODE_` 
 		<where>
 		    t1.CALENDAR_ID_  = #{calendarId}
+			<!-- 学生id-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
 		    </if>
+			<!-- 学位类型-->
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
+				and t2.DEGREE_TYPE_ =#{degreeType}
+			</if>
+			<!-- 学生名字-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
 		        and t2.NAME_ like concat ('%', #{studentName},'%')
 		    </if>
+			<!-- 模糊搜索-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWords)">
 		        and (t1.STUDENT_ID_ like concat ('%', #{keyWords},'%') or t2.NAME_ like concat ('%', #{keyWords},'%')) 
 		    </if>
+			<!-- 部门id-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 		        and t2.MANAGER_DEPT_ID_  = #{projectId}
 		    </if>
+			<!-- 年级-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t2.GRADE_  = #{grade}
 		    </if>
+			<!-- 学院-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 				and t2.FACULTY_  in
 				<foreach item="item" index="index" collection="faculty.split(',')" open="(" separator="," close=")">
 					'${item}'
 				</foreach>
 		    </if>
+			<!-- 专业-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
 		        and t2.PROFESSION_  = #{profession}
-		    </if>			    
+		    </if>
+			<!-- 培养层次-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
 		        and t2.TRAINING_LEVEL_  = #{trainingLevel}
 		    </if>
+			<!-- 培养类别-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
 		        and t2.TRAINING_CATEGORY_  = #{trainingCategory}
 		    </if>
+			<!-- 学位类别-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeCategory)">
 		        and t2.DEGREE_CATEGORY_  = #{degreeCategory}
 		    </if>
+			<!-- 学习形式-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
 		        and t2.FORM_LEARNING_  = #{formLearning}
 		    </if>
+			<!-- 在校状态-->
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(leaveSchool)">
 		        and t2.LEAVE_SCHOOL_  = #{leaveSchool}
 		    </if>

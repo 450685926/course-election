@@ -540,6 +540,7 @@
         FROM elc_course_takes_t el
         JOIN course_t co on el.COURSE_CODE_=co.CODE_
         JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+        left join student_abnormal_apply_v t8 on el.STUDENT_ID_ = t8.STUDENT_ID_ and t8.STATUS_ = 3
         JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(hasChangeGrade)">
             left JOIN student.student_abnormal_apply_t sa
@@ -601,6 +602,36 @@
             </if>
             <if test="hasChangeGrade == 0">
                 and sa.ID_ is null
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
+                and not EXISTS
+                (select t8.STUDENT_ID_ from elc_course_takes_t t8
+                left join student_t t10 on t8.STUDENT_ID_ = t10.STUDENT_CODE_
+                left join student_abnormal_apply_v t9 on t8.STUDENT_ID_ = t9.STUDENT_ID_ and t9.STATUS_ = 3
+                where el.STUDENT_ID_ = t8.STUDENT_ID_ and t8.CALENDAR_ID_ = #{calendarId} and t8.COURSE_TAKE_TYPE_ = 2 and t10.MANAGER_DEPT_ID_ = #{deptId} and
+                <foreach collection="noStuPay" item="item" separator="or" open="(" close=")">
+                    (
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingLevel)">
+                        t10.TRAINING_LEVEL_ = #{item.trainingLevel}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingCategory)">
+                        and t10.TRAINING_CATEGORY_ = #{item.trainingCategory}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.enrolMethods)">
+                        and t10.ENROL_METHODS_ = #{item.enrolMethods}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.spcialPlan)">
+                        and t10.SPCIAL_PLAN_ = #{item.spcialPlan}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.isOverseas)">
+                        and t10.IS_OVERSEAS_ = #{item.isOverseas}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
+                        and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime}
+                    </if>
+                    )
+                </foreach>
+                )
             </if>
         </where>
     </select>
@@ -1073,7 +1104,6 @@
         st.STUDENT_CODE_ = t2.STUDENT_ID_
         AND t2.ROUNDS_ID_ IN (
         SELECT ID_ FROM election_rounds_t WHERE CALENDAR_ID_=#{calendarId}
-        and st.LEAVE_SCHOOL_ = 1
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
             AND MODE_=#{mode}
         </if>
@@ -1133,6 +1163,7 @@
         t3.LABEL_, t4.PERIOD_,
         t3.ASSESSMENT_MODE_,
         t4.CODE_ as teachingClassCode,
+        t4.CAMPUS_,
         t4.NAME_ as teachingClassName,
         op.IS_ELECTIVE_ as isPublicCourse
         from elc_course_takes_t t1
@@ -1475,6 +1506,7 @@
         join teaching_class_t c on b.ID_ = c.TASK_ID_
         <where>
             a.DELETE_STATUS_ = 0
+            and c.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
                 and a.PROJ_ID_ = #{projectId}
             </if>
@@ -1501,6 +1533,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
                 and c.CODE_ =#{classCode,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+            and (a.COURSE_CODE_ = #{keyword,jdbcType=VARCHAR} or a.COURSE_NAME_ =#{keyword,jdbcType=VARCHAR} )
+            </if>			
         </where>
     </select>
 
@@ -1513,7 +1548,9 @@
         from teaching_class_t c
         join teaching_task_t b on c.TASK_ID_ = b.ID_
         join course_open_t a on b.COURSE_OPEN_ID_ = a.ID_
-        where  a.DELETE_STATUS_ = 0 and c.ID_ in
+        where  a.DELETE_STATUS_ = 0
+        and c.DELETE_STATUS_ =0
+        and c.ID_ in
         <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -1529,7 +1566,7 @@
         LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
         LEFT JOIN v_student_plan_course pc on (el.COURSE_CODE_ =pc.courseCode  and el.STUDENT_ID_ = pc.studentId)
         LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
-        LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
+        LEFT JOIN teaching_class_t te on (te.ID_=el.TEACHING_CLASS_ID_ and te.DELETE_STATUS_ = 0)
         where el.STUDENT_ID_=#{studentId,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
     </select>
 
@@ -1551,6 +1588,7 @@
         JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
         <where>
             t3.DEPLOY_FLAG_ &gt; 0 and t1.DELETE_STATUS_ = 0
+            and t3.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
             </if>
@@ -1584,7 +1622,7 @@
         tc.ID_ teachingClassId
         from course_open_t op
         join teaching_task_t tk on op.ID_ = tk.COURSE_OPEN_ID_
-        join teaching_class_t tc on tk.ID_ = tc.TASK_ID_
+        join teaching_class_t tc on (tk.ID_ = tc.TASK_ID_ and tc.DELETE_STATUS_ = 0)
         left join teaching_class_arrange_time_t ta on (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
         join teaching_class_teacher_t tt on tc.ID_ = tt.TEACHING_CLASS_ID_
         <where>
@@ -1641,6 +1679,7 @@
         JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
         join course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
         where t3.DEPLOY_FLAG_ &gt; 0 and t2.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId} and t1.DELETE_STATUS_ = 0
+        and t3.DELETE_STATUS_ = 0
     </select>
 
     <select id="findSexNumber" resultType="com.server.edu.election.dto.ElcCourseLimitDto">
@@ -1674,7 +1713,7 @@
         WHERE
             t1.STUDENT_ID_ = #{studentId}
         AND t1.CALENDAR_ID_ = #{calendarId}
-
+        and t4.DELETE_STATUS_ = 0
     </select>
 
     <select id="findNoSelectCourseStds" parameterType="com.server.edu.election.dto.NoSelectCourseStdsDto"
@@ -1838,6 +1877,7 @@
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         <where>
             t1.STUDENT_ID_ = #{studentId} and op.DELETE_STATUS_ = 0
+            and t4.DELETE_STATUS_ = 0
         </where>
     </select>
 
@@ -1902,7 +1942,7 @@
         from elc_course_takes_t t1
         left join student_t t2 on t2.STUDENT_CODE_ = t1.STUDENT_ID_
         left join course_t t3 on t3.CODE_ = t1.COURSE_CODE_
-        left join teaching_class_t t4 on t4.ID_ = t1.TEACHING_CLASS_ID_
+        left join teaching_class_t t4 on (t4.ID_ = t1.TEACHING_CLASS_ID_ and t4.DELETE_STATUS_ = 0)
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
@@ -1960,7 +2000,7 @@
         d.NAME_ teachingClassName,d.MAN_ARRANGE_FLAG_ manArrangeFlag,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number
         from course_open_t a
         join teaching_task_t c on c.COURSE_OPEN_ID_ = a.ID_
-        join teaching_class_t d on d.TASK_ID_ = c.ID_
+        join teaching_class_t d on (d.TASK_ID_ = c.ID_ and d.DELETE_STATUS_ = 0)
         left join teaching_class_arrange_time_t e on (e.TEACHING_CLASS_ID_ = d.ID_ and e.TYPE_ = 2)
         where a.COURSE_CODE_ in
         <foreach item="courseCode" collection="courseCodes" separator="," open="(" close=")">
@@ -1982,7 +2022,7 @@
         d.NAME_ teachingClassName,d.MAN_ARRANGE_FLAG_ manArrangeFlag,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number
         from course_open_t a
         join teaching_task_t c on c.COURSE_OPEN_ID_ = a.ID_
-        join teaching_class_t d on d.TASK_ID_ = c.ID_
+        join teaching_class_t d on (d.TASK_ID_ = c.ID_ and d.DELETE_STATUS_ = 0)
         left join teaching_class_arrange_time_t e on (e.TEACHING_CLASS_ID_ = d.ID_ and e.TYPE_ = 2)
         where a.COURSE_CODE_ in
         <foreach item="courseCode" collection="courseCodes" separator="," open="(" close=")">
@@ -2005,7 +2045,8 @@
         from teaching_class_t a
         join teaching_task_t b on b.ID_ = a.TASK_ID_
         join course_open_t c on c.ID_ = b.COURSE_OPEN_ID_
-        where c.DELETE_STATUS_ = 0 and a.ID_ in
+        where a.DELETE_STATUS_ = 0 and
+        c.DELETE_STATUS_ = 0 and a.ID_ in
         <foreach item="item" collection="list" separator="," open="(" close=")">
             #{item, jdbcType=INTEGER}
         </foreach>
@@ -2039,7 +2080,7 @@
                 c.NAME_ teachingClassName,c.ELC_NUMBER_ elcNumber,c.NUMBER_ number
         from elc_course_takes_t a
         join course_open_t b on b.COURSE_CODE_ = a.COURSE_CODE_
-        join teaching_class_t c on c.ID_ = a.TEACHING_CLASS_ID_
+        join teaching_class_t c on (c.ID_ = a.TEACHING_CLASS_ID_ and c.DELETE_STATUS_ = 0)
         where a.CALENDAR_ID_ = #{calendarId} and a.STUDENT_ID_ = #{studentId} and b.DELETE_STATUS_ = 0
         group by c.ID_
     </select>
@@ -2087,7 +2128,7 @@
         from elc_course_takes_t t1
         left join student_t t2 on t2.STUDENT_CODE_ = t1.STUDENT_ID_
         left join course_t t3 on t3.CODE_ = t1.COURSE_CODE_
-        left join teaching_class_t t4 on t4.ID_ = t1.TEACHING_CLASS_ID_
+        left join teaching_class_t t4 on (t4.ID_ = t1.TEACHING_CLASS_ID_ and t4.DELETE_STATUS_ = 0)
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
@@ -2168,7 +2209,7 @@
 				tc.REMARK_ remark,
 				te.TEACHER_NAME_ teacherName
         FROM elc_course_takes_t ec
-		left join teaching_class_t tc on ec.TEACHING_CLASS_ID_ = tc.ID_
+		left join teaching_class_t tc on (ec.TEACHING_CLASS_ID_ = tc.ID_ and tc.DELETE_STATUS_ = 0)
 		left join teaching_class_teacher_t te on ec.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_
         WHERE
         ec.STUDENT_ID_ = #{studentId}
@@ -2184,7 +2225,7 @@
 				tc.REMARK_ remark,
 				te.TEACHER_NAME_ teacherName
         FROM elc_course_takes_t_${index} ec
-		left join teaching_class_t tc on ec.TEACHING_CLASS_ID_ = tc.ID_
+		left join teaching_class_t tc on (ec.TEACHING_CLASS_ID_ = tc.ID_ and tc.DELETE_STATUS_ = 0)
 		left join teaching_class_teacher_t te on ec.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_ and te.TYPE_ = 0
         WHERE
         ec.STUDENT_ID_ = #{studentId}
@@ -2258,13 +2299,19 @@
         join teaching_class_arrange_time_t te on te.TEACHING_CLASS_ID_ = tc.ID_
         join teaching_class_arrange_room_t ro ON te.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
-        tc.ID_ = #{teachingClassId} and co.DELETE_STATUS_ = 0
+        tc.ID_ = #{teachingClassId}
+        and tc.DELETE_STATUS_ = 0
+        and co.DELETE_STATUS_ = 0
         GROUP BY ro.ARRANGE_TIME_ID_
         order by te.DAY_OF_WEEK_,te.TIME_START_
     </select>
 
     <select id="findCount" resultType="int">
         select count(ID_) from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId} and TEACHING_CLASS_ID_ = #{teachingClassId}
+    </select>
+
+    <select id="isRetake" resultType="int">
+        select count(ID_) from elc_course_takes_t where STUDENT_ID_ = #{studentId} and COURSE_CODE_ = #{courseCode}
     </select>
 
     <select id="findRetakeCount" resultType="java.lang.String">
@@ -2363,6 +2410,36 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
                 and st.STUDENT_CODE_ =#{studentId,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noPayStudentType)">
+                and not EXISTS
+                (select t8.STUDENT_ID_ from elc_course_takes_t t8
+                left join student_t t10 on t8.STUDENT_ID_ = t10.STUDENT_CODE_
+                left join student_abnormal_apply_v t9 on t8.STUDENT_ID_ = t9.STUDENT_ID_ and t9.STATUS_ = 3
+                where t1.STUDENT_ID_ = t8.STUDENT_ID_ and t8.CALENDAR_ID_ = #{calendarId} and t8.COURSE_TAKE_TYPE_ = 2 and t10.MANAGER_DEPT_ID_ = #{manageDptId} and
+                <foreach collection="noPayStudentType" item="item" separator="or" open="(" close=")">
+                    (
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingLevel)">
+                         t10.TRAINING_LEVEL_ = #{item.trainingLevel}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingCategory)">
+                       and t10.TRAINING_CATEGORY_ = #{item.trainingCategory}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.enrolMethods)">
+                        and t10.ENROL_METHODS_ = #{item.enrolMethods}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.spcialPlan)">
+                        and t10.SPCIAL_PLAN_ = #{item.spcialPlan}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.isOverseas)">
+                        and t10.IS_OVERSEAS_ = #{item.isOverseas}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
+                        and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime}
+                    </if>
+                    )
+                </foreach>
+                )
+            </if>
         </where>
     </select>
 
@@ -2425,6 +2502,7 @@
     <select id="findNoChargeListByStuId" parameterType="com.server.edu.election.dto.RebuildCourseDto"
             resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT
+         el.ID_ id,
          st.STUDENT_CODE_ studentCode,
          st.NAME_ studentName,
          st.TRAINING_LEVEL_ trainingLevel,
@@ -2434,27 +2512,22 @@
          CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr,
          ct.CREDITS_ credits,
          el.PAID_ paid,
-         CASE WHEN  el.ID_ is null THEN 0 ELSE 1 END as chooseObj,
-         vp.planCourseId planCourseId
-         FROM student_t st
-         JOIN v_student_plan_course vp
-         on st.STUDENT_CODE_ = vp.studentId and vp.score is not null and vp.isPass = 0
-         JOIN course_t ct
-         on vp.courseCode = ct.CODE_
-         left JOIN elc_course_takes_t_${index} el
-         on vp.courseCode = el.COURSE_CODE_
-         and el.CALENDAR_ID_ = #{calendarId}
-         and el.COURSE_TAKE_TYPE_ =2
-         and el.STUDENT_ID_ = #{studentId}
+         CASE WHEN  el.ID_ is null THEN 0 ELSE 1 END as chooseObj
+         FROM elc_course_takes_t_${index} el
+         JOIN  student_t st on el.STUDENT_ID_ = st.STUDENT_CODE_
+         LEFT JOIN course_t ct on el.COURSE_CODE_ = ct.CODE_
          left JOIN teaching_class_t te
-         on el.TEACHING_CLASS_ID_=te.ID_
-         WHERE st.STUDENT_CODE_ = #{studentId}
-         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(planCourseIds)">
-             and vp.planCourseId in
-             <foreach item="planCourseId" collection="planCourseIds" separator="," open="(" close=")">
-                 #{planCourseId}
-             </foreach>
-         </if>
+         on el.TEACHING_CLASS_ID_= te.ID_
+         <where>
+              el.STUDENT_ID_ = #{studentId} and el.CALENDAR_ID_ = #{calendarId} and el.COURSE_TAKE_TYPE_ =2
+             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(planCourseIds)">
+              and el.ID_ in
+                 <foreach collection="planCourseIds" item="id" open="(" separator="," close=")">
+                     #{id}
+                 </foreach>
+             </if>
+         </where>
+
     </select>
 
     <!--批量设置支付状态-->
@@ -2598,6 +2671,76 @@
         where t1.CALENDAR_ID_ = #{calendarId} AND t1.TURN_ = #{turn} and t1.TEACHING_CLASS_ID_ = #{teachingClassId}
         order by CREATED_AT_ DESC, t1.STUDENT_ID_
 
+    </select>
+     <select id="findElcCourseTake" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
+      SELECT
+            t.*
+      FROM `elc_course_takes_t_${index}` t WHERE COURSE_CODE_ =#{courseCode}
+      and STUDENT_ID_ =#{studentId}
+      and CALENDAR_ID_ =#{calendarId}
+     
+     </select>
+
+
+    <select id="ListRebuildCourseNumber" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.vo.StudentVo">
+        SELECT t1.STUDENT_NUM_ studentCode,
+        st.NAME_ name,
+        st.GRADE_ grade,
+        st.FACULTY_ faculty,
+        st.PROFESSION_ profession,
+        st.STUDENT_CATEGORY_ studentCategory,
+        COUNT( DISTINCT t1.COURSE_CODE_) rebuildNumber,
+        st.SEX_ sex
+        FROM student_undergraduate_score_info_t t1
+        LEFT join student_t st on t1.STUDENT_NUM_ = st.STUDENT_CODE_
+        <where>
+            t1.IS_PASS_ = 'N' and not EXISTS
+            (
+             select STUDENT_NUM_ from student_undergraduate_score_info_t where IS_PASS_ = 'Y' and t1.STUDENT_NUM_ = STUDENT_NUM_ and t1.COURSE_CODE_ = COURSE_CODE_
+            )
+
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(semester)">
+                and ( t1.ACADEMIC_YEAR_  &lt; #{year} or (t1.ACADEMIC_YEAR_ = #{year} and t1.SEMESTER_ = #{semester}))
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isEmpty(semester)">
+                and t1.ACADEMIC_YEAR_ &lt; #{year}
+            </if>
+            <if test=" mode == 3 ">
+                and  EXISTS (select XH from tj_ungraduate where t1.STUDENT_NUM_ = XH)
+            </if>
+            <if test=" mode == 4 ">
+                and  EXISTS (select XH from tj_ungraduate_foreign where t1.STUDENT_NUM_ = XH)
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+                and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+                and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') or st.NAME_ like CONCAT('%',
+                #{keyWord,jdbcType=VARCHAR}, '%') )
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+                and st.GRADE_ =#{grade,jdbcType=INTEGER}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
+                and st.STUDENT_CATEGORY_ =#{studentCategory,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and st.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
+                and st.PROFESSION_ =#{major,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+                and st.STUDENT_CODE_ =#{studentId,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+                and st.NAME_ =#{studentName,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(sex)">
+                and st.SEX_ =#{sex,jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY t1.STUDENT_NUM_
     </select>
 
 </mapper>

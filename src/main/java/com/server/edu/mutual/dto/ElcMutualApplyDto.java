@@ -85,7 +85,18 @@ public class ElcMutualApplyDto extends ElcMutualApply {
     //可管理的学院（当前学院+管理的学院）
     private List<String> collegeList;
 
-    public Integer getGrade() {
+	/*学生申请增加选课标志位*/
+	private String courseSelectionMark;
+
+	public String getCourseSelectionMark() {
+		return courseSelectionMark;
+	}
+
+	public void setCourseSelectionMark(String courseSelectionMark) {
+		this.courseSelectionMark = courseSelectionMark;
+	}
+
+	public Integer getGrade() {
 		return grade;
 	}
 	public void setGrade(Integer grade) {
@@ -236,5 +247,70 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 
 	public void setCollegeList(List<String> collegeList) {
 		this.collegeList = collegeList;
+	}
+
+	public ElcMutualApplyDto() {
+
+	}
+
+	public ElcMutualApplyDto(String courseCode, String courseName, Double credits, String college, String openCollege, String nature, String isElective, String assessmentMode, String trainingLevel, Integer mode, Integer category, Integer byType, Integer inType, List<Long> mutualCourseIds, String projectId, List<String> projectIds, String profession, String studentName, String stuTrainingLevel, Integer grade, Integer auditFlag, Integer auditType, String keyWords, List<Integer> statusArray, List<String> collegeList, String courseSelectionMark) {
+		this.courseCode = courseCode;
+		this.courseName = courseName;
+		this.credits = credits;
+		this.college = college;
+		this.openCollege = openCollege;
+		this.nature = nature;
+		this.isElective = isElective;
+		this.assessmentMode = assessmentMode;
+		this.trainingLevel = trainingLevel;
+		this.mode = mode;
+		this.category = category;
+		this.byType = byType;
+		this.inType = inType;
+		this.mutualCourseIds = mutualCourseIds;
+		this.projectId = projectId;
+		this.projectIds = projectIds;
+		this.profession = profession;
+		this.studentName = studentName;
+		this.stuTrainingLevel = stuTrainingLevel;
+		this.grade = grade;
+		this.auditFlag = auditFlag;
+		this.auditType = auditType;
+		this.keyWords = keyWords;
+		this.statusArray = statusArray;
+		this.collegeList = collegeList;
+		this.courseSelectionMark = courseSelectionMark;
+	}
+
+	@Override
+	public String toString() {
+		return "ElcMutualApplyDto{" +
+				"courseCode='" + courseCode + '\'' +
+				", courseName='" + courseName + '\'' +
+				", credits=" + credits +
+				", college='" + college + '\'' +
+				", openCollege='" + openCollege + '\'' +
+				", nature='" + nature + '\'' +
+				", isElective='" + isElective + '\'' +
+				", assessmentMode='" + assessmentMode + '\'' +
+				", trainingLevel='" + trainingLevel + '\'' +
+				", mode=" + mode +
+				", category=" + category +
+				", byType=" + byType +
+				", inType=" + inType +
+				", mutualCourseIds=" + mutualCourseIds +
+				", projectId='" + projectId + '\'' +
+				", projectIds=" + projectIds +
+				", profession='" + profession + '\'' +
+				", studentName='" + studentName + '\'' +
+				", stuTrainingLevel='" + stuTrainingLevel + '\'' +
+				", grade=" + grade +
+				", auditFlag=" + auditFlag +
+				", auditType=" + auditType +
+				", keyWords='" + keyWords + '\'' +
+				", statusArray=" + statusArray +
+				", collegeList=" + collegeList +
+				", courseSelectionMark='" + courseSelectionMark + '\'' +
+				'}';
 	}
 }

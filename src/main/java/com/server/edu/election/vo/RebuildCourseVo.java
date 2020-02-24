@@ -21,6 +21,8 @@ public class RebuildCourseVo {
 
     private String teacherName;
 
+    private String studentId;
+
     @Code2Text(transformer="X_YX")
     private String faculty;
 
@@ -38,6 +40,14 @@ public class RebuildCourseVo {
 
     /**null为不能操作，0选课，1退课*/
     private Integer status;
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
 
     public String getCourseCode() {
         return courseCode;

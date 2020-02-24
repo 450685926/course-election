@@ -39,6 +39,7 @@
   	<result column="manArrangeFlag" jdbcType="INTEGER" property="manArrangeFlag" />
   	<result column="COURSE_LABEL_NAME_" jdbcType="VARCHAR" property="courseLabelName" />
   	<result column="thirdWithdrawNumber" jdbcType="INTEGER" property="thirdWithdrawNumber" />
+	<result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
   </resultMap>
   
   <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
@@ -59,6 +60,7 @@
 		GROUP_CONCAT(distinct t5.TEACHER_CODE_) teacherCode
 		FROM
 			course_open_t t1
+		JOIN elc_mutual_courses_t elc  ON elc.`COURSE_ID_` = t1.`id_`
 		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
 		JOIN teaching_class_t t4 ON (t4.TASK_ID_ = t3.ID_ and t4.DELETE_STATUS_ =0)
 		LEFT JOIN courses_label_t CL ON t4.COURSE_LABEL_ID_ = CL.ID_
@@ -80,8 +82,14 @@
 				</foreach>
 			</if>
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-	  		and t1.FACULTY_ = #{faculty}
+	  			and t1.FACULTY_ = #{faculty}
 	  		</if>
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+	                	and elc.`IN_TYPE_` = #{inType}
+	            	</if>
+	            	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+	                	and elc.`BY_TYPE_` = #{byType}
+	            	</if>
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
 	  		and t1.TRAINING_LEVEL_ = #{trainingLevel}
 	  		</if>
@@ -120,6 +128,7 @@
 			t1.NATURE_,
 			t1.CREDITS_,
 			t1.FACULTY_,
+	  		t1.TRAINING_LEVEL_,
 			t4.CAMPUS_ campus,
 	    	t4.CODE_ teachingClassCode,
 			t4.NAME_ teachingClassName,
@@ -127,37 +136,56 @@
 			t4.MAN_ARRANGE_FLAG_ manArrangeFlag,
 			GROUP_CONCAT(distinct t5.TEACHER_CODE_) teacherCode
 		from course_open_t t1 
+		    LEFT JOIN elc_mutual_courses_t elc  ON elc.`COURSE_ID_` = t1.`id_`
 	  		left JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
 	  		left JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
 	  		LEFT JOIN teaching_class_teacher_t t5  ON (t5.TEACHING_CLASS_ID_  = t4.ID_ AND t5.TYPE_ =0)
 	  	<where>
 		  	t1.CALENDAR_ID_ = #{calendarId}
 		  	and t1.IS_OPEN_ = 1
-		  	and t4.MAN_ARRANGE_FLAG_ in(1,2,3)
+			AND t4.`DELETE_STATUS_`=0
+		  	<!--经与需求沟通,状态为调整课程时间的也可以出现在选课列表中 1:已排课 2:教室待定 3:学院通知 19:调整课时-->
+			AND t4.MAN_ARRANGE_FLAG_ IN(1,2,3,19)
+			<!--逻辑删除标识-->
+			AND t4.`DELETE_STATUS_`=0
+			<!--部门id-->
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 		  	and t1.PROJ_ID_ = #{projectId}
 		  	</if>
 		  	and t4.ID_ NOT IN (
 		  	 	select TEACHING_CLASS_ID_ from election_rounds_cour_t where ROUNDS_ID_ = #{roundId}
 		  	)
+			<!--学院-->
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 	  			and t1.FACULTY_ = #{faculty}
 	  		</if>
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+	                	and elc.`IN_TYPE_` = #{inType}
+	            	</if>
+	            	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+	                	and elc.`BY_TYPE_` = #{byType}
+	            	</if>
+		    	<!--课程性质-->
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
 	  			and t1.NATURE_ = #{nature}
 	  		</if>
+			<!--是否公共选修课-->
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
 				and t1.IS_ELECTIVE_ = #{isElective}
 			</if>
+			<!--课程代码-->
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
 	  			and t1.COURSE_CODE_ = #{courseCode}
 	  		</if>
+			<!--课程名字-->
 	  	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
 	  			and t1.COURSE_NAME_ = #{courseName}
 	  		</if>
+			<!--教学任务编号-->
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
 				and t4.CODE_  = #{teachingClassCode}
 			</if>
+			<!--关键字搜索-->
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
 	  		and (t1.COURSE_CODE_ like CONCAT('%', #{keyword}, '%') OR t1.COURSE_NAME_ like CONCAT('%', #{keyword}, '%'))
 	  		</if>
@@ -205,6 +233,7 @@
 		GROUP_CONCAT(DISTINCT t5.TEACHER_CODE_) teacherCode
 	FROM
 		course_open_t t1
+	LEFT JOIN elc_mutual_courses_t elc  ON elc.`COURSE_ID_` = t1.`id_`
 	JOIN teaching_task_t t2 ON t2.COURSE_OPEN_ID_ = t1.ID_
 	JOIN teaching_class_t t3 ON t3.TASK_ID_ = t2.ID_
 	JOIN election_rounds_cour_t t4 ON t4.TEACHING_CLASS_ID_ = t3.ID_
@@ -221,6 +250,12 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
   		and t1.PROJ_ID_ = #{query.projectId}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.inType)">
+	            and elc.`IN_TYPE_` = #{query.inType}
+	        </if>
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.byType)">
+	            and elc.`BY_TYPE_` = #{query.byType}
+	        </if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
   		and t1.FACULTY_ = #{query.faculty}
   		</if>
@@ -267,6 +302,7 @@
 		t4.MAN_ARRANGE_FLAG_ manArrangeFlag,
 		GROUP_CONCAT(DISTINCT t5.TEACHER_CODE_) teacherCode
   	from course_open_t t1 
+  	    LEFT JOIN elc_mutual_courses_t elc ON elc.`COURSE_ID_` = t1.`id_`
   		left JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
   		left JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
   		left JOIN election_rounds_cour_t t2 ON t2.TEACHING_CLASS_ID_ = t4.ID_
@@ -284,6 +320,12 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
   			and t1.FACULTY_ = #{query.faculty}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.inType)">
+	            and elc.`IN_TYPE_` = #{query.inType}
+	        </if>
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.byType)">
+	            and elc.`BY_TYPE_` = #{query.byType}
+	        </if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
   			and t1.NATURE_ = #{query.nature}
   		</if>
@@ -305,6 +347,10 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
             and t4.CODE_ = #{query.teachingClassCode}
         </if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+			and t1.COURSE_NAME_ like   CONCAT('%',#{query.courseName,jdbcType=VARCHAR}, '%')
+		</if>
+
   	</where>
   		GROUP BY t4.ID_
 	  	order by t4.CODE_

@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
@@ -15,6 +16,7 @@ import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.RetakeCourseCountDto;
 import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRule;
@@ -31,6 +33,7 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +58,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Autowired
     private CourseOpenDao courseOpenDao;
+
+    @Autowired
+    private CourseDao courseDao;
 
     @Autowired
     private ElectionRuleDao electionRuleDao;
@@ -180,7 +186,10 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Override
     public ElcRetakeSetVo getRetakeSet(Long calendarId, String projectId) {
-        return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+        List<Long> ruleIds = retakeCourseSetDao.findRuleIds(calendarId, projectId);
+        ElcRetakeSetVo retakeSet = retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+        retakeSet.setRuleIds(ruleIds);
+        return retakeSet;
     }
 
     @Override
@@ -205,15 +214,29 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     public List<FailedCourseVo> failedCourseList(Long calendarId) {
         Session currentSession = SessionUtils.getCurrentSession();
         String uid = currentSession.realUid();
-        List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(uid);
+        String currentManageDptId = currentSession.getCurrentManageDptId();
+        return failedCourse(calendarId, uid, currentManageDptId);
+    }
+
+    @Override
+    public List<FailedCourseVo> failedCourses(Long calendarId, String studentId) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String currentManageDptId = currentSession.getCurrentManageDptId();
+        return failedCourse(calendarId, studentId, currentManageDptId);
+    }
+
+    private List<FailedCourseVo> failedCourse(Long calendarId,
+                                              String studentId, String currentManageDptId)
+    {
+        List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         List<FailedCourseVo> failedCourseInfo = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
-            failedCourseInfo = courseOpenDao.findFailedCourseInfo(failedCourseCodes, calendarId, currentSession.getCurrentManageDptId());
+            failedCourseInfo = courseOpenDao.findFailedCourseInfo(failedCourseCodes, calendarId, currentManageDptId);
             for (FailedCourseVo failedCourseVo : failedCourseInfo) {
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 failedCourseVo.setCalendarName(schoolCalendar.getFullName());
                 // 借用 判断申请免修免考课程是否已经选课 判断学生是否选课
-                int count = courseTakeDao.findIsEletionCourse(uid, calendarId, failedCourseVo.getCourseCode());
+                int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, failedCourseVo.getCourseCode());
                 if (count == 0) {
                     failedCourseVo.setSelected(false);
                 } else {
@@ -228,7 +251,12 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Transactional
     public void updateRebuildCourse(RebuildCourseVo rebuildCourseVo) {
         Session currentSession = SessionUtils.getCurrentSession();
-        String studentId = currentSession.realUid();
+        // 判断入口是学生重修选课还是管理员教务员代选课
+        String studentId = rebuildCourseVo.getStudentId();
+        // 前端未传参studentId，说明是学生自选重修课
+        if (StringUtils.isBlank(studentId)) {
+            studentId = currentSession.realUid();
+        }
         String ip = currentSession.getIp();
         String courseCode = rebuildCourseVo.getCourseCode();
         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
@@ -249,14 +277,21 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         log.setCreateIp(ip);
         if (rebuildCourseVo.getStatus() == 0) {
             Student student = studentDao.findStudentByCode(studentId);
-            Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
-            if (maxCount == null) {
-                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimitError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+
+            boolean isAdmin = StringUtils.equals(currentSession.getCurrentRole(), "1")
+                    && currentSession.isAdmin();
+            // 如果不是管理员，要校验重修门数上限
+            if (!isAdmin) {
+                Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
+                if (maxCount == null) {
+                    throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimitError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+                }
+                Set<String> set =courseTakeDao.findRetakeCount(studentId);
+                if (set.size() >= maxCount.intValue()) {
+                    throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+                }
             }
-            Set<String> set =courseTakeDao.findRetakeCount(studentId);
-            if (set.size() >= maxCount.intValue()) {
-                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit",I18nUtil.getMsg("election.elcNoGradCouSubs")));
-            }
+
             // 判断学生是否已经选过该门课程
             int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
             if (count != 0) {
@@ -307,21 +342,117 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         }
     }
 
+    @Override
+    public RebuildStuVo findRebuildStu(Long calendarId, String studentId) {
+        Session session = SessionUtils.getCurrentSession();
+        Student student = studentDao.selectByPrimaryKey(studentId);
+        String currentManageDptId = session.getCurrentManageDptId();
+        // 判断是不是教务员
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+            String faculty = student.getFaculty();
+            // 教务员只能对其管理学院的学生进行代选
+            if (!deptIds.contains(faculty)) {
+                throw new ParameterValidateException("学生" + student.getName() + "不在您的管理范围之内");
+            }
+            // 判断重修选课开关是否开启
+            Boolean retakeRule = getRetakeRule(calendarId, currentManageDptId);
+            if (!retakeRule) {
+                throw new ParameterValidateException("重修选课未开放，您不能进行代选课！");
+            }
+        }
+
+        RebuildStuVo rebuildStuVo = new RebuildStuVo();
+        rebuildStuVo.setStudentCode(studentId);
+        rebuildStuVo.setName(student.getName());
+        rebuildStuVo.setGrade(student.getGrade());
+        rebuildStuVo.setFaculty(student.getFaculty());
+        rebuildStuVo.setProfession(student.getProfession());
+        rebuildStuVo.setTrainingCategory(student.getTrainingCategory());
+        rebuildStuVo.setTrainingLevel(student.getTrainingLevel());
+        rebuildStuVo.setDegreeType(student.getDegreeType());
+        rebuildStuVo.setFormLearning(student.getFormLearning());
+        Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
+        rebuildStuVo.setCount(maxCount);
+
+        List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
+        if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
+            Example example = new Example(Course.class);
+            example.createCriteria()
+                    .andIn("code", failedCourseCodes);
+            List<Course> courses = courseDao.selectByExample(example);
+            List<String> collect = courses.stream().
+                    map(s -> s.getCode() + " " + s.getName()).collect(Collectors.toList());
+            rebuildStuVo.setCourses(collect);
+        }
+
+        return rebuildStuVo;
+    }
+
 
     @Override
     public PageResult<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition) {
         Session session = SessionUtils.getCurrentSession();
         String studentId = session.realUid();
+        condition.getCondition().setStudentId(studentId);
         String currentManageDptId = session.getCurrentManageDptId();
+        Page<RebuildCourseVo> page = findRebuildCourse(currentManageDptId, condition);
+        return new PageResult<>(page);
+    }
+
+    @Override
+    public PageResult<RebuildCourseVo> findRebuildCourses(PageCondition<RebuildCourseDto> condition) {
+        // 区分管理员教务员
+        Session session = SessionUtils.getCurrentSession();
+        String currentManageDptId = session.getCurrentManageDptId();
+        Page<RebuildCourseVo> page = new Page<RebuildCourseVo>();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+           // 如果是教务员则和学生一样受选课规则限制
+            page = findRebuildCourse(currentManageDptId, condition);
+        } else {
+            String studentId = condition.getCondition().getStudentId();
+            // 管理员不做校验，所有课程都可以选
+            List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
+            if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
+                // 通过重修的课程代码获取当前学期可重修的课程
+                RebuildCourseDto rebuildCourseDto = condition.getCondition();
+                Long calendarId = rebuildCourseDto.getCalendarId();
+                PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+                page = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, rebuildCourseDto.getKeyWord(), currentManageDptId);
+                if (CollectionUtil.isNotEmpty(page)) {
+                    // 获取重修课程教学安排
+                    List<TimeTableMessage> timeTableMessages = getTimeById(page);
+                    Map<Long, List<TimeTableMessage>> map = timeTableMessages.stream().
+                            collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+                    for (RebuildCourseVo rebuildCourseVo : page) {
+                        setCourseArrange(map, rebuildCourseVo);
+                        // 判断这门课程是可以进行选课操作还是退课操作
+                        int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
+                        if (count == 0) {
+                            rebuildCourseVo.setStatus(0);
+                        } else {
+                            rebuildCourseVo.setStatus(1);
+                        }
+                    }
+                }
+            }
+        }
+        return new PageResult<>(page);
+    }
+
+    private Page<RebuildCourseVo> findRebuildCourse(
+           String currentManageDptId, PageCondition<RebuildCourseDto> condition)
+    {
+        RebuildCourseDto rebuildCourseDto = condition.getCondition();
+        String studentId = rebuildCourseDto.getStudentId();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
             // 通过重修的课程代码获取当前学期可重修的课程
-            RebuildCourseDto rebuildCourseDto = condition.getCondition();
             Long calendarId = rebuildCourseDto.getCalendarId();
             PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
             Page<RebuildCourseVo> page = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, rebuildCourseDto.getKeyWord(), currentManageDptId);
             if (CollectionUtil.isEmpty(page)) {
-                return new PageResult<>(page);
+                return page;
             }
             // 获取学生已选课程上课安排
             List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(studentId, calendarId);
@@ -468,11 +599,10 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     }
                 }
             }
-            return  new PageResult<>(page);
+            return  page;
         }
-        return new PageResult<>();
+        return new Page<RebuildCourseVo>();
     }
-
 
     /**
      * 设置教学安排
@@ -527,10 +657,13 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     // 比较上课天是否相同
                     if (dayOfWeek == tableMessage.getDayOfWeek().intValue()) {
                         // 上课天相同，比价上课节次
-                        int start = timeTableMessage.getTimeStart().intValue();
+                        int start = tableMessage.getTimeStart().intValue();
                         int end = tableMessage.getTimeEnd().intValue();
                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
-                        if ((timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                        if ((start <= timeStart && timeStart <= end)
+                                || (start <= timeEnd && timeEnd <= end)
+                                || (timeStart <= start && start <= timeEnd)
+                                || (timeStart <= end && end <= timeEnd)) {
                             return false;
                         }
                     }

@@ -28,6 +28,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -273,7 +274,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             	if (count) {
             		teachClass.setTeachClassType(CourseTakeType.RETAKE.type()+"");
 				}
-                this.saveElc(context, teachClass, ElectRuleType.ELECTION);
+                saveElc(context, teachClass, ElectRuleType.ELECTION);
                 // 判断是否有重修课
 //                if (!hasRetakeCourse && RetakeCourseUtil.isRetakeCourse(context,
 //                    teachClass.getCourseCode()))
@@ -343,29 +344,33 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 }
             }
             // 对校验成功的课程进行入库保存
-            if (allSuccess)
-            {
-                this.saveElc(context, teachClass, ElectRuleType.WITHDRAW);
-                // 删除缓存中的数据
-                Iterator<SelectedCourse> iterator = selectedCourses.iterator();
-                while (iterator.hasNext())
-                {
-                    SelectedCourse c = iterator.next();
-                    if (c.getTeachClassId().equals(teachClassId))
+            if (allSuccess && saveElc(context, teachClass, ElectRuleType.WITHDRAW)){
+                    Iterator<SelectedCourse> iterator = selectedCourses.iterator();
+                    while (iterator.hasNext())
                     {
-                        iterator.remove();
-                        break;
+                        SelectedCourse c = iterator.next();
+                        if (c.getTeachClassId().equals(teachClassId))
+                        {
+                            iterator.remove();
+                            break;
+                        }
                     }
-                }
-                respose.getSuccessCourses().add(teachClassId);
+                    respose.getSuccessCourses().add(teachClassId);
             }
         }
         
     }
-    
+
+    /**
+     *  选退课 真正逻辑操作
+     * @param context
+     * @param teachClass
+     * @param type 选课类型
+     * @return true 操作成功，false 操作失败
+     */
     //@Transactional(rollbackFor = Exception.class)
     @Override
-    public void saveElc(ElecContext context, TeachingClassCache teachClass,
+    public boolean saveElc(ElecContext context, TeachingClassCache teachClass,
         ElectRuleType type)
     {
         StudentInfoCache stu = context.getStudentInfo();
@@ -402,7 +407,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         if (ElectRuleType.ELECTION.equals(type))
         {
-        	Long calendarId = 0l;
+        	Long calendarId;
         	//查询学生选课记录
         	if (round.getId() == null) { // 管理员代理选课
         		 calendarId = request.getCalendarId();
@@ -413,7 +418,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         	if (findIsEletionCourse != 0) {
         		 failedReasons.put(String.format("%s",
         				 courseCode), "已经选课");
-        		 return;
+        		 return false;
 			}
             int	count = classDao.increElcNumber(teachClassId);
             
@@ -422,7 +427,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 respose.getFailedReasons()
                     .put(teachClassId.toString(),
                         I18nUtil.getMsg("ruleCheck.limitCount"));
-                return;
+                return false;
             }
             
             ElcCourseTake take = new ElcCourseTake();
@@ -440,7 +445,21 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				take.setCalendarId(round.getCalendarId());
 				take.setTurn(round.getTurn());
 			}
-            courseTakeDao.insertSelective(take);
+            if(doRealElectiveCourse(take)){
+                LOG.info("-------------------context update start-----------------");
+                // 更新缓存
+                respose.getSuccessCourses().add(teachClassId);
+                SelectedCourse course = new SelectedCourse(teachClass);
+                course.setTeachClassId(teachClassId);
+                course.setTurn(round.getTurn()==null?0:round.getTurn());
+                course.setCourseTakeType(courseTakeType);
+                course.setChooseObj(request.getChooseObj());
+                context.getSelectedCourses().add(course);
+                LOG.info("-------------------context update start-----------------");
+            } else {
+                failedReasons.put(String.format("%s", take.getCourseCode()), String.format("%s课程选课失败", take.getCourseCode()));
+                return false;
+            }
         }
         else
         {
@@ -460,15 +479,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 //                    I18nUtil.getMsg("elcCourseUphold.removeCourseError"));
 //            return;
 //            }
-            courseTakeDao.delete(take);
-
-            int count = classDao.decrElcNumber(teachClassId);
-            if (count > 0)
-            {
-                dataProvider.decrElcNumber(teachClassId);
+            //退课的真正操作，成功返回true，失败返回false
+            if(!doRealDropOutCourse(take)){
+                failedReasons.put(String.format("%s", take.getCourseCode()), "退课失败");
+                return false;
             }
         }
-        
         LOG.info("-------------------insert log start-----------------");
         // 添加选课日志
         ElcLog log = new ElcLog();
@@ -493,31 +509,42 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         this.elcLogDao.insertSelective(log);
         LOG.info("-------------------log insert end-----------------");
-        
-        if (ElectRuleType.ELECTION.equals(type))
-        {
-        	LOG.info("-------------------context update start-----------------");
-            // 更新缓存
-            dataProvider.incrementElecNumber(teachClassId);
-            respose.getSuccessCourses().add(teachClassId);
-            SelectedCourse course = new SelectedCourse(teachClass);
-            course.setTeachClassId(teachClassId);
-            course.setTurn(round.getTurn()==null?0:round.getTurn());
-            course.setCourseTakeType(courseTakeType);
-            course.setChooseObj(request.getChooseObj());
-            context.getSelectedCourses().add(course);
-            LOG.info("-------------------context update start-----------------");
-        }
-        
-        
+
         /*************************选课/退课后修改学生培养计划中课程选课状态************************/
         try {
 			updateSelectCourse(studentId,courseCode,type);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+        return true;
     }
-    
+
+    @Transactional(rollbackFor = { Exception.class })
+    public boolean doRealElectiveCourse(ElcCourseTake take) {
+        if (courseTakeDao.insertSelective(take) > 0 && classDao.increElcNumberAtomic(take.getTeachingClassId()) > 0 ){
+            dataProvider.incrementElecNumber(take.getTeachingClassId());
+            return true;
+        } else {
+            //手动设置回滚
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
+
+    }
+
+    @Transactional(rollbackFor = { Exception.class })
+    public boolean doRealDropOutCourse(ElcCourseTake take) {
+        //从数据库删除退课的课程
+        if (classDao.decrElcNumber(take.getTeachingClassId()) > 0 && courseTakeDao.delete(take) > 0){
+            dataProvider.decrElcNumber(take.getTeachingClassId());
+            return true;
+        } else {
+            //手动设置回滚
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
+    }
+
     @Override
     public ElecContext setData(String studentId, ElecContext c, Long roundId,
         Long calendarId)
@@ -666,7 +693,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                   elcCourseResult.setTimes(teachClass.getTimes());
 			                   elcCourseResult.setRemark(teachClass.getRemark());
 			                   elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
-			                   setOptionalCourses.add(elcCourseResult);
+
+                               elcCourseResult.setCampus(teachClass.getCampus());
+
+                               setOptionalCourses.add(elcCourseResult);
 			               }
 			           }
 			       }
@@ -722,6 +752,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult.setRemark(teachClass.getRemark());
 		                    elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 
+                            elcCourseResult.setCampus(teachClass.getCampus());
+
                             setOptionalCourses.add(elcCourseResult);
 					   }
 					}
@@ -770,7 +802,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		                   elcCourseResult.setTimes(teachClass.getTimes());
 		                   elcCourseResult.setRemark(teachClass.getRemark());
 		                   elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
-		                   
+
+		                   elcCourseResult.setCampus(teachClass.getCampus());
+
 		                   setOptionalCourses.add(elcCourseResult);
 				   }
 				}
@@ -1238,6 +1272,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     {
     	newClassCache.setManArrangeFlag(oldClassCache.getManArrangeFlag());
         newClassCache.setFaculty(oldClassCache.getFaculty());
+        newClassCache.setCampus(oldClassCache.getCampus());
         newClassCache.setTeachClassId(oldClassCache.getTeachClassId());
         newClassCache.setTeachClassCode(oldClassCache.getTeachClassCode());
         newClassCache.setTeacherCode(oldClassCache.getTeacherCode());

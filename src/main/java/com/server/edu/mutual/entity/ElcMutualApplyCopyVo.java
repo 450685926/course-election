@@ -1,87 +1,64 @@
 package com.server.edu.mutual.entity;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-@Table(name = "elc_mutual_apply_t")
-public class ElcMutualApply implements Serializable {
+public class ElcMutualApplyCopyVo implements Serializable {
     /**
      * 主键
      */
-    @Id
-    @Column(name = "ID_")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
      * 校历ID（学年学期）
      */
-    @NotNull
-    @Column(name = "CALENDAR_ID_")
     private Long calendarId;
 
     /**
      * 学号
      */
-    @NotBlank
-    @Column(name = "STUDENT_ID_")
     private String studentId;
 
     /**
      * 申请时间
      */
-    @Column(name = "APPLY_AT_")
-    private Date applyAt;
+    private Timestamp applyAt;
 
     /**
      * 申请人ID
      */
-    @Column(name = "USER_ID_")
     private String userId;
 
     /**
      * 审核状态(0 未审核 1行政院系审核通过 2行政院系审核不过 3审核通过 4审核不通过)
      */
-    @Column(name = "STATUS_")
     private Integer status;
 
     /**
      * 申请课程ID
      */
-    @Column(name = "MUTUAL_COURSE_ID_")
     private Long mutualCourseId;
 
     /**
      * 备注
      */
-    @Column(name = "REMARK_")
     private String remark;
 
     /**
      * 开课院系审核理由
      */
-    @Column(name = "AUDIT_REASON_")
     private String auditReason;
 
     /**
      * 申请类型
      */
-    @Column(name = "MODE_")
     private Integer mode;
     /**
      * 修读类型
      */
-    @Column(name = "COURSE_TAKE_TYPE_")
     private Integer courseTakeType;
+
+    /*系列化*/
     private static final long serialVersionUID = 1L;
 
     /**
@@ -138,21 +115,11 @@ public class ElcMutualApply implements Serializable {
         this.studentId = studentId == null ? null : studentId.trim();
     }
 
-    /**
-     * 获取申请时间
-     *
-     * @return APPLY_AT_ - 申请时间
-     */
-    public Date getApplyAt() {
+    public Timestamp getApplyAt() {
         return applyAt;
     }
 
-    /**
-     * 设置申请时间
-     *
-     * @param applyAt 申请时间
-     */
-    public void setApplyAt(Date applyAt) {
+    public void setApplyAt(Timestamp applyAt) {
         this.applyAt = applyAt;
     }
 
@@ -253,8 +220,6 @@ public class ElcMutualApply implements Serializable {
     public void setMode(Integer mode) {
         this.mode = mode;
     }
-
-    
     
     public Integer getCourseTakeType() {
 		return courseTakeType;
@@ -264,24 +229,20 @@ public class ElcMutualApply implements Serializable {
 		this.courseTakeType = courseTakeType;
 	}
 
-	@Override
+    @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", calendarId=").append(calendarId);
-        sb.append(", studentId=").append(studentId);
-        sb.append(", applyAt=").append(applyAt);
-        sb.append(", userId=").append(userId);
-        sb.append(", status=").append(status);
-        sb.append(", mutualCourseId=").append(mutualCourseId);
-        sb.append(", remark=").append(remark);
-        sb.append(", auditReason=").append(auditReason);
-        sb.append(", mode=").append(mode);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
+        return "ElcMutualApplyVo{" +
+                "id=" + id +
+                ", calendarId=" + calendarId +
+                ", studentId='" + studentId + '\'' +
+                ", applyAt=" + applyAt +
+                ", userId='" + userId + '\'' +
+                ", status=" + status +
+                ", mutualCourseId=" + mutualCourseId +
+                ", remark='" + remark + '\'' +
+                ", auditReason='" + auditReason + '\'' +
+                ", mode=" + mode +
+                ", courseTakeType=" + courseTakeType +
+                '}';
     }
 }

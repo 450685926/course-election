@@ -40,6 +40,17 @@ public interface ElcMutualRoundCourseService {
      */
     PageResult<CourseOpenDto> listPage(PageCondition<ElecRoundCourseQuery> condition);
 
+    /**
+     * <p>
+     * 10476bug单,轮次可选课程必须为已添加维护的课程
+     * 因为StudentMutualElecServiceImpl也调用listPage方法,故重新定义
+     * </p>
+     * @param condition
+     * @return 轮次管理可选课程
+     * @see [类、类#方法、类#成员]
+     */
+    PageResult<CourseOpenDto> elcMutualRoundCourselistPage(PageCondition<ElecRoundCourseQuery> condition);
+
 	    /**
      * 删除
      * 

@@ -291,6 +291,18 @@ public class ElcMutualListDto{
 	public void setCourseTrainingLevel(String courseTrainingLevel) {
 		this.courseTrainingLevel = courseTrainingLevel;
 	}
-    
+
+	@Override
+	public String toString() {
+		return "[projectId = " + this.projectId + ";projectIds = " + this.projectIds + ";calendarId = " + this.calendarId
+				+ ";grade = " + this.grade + ";college = " + this.college + ";openCollege = " + this.openCollege
+				+ ";profession = " + this.profession + ";stuTrainingLevel = " + this.stuTrainingLevel + ";courseTrainingLevel = "
+				+ this.courseTrainingLevel + ";trainingCategory = " + this.trainingCategory + ";studentCategory = "
+				+ this.studentCategory + ";degreeType = " + this.degreeType + ";formLearning = " + this.formLearning
+				+ ";courseCode = " + this.courseCode + ";courseName = " + this.courseName + ";nature = " + this.nature
+				+ ";isElective = " + this.isElective + ";courseTakeType = " + this.courseTakeType + ";keyWords = "
+				+ this.keyWords + ";mode = " + this.mode + ";category = " + this.category + ";byType = " + this.byType
+				+ ";inType = " + this.inType;
+	}
 	
 }

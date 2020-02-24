@@ -1,6 +1,11 @@
 package com.server.edu.mutual.vo;
 
 import java.util.List;
+
+import javax.persistence.Column;
+
+import org.hibernate.validator.constraints.NotBlank;
+
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
@@ -16,6 +21,13 @@ public class ElcMutualListVo extends ElcMutualApply{
 	private String studentName;
 	
     /**
+     * 学号(重写字段)
+     */
+    @NotBlank
+    @Column(name = "STUDENT_ID_")
+    private String studentId;
+    
+    /**
      * 年级
      */
     private Integer grade;
@@ -23,6 +35,7 @@ public class ElcMutualListVo extends ElcMutualApply{
     /**
      * 学生学院（学生所在行政学院）
      */
+    @Code2Text(transformer = "X_YX")
     private String college;
     
     /**
@@ -116,7 +129,17 @@ public class ElcMutualListVo extends ElcMutualApply{
      */
     private Integer stuNumber;
 
-	public String getStudentName() {
+	public String getStudentId()
+    {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId)
+    {
+        this.studentId = studentId;
+    }
+
+    public String getStudentName() {
 		return studentName;
 	}
 

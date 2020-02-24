@@ -71,6 +71,10 @@ public interface Constants
     /** 本科生跨学科 */
     public static final Integer BK_CROSS =3;
 
+    /** 本研互选是否已选课程：1-已选；0未选  */
+    public static final Integer ELECTED =1;
+    public static final Integer UN_ELECTED =0;
+
     /** 优*/
     public static final String EXCELLENT = "优";
     
@@ -82,7 +86,11 @@ public interface Constants
     public static final Integer SECOND = 2;
     public static final Integer THIRD = 3;
 
+    //学生校内在读状态
     public static final String INSCHOOL = "1";
+
+    //学生离校状态
+    public static final String OUTSCHOOL = "4";
 
     
     /** 2018级及以后学分门数限制   年级 */
@@ -137,6 +145,13 @@ public interface Constants
     public static final String ONE_TERM = "1";
     public static final String TWO_TERM = "2";
     
+    public static final Integer PAGE_SIZE = 1000;
+    
+    /** 管理员*/
+    public static final String MANAGER_TYPE = "1";
+    /** 教务员*/
+    public static final String INNER_ROLE_ACDEMIC_DEAN = "2";
+
     public static final Integer THREE_MODE=3;
     public static final Integer FOUR_MODE=4;
     

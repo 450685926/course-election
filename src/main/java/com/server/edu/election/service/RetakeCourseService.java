@@ -7,6 +7,7 @@ import com.server.edu.election.dto.RetakeCourseCountDto;
 import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
 import com.server.edu.election.vo.RebuildCourseVo;
+import com.server.edu.election.vo.RebuildStuVo;
 import com.server.edu.election.vo.RetakeCourseCountVo;
 
 import java.util.List;
@@ -26,7 +27,13 @@ public interface RetakeCourseService {
 
     List<FailedCourseVo> failedCourseList(Long calendarId);
 
+    List<FailedCourseVo> failedCourses(Long calendarId, String studentId);
+
     PageResult<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition);
 
+    PageResult<RebuildCourseVo> findRebuildCourses(PageCondition<RebuildCourseDto> condition);
+
     void updateRebuildCourse(RebuildCourseVo rebuildCourseVo);
+
+    RebuildStuVo findRebuildStu(Long calendarId, String studentId);
 }

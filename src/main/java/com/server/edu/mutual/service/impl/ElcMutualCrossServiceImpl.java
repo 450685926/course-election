@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.entity.Department;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import com.server.edu.mutual.util.ProjectUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +47,8 @@ import tk.mybatis.mapper.entity.Example;
  */
 @Service
 public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
+	private static Logger LOG =
+			LoggerFactory.getLogger(ElcMutualCrossServiceImpl.class);
 	@Autowired
 	private ElcMutualStdsDao elcMutualStdsDao;
 	@Autowired
@@ -58,7 +64,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				&& !session.isAdmin() && session.isAcdemicDean();
 
-		//判断是否是教务员，如果是进行下列操作
+		//判断是否是教务员，如果是进行下列操作  
 		if(isAcdemicDean){
 			//判断是否选择学院(有的前端接口会上送学院字段为筛选条件，有的前端接口不会上送)
 			String facultyCondition = condition.getCondition().getFaculty();
@@ -67,9 +73,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				String faculty = session.getFaculty();
 				//获取当前用户的管理学院和
 				String manageFaculty = session.getManageFaculty();
-				//将两个学院合并
-				if(StringUtils.isNotEmpty(faculty)&&StringUtils.isNotEmpty(manageFaculty)){
-					faculty = ProjectUtil.stringGoHeavy(faculty,manageFaculty);
+				//有管理学院以管理学院为准，没有管理学院以所属学院为准
+				if(StringUtils.isNotEmpty(manageFaculty)){
+					faculty = manageFaculty;
 				}
 				condition.getCondition().setFaculty(faculty);
 			}
@@ -149,6 +155,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		}
 		Set<String> studentIdSet = new HashSet<String>(Arrays.asList(studentIdsStr.split(",")));
 		List<String> studentIdList =new ArrayList<>(studentIdSet);
+		checkStuIsLeaveSchool(studentIdList);
 		int result = saveElcMutualCross(calendarId, mode, studentIdList);
 		return result;
 	}
@@ -243,7 +250,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 //		if (isDepartAdmin() && StringUtils.equals(faculty, dto.getFaculty())) {
 //			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
 //		}
-		if (isDepartAdmin() && !collegeList.contains(dto.getFaculty())) {
+		if (isDepartAdmin() && (StringUtils.isNotBlank(dto.getFaculty()) && !collegeList.contains(dto.getFaculty()))) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
 		}
 		
@@ -260,6 +267,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	public List<Student> getStudentInfos(ElcMutualCrossStu dto) {
 		Example example = new Example(Student.class);
 		Session session = SessionUtils.getCurrentSession();
+		example.selectProperties("studentCode");
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("managerDeptId",session.getCurrentManageDptId());
 		if (isDepartAdmin()) {
@@ -357,19 +365,40 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		int result = Constants.ZERO;
 		List<Student> students = getStudentInfos(dto);
 		if(CollectionUtil.isNotEmpty(students)) {
-			List<String> studentIdList = students.stream().map(Student::getStudentCode).collect(Collectors.toList());
-			if(Constants.BK_CROSS.equals(dto.getMode())) {
-				Example example = new Example(ElcCrossStds.class);
-				Example.Criteria criteria =example.createCriteria();
-				criteria.andEqualTo("calendarId", dto.getCalendarId());
-				criteria.andIn("studentId", studentIdList);
-				result = elcCrossStdsDao.deleteByExample(example);
-			}else {
-				Example example = new Example(ElcMutualStds.class);
-				Example.Criteria criteria =example.createCriteria();
-				criteria.andEqualTo("calendarId", dto.getCalendarId());
-				criteria.andIn("studentId", studentIdList);
-				result = elcMutualStdsDao.deleteByExample(example);
+			List<String> studentIdList = new ArrayList<>();
+			for(Student student : students) {
+				studentIdList.add(student.getStudentCode());
+				if(studentIdList.size() > 500) {
+					if(Constants.BK_CROSS.equals(dto.getMode())) {
+						Example example = new Example(ElcCrossStds.class);
+						Example.Criteria criteria =example.createCriteria();
+						criteria.andEqualTo("calendarId", dto.getCalendarId());
+						criteria.andIn("studentId", studentIdList);
+						result = elcCrossStdsDao.deleteByExample(example);
+					} else {
+						Example example = new Example(ElcMutualStds.class);
+						Example.Criteria criteria =example.createCriteria();
+						criteria.andEqualTo("calendarId", dto.getCalendarId());
+						criteria.andIn("studentId", studentIdList);
+						result = elcMutualStdsDao.deleteByExample(example);
+					}
+					studentIdList = new ArrayList<>();
+				}
+			}
+			if (CollectionUtil.isNotEmpty(studentIdList)) {
+				if(Constants.BK_CROSS.equals(dto.getMode())) {
+					Example example = new Example(ElcCrossStds.class);
+					Example.Criteria criteria =example.createCriteria();
+					criteria.andEqualTo("calendarId", dto.getCalendarId());
+					criteria.andIn("studentId", studentIdList);
+					result = elcCrossStdsDao.deleteByExample(example);
+				} else {
+					Example example = new Example(ElcMutualStds.class);
+					Example.Criteria criteria =example.createCriteria();
+					criteria.andEqualTo("calendarId", dto.getCalendarId());
+					criteria.andIn("studentId", studentIdList);
+					result = elcMutualStdsDao.deleteByExample(example);
+				}
 			}
 		}
 		return result;
@@ -394,8 +423,29 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		} 
 		return result;
 	}
-	
-	
+
+	/**
+	 * 获取当前所有启动的部门列表（包括虚拟部门）
+	 * @param virtualDept 0：不包含  1:包含虚拟部门
+	 * @param type 0：非学院，其他，全部 1：学院
+	 * @param manageDept 是否区分本研 0或null：不区分本研 1 区分本研
+	 * */
+	@Override
+	public RestResult<List<Department>> findDept(String virtualDept, Integer type, Integer manageDept) {
+		String managDeptId ="";
+		if (type ==null){
+			type = 1;
+		}
+
+		if (manageDept !=null && manageDept.equals(1)){
+			managDeptId = String.valueOf(manageDept);
+		}
+		LOG.info("managDeptId : {}, === virtualDept:{} ===type:{} =======projectId：{} ", managDeptId, virtualDept, type);
+		List<Department> deptList = elcCrossStdsDao.findFaculty(virtualDept, managDeptId, type);
+		return RestResult.successData(deptList);
+	}
+
+
 	/**
 	 * 判断当前登录人是否是教务员
 	 * @return
@@ -405,5 +455,28 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
         boolean isDepartAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				                && !session.isAdmin() && session.isAcdemicDean();
         return isDepartAdmin;
+	}
+
+	/**
+	 * 功能描述: 校验添加学生时，是否存在离校学生
+	 *
+	 * 备注：抽取该方法，避免后续单个添加、批量添加、全部添加时共用。已和需求确认，目前学生是否在校只校验单个添加。
+	 *
+	 * @params: [studentIdList]
+	 * @return: void
+	 * @author: zhaoerhu
+	 * @date: 2020/2/17 16:02
+	 */
+	private void checkStuIsLeaveSchool(List<String> studentIdList) {
+		Example stuExample = new Example(Student.class);
+		Example.Criteria stuCriteria = stuExample.createCriteria();
+		stuExample.selectProperties("studentCode");
+		stuCriteria.andIn("studentCode", studentIdList);
+		stuCriteria.andNotEqualTo("leaveSchool", Constants.INSCHOOL);
+		List<Student> students = studentDao.selectByExample(stuExample);
+		//上送学号中若存在离校学生则直抛异常
+		if (students != null && students.size() > 0) {
+			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuLeave"));
+		}
 	}
 }

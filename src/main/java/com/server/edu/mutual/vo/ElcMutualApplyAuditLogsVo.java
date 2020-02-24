@@ -1,6 +1,7 @@
 package com.server.edu.mutual.vo;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 import com.server.edu.mutual.entity.ElcMutualApplyAuditLogs;
 
@@ -15,7 +16,7 @@ public class ElcMutualApplyAuditLogsVo extends ElcMutualApplyAuditLogs{
 	/**
 	 * 申请时间
 	 */
-	private Date applyAt;
+	private Timestamp applyAt;
 	
 	/**
 	 * 审核状态
@@ -23,6 +24,14 @@ public class ElcMutualApplyAuditLogsVo extends ElcMutualApplyAuditLogs{
 	private Integer status;
 	
 	private String projectId;
+
+	public Timestamp getApplyAt() {
+		return applyAt;
+	}
+
+	public void setApplyAt(Timestamp applyAt) {
+		this.applyAt = applyAt;
+	}
 
 	public String getStudentId() {
 		return studentId;
@@ -32,12 +41,8 @@ public class ElcMutualApplyAuditLogsVo extends ElcMutualApplyAuditLogs{
 		this.studentId = studentId;
 	}
 
-	public Date getApplyAt() {
-		return applyAt;
-	}
-
-	public void setApplyAt(Date applyAt) {
-		this.applyAt = applyAt;
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
 	}
 
 	public Integer getStatus() {
@@ -55,5 +60,14 @@ public class ElcMutualApplyAuditLogsVo extends ElcMutualApplyAuditLogs{
 	public void setProjectId(String projectId) {
 		this.projectId = projectId;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "ElcMutualApplyAuditLogsVo{" +
+				"studentId='" + studentId + '\'' +
+				", applyAt=" + applyAt +
+				", status=" + status +
+				", projectId='" + projectId + '\'' +
+				'}';
+	}
 }

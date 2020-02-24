@@ -58,7 +58,10 @@ public class ElcMutualCrossStuDto extends ElcCrossStds{
     private String formLearning;
     
     private List<Long> ids;
-    
+
+    /*学位类别*/
+    private String degreeType;
+
     /**
      * 关键字（学号或者姓名）
      */
@@ -68,7 +71,15 @@ public class ElcMutualCrossStuDto extends ElcCrossStds{
      * 在校状态(1 校内在读、2 校外在读、3 不在读、4 离校)
      */
     private String leaveSchool;
-    
+
+	public String getDegreeType() {
+		return degreeType;
+	}
+
+	public void setDegreeType(String degreeType) {
+		this.degreeType = degreeType;
+	}
+
 	public String getLeaveSchool() {
 		return leaveSchool;
 	}
@@ -189,5 +200,48 @@ public class ElcMutualCrossStuDto extends ElcCrossStds{
 	public void setKeyWords(String keyWords) {
 		this.keyWords = keyWords;
 	}
-    
+
+	public ElcMutualCrossStuDto() {
+	}
+
+	public ElcMutualCrossStuDto(String studentName, Integer sex, String trainingLevel, String faculty, String profession, Integer grade, Integer mode, List<String> studentIds, String projectId, String trainingCategory, String degreeCategory, String formLearning, List<Long> ids, String degreeType, String keyWords, String leaveSchool) {
+		this.studentName = studentName;
+		this.sex = sex;
+		this.trainingLevel = trainingLevel;
+		this.faculty = faculty;
+		this.profession = profession;
+		this.grade = grade;
+		this.mode = mode;
+		this.studentIds = studentIds;
+		this.projectId = projectId;
+		this.trainingCategory = trainingCategory;
+		this.degreeCategory = degreeCategory;
+		this.formLearning = formLearning;
+		this.ids = ids;
+		this.degreeType = degreeType;
+		this.keyWords = keyWords;
+		this.leaveSchool = leaveSchool;
+	}
+
+	@Override
+	public String toString() {
+		return "ElcMutualCrossStuDto{" +
+				"studentName='" + studentName + '\'' +
+				", sex=" + sex +
+				", trainingLevel='" + trainingLevel + '\'' +
+				", faculty='" + faculty + '\'' +
+				", profession='" + profession + '\'' +
+				", grade=" + grade +
+				", mode=" + mode +
+				", studentIds=" + studentIds +
+				", projectId='" + projectId + '\'' +
+				", trainingCategory='" + trainingCategory + '\'' +
+				", degreeCategory='" + degreeCategory + '\'' +
+				", formLearning='" + formLearning + '\'' +
+				", ids=" + ids +
+				", degreeType='" + degreeType + '\'' +
+				", keyWords='" + keyWords + '\'' +
+				", leaveSchool='" + leaveSchool + '\'' +
+				'}';
+	}
 }

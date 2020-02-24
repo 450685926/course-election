@@ -7,7 +7,7 @@
         <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
         <result column="ENROL_METHODS_" jdbcType="VARCHAR" property="enrolMethods" />
         <result column="SPCIAL_PLAN_" jdbcType="VARCHAR" property="spcialPlan" />
-        <result column="IS_OVERSEAS_" jdbcType="INTEGER" property="isOverseas" />
+        <result column="IS_OVERSEAS_" jdbcType="VARCHAR" property="isOverseas" />
         <result column="REGISTRATION_STATUS_" jdbcType="VARCHAR" property="registrationStatus" />
     </resultMap>
     <sql id="Base_Column_List">
@@ -73,5 +73,25 @@
                 and REGISTRATION_STATUS_ = #{registrationStatus}
             </if>
         </where>
+    </select>
+
+    <select id="getAbnormalStudent" resultType="com.server.edu.election.vo.StudentRebuildFeeVo">
+      select CLASS_ID_ registrationStatus,STUDENT_ID_ studentId
+      from student_abnormal_apply_v
+      where CLASS_ID_ in
+      <foreach collection="list" item="id" open="(" close=")" separator=",">
+          #{id}
+      </foreach>
+        and STATUS_ = 3 and EFFECTIVE_TIME_ BETWEEN (#{oneYearTime} - 365*24*60*60*1000) and #{oneYearTime}
+    </select>
+
+    <select id="getAbnormalStudentByOne" resultType="com.server.edu.election.vo.StudentRebuildFeeVo">
+        select CLASS_ID_ registrationStatus,STUDENT_ID_ studentId
+        from student_abnormal_apply_v
+        where CLASS_ID_ in
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and STATUS_ = 3 and EFFECTIVE_TIME_ BETWEEN #{startTime}  and #{endTime} and STUDENT_ID_ = #{studentId}
     </select>
 </mapper>

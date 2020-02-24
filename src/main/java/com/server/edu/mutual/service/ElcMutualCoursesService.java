@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.CampusProfession;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.mutual.dto.ElcMutualCoursesDto;
 import com.server.edu.mutual.vo.ElcMutualCoursesVo;
 
@@ -21,5 +23,4 @@ public interface ElcMutualCoursesService {
 	int deleteAll(Long calendarId,Integer mode);
 	
 	int getElcMutualCourseCount(Long calendarId,Integer mode);
-	
 }

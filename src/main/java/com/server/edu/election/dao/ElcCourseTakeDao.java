@@ -310,6 +310,9 @@ public interface ElcCourseTakeDao
     /**根据教学班id查询学生是否选课*/
     int findCount(@Param("studentId")String studentId,  @Param("calendarId") Long calendarId,  @Param("teachingClassId") Long teachingClassId);
 
+    /**根据教学班id查询学生是否选课*/
+    int isRetake(@Param("studentId")String studentId,  @Param("courseCode") String courseCode);
+
     /**根据学生id查询学生已重修的课程*/
     Set<String> findRetakeCount(String studentId);
     
@@ -318,7 +321,7 @@ public interface ElcCourseTakeDao
 	 * @param dto
 	 * @return
 	 */
-	List<StudentRebuildFeeVo> getStudentRebuildFeeList(StudentRebuildFeeDto dto);
+	Page<StudentRebuildFeeVo> getStudentRebuildFeeList(StudentRebuildFeeDto dto);
 	
     /**期中退课列表*/
 	List<ElcCourseTakeVo> getElcMedWithdraw(ElcMedWithdrawDto dto);
@@ -363,8 +366,23 @@ public interface ElcCourseTakeDao
     List<ElcCourseTake> getUnSuggestStuents(@Param("calendarId") Long calendarId,@Param("index") Integer index);
     
     List<ElcCourseTake> selectAllTakes(@Param("calendarId") Long calendarId,@Param("index") Integer index);
+    /**
+     * 查询选课结果
+     * @param studentId
+     * @param calendarId
+     * @param index
+     * @param courseCode
+     * @return
+     */
+    ElcCourseTakeVo findElcCourseTake(@Param("studentId") String studentId,
+            @Param("calendarId") Long calendarId,
+            @Param("index")int index,
+            @Param("courseCode") String courseCode);
 
     int getNumByProfession(@Param("profession")String profession, @Param("teachingClassId")Long teachingClassId, @Param("turn")Integer turn,@Param("index")int index,@Param("calendarId")Long calendarId);
 
     List<ElcCourseTakeVo> getStudentNum4FirstTurn( @Param("teachingClassId")Long teachingClassId, @Param("turn")Integer turn,@Param("index")int index,@Param("calendarId")Long calendarId);
+
+    /**重修汇总名单实现新逻辑（从成绩表里取值）*/
+    Page<StudentVo> ListRebuildCourseNumber(RebuildCourseDto dto);
 }

@@ -4,16 +4,15 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.common.entity.Department;
+import com.server.edu.mutual.service.ElcMutualCrossService;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
@@ -33,6 +32,8 @@ public class ElcMutualCoursesController {
 	        LoggerFactory.getLogger(ElcMutualCoursesController.class);
 	@Autowired
 	private ElcMutualCoursesService elcMutualCoursesService;
+	@Autowired
+    private ElcMutualCrossService elcMutualCrossService;
     
     /**
      *获取互选课程管理列表
@@ -55,7 +56,8 @@ public class ElcMutualCoursesController {
     /**
      *获取互选课程数量
      * 
-     * @param dto
+     * @param calendarId
+     * @param mode
      * @return
      * @see [类、类#方法、类#成员]
      */
@@ -153,7 +155,7 @@ public class ElcMutualCoursesController {
     /**
      *删除全部本研互选课程
      * 
-     * @param dto
+     * @param calendarId
      * @return
      * @see [类、类#方法、类#成员]
      */
@@ -167,5 +169,23 @@ public class ElcMutualCoursesController {
         int result =elcMutualCoursesService.deleteAll(calendarId,mode);
         return RestResult.successData(result);
     }
-	
+
+    /**
+     * 获取当前所有启动的部门列表（包括虚拟部门）
+     * @param virtualDept 0：不包含  1:包含虚拟部门
+     * @param type 0：非学院，其他，全部 1：学院
+     * @param manageDept 是否区分本研 0或null：不区分本研 1 区分本研
+     * @return RestResult<?>
+     * */
+    @RequestMapping(value = "/findDept", method = RequestMethod.GET)
+    @ResponseBody
+    public RestResult<List<Department>> findDept(
+            @RequestParam("virtualDept") String virtualDept,
+            @RequestParam("type") Integer type,
+            @RequestParam("manageDept") Integer manageDept) throws Exception{
+        LOG.info("findDept.start param====[virtualDept:" + virtualDept + ",type:" + type + ",manageDept:" + manageDept +"]");
+        RestResult<List<Department>> result = elcMutualCrossService.findDept(virtualDept, type,manageDept);
+        return result;
+    }
+
 }
