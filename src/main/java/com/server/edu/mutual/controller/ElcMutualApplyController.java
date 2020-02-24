@@ -50,7 +50,7 @@ public class ElcMutualApplyController {
              list = elcMutualApplyService.getElcMutualApplyList(dto);
         }catch (Exception e){
              LOG.info("======Exception====" + e.getMessage());
-             return RestResult.fail(e.getMessage());
+             return RestResult.success(e.getMessage());
         }
 
         return RestResult.successData(list);
