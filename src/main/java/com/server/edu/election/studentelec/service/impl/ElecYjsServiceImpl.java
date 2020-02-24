@@ -28,6 +28,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -456,7 +457,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 context.getSelectedCourses().add(course);
                 LOG.info("-------------------context update start-----------------");
             } else {
-                failedReasons.put(String.format("%s", take.getCourseCode()), "选课失败");
+                failedReasons.put(String.format("%s", take.getCourseCode()), String.format("%s课程选课失败", take.getCourseCode()));
                 return false;
             }
         }
@@ -518,21 +519,30 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         return true;
     }
 
-    private boolean doRealElectiveCourse(ElcCourseTake take) {
-        if (courseTakeDao.insertSelective(take) > 0 && classDao.increElcNumberAtomic(take.getTeachingClassId()) > 0){
+    @Transactional(rollbackFor = { Exception.class })
+    public boolean doRealElectiveCourse(ElcCourseTake take) {
+        if (courseTakeDao.insertSelective(take) > 0 && classDao.increElcNumberAtomic(take.getTeachingClassId()) > 0 ){
             dataProvider.incrementElecNumber(take.getTeachingClassId());
             return true;
+        } else {
+            //手动设置回滚
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
         }
-        return false;
+
     }
 
-    private boolean doRealDropOutCourse(ElcCourseTake take) {
+    @Transactional(rollbackFor = { Exception.class })
+    public boolean doRealDropOutCourse(ElcCourseTake take) {
         //从数据库删除退课的课程
-        if (courseTakeDao.delete(take) > 0 && classDao.decrElcNumber(take.getTeachingClassId()) > 0){
+        if (classDao.decrElcNumber(take.getTeachingClassId()) > 0 && courseTakeDao.delete(take) > 0){
             dataProvider.decrElcNumber(take.getTeachingClassId());
             return true;
+        } else {
+            //手动设置回滚
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
         }
-        return false;
     }
 
     @Override
