@@ -366,6 +366,18 @@ public interface ElcCourseTakeDao
     List<ElcCourseTake> getUnSuggestStuents(@Param("calendarId") Long calendarId,@Param("index") Integer index);
     
     List<ElcCourseTake> selectAllTakes(@Param("calendarId") Long calendarId,@Param("index") Integer index);
+    /**
+     * 查询选课结果
+     * @param studentId
+     * @param calendarId
+     * @param index
+     * @param courseCode
+     * @return
+     */
+    ElcCourseTakeVo findElcCourseTake(@Param("studentId") String studentId,
+            @Param("calendarId") Long calendarId,
+            @Param("index")int index,
+            @Param("courseCode") String courseCode);
 
     int getNumByProfession(@Param("profession")String profession, @Param("teachingClassId")Long teachingClassId, @Param("turn")Integer turn,@Param("index")int index,@Param("calendarId")Long calendarId);
 

@@ -21,6 +21,8 @@ import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.util.ExcelStoreConfig;
+import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.mutual.dao.ElcMutualListDao;
 import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
 import com.server.edu.mutual.dto.ElcMutualListDto;
@@ -83,7 +85,7 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         	if(org.apache.commons.lang3.StringUtils.isNotEmpty(String.valueOf(dto.getCalendarId()))
         			&& org.apache.commons.lang3.StringUtils.isNotEmpty(vo.getStudentId())
         			&& org.apache.commons.lang3.StringUtils.isNotEmpty(vo.getCourseCode())) {
-        		ElcCourseTake elcCourseTake = getElcCourseTake(String.valueOf(dto.getCalendarId()),vo.getStudentId(),vo.getCourseCode());
+        		ElcCourseTakeVo elcCourseTake = getElcCourseTake(String.valueOf(dto.getCalendarId()),vo.getStudentId(),vo.getCourseCode());
             	List<TimeAndRoom> timeTableList = new ArrayList<>();
             	if(null != elcCourseTake) {
             		TimeTableMessage timeTableMessage = getTimeTableMessage(elcCourseTake.getTeachingClassId());
@@ -194,13 +196,14 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
      * 
      * @return
      */
-    public ElcCourseTake getElcCourseTake(String calendarId, String studentId, String courseCode){
+    public ElcCourseTakeVo getElcCourseTake(String calendarId, String studentId, String courseCode){
     	Example example = new Example(ElcCourseTake.class);
     	example.createCriteria()
         .andEqualTo("calendarId", calendarId)
         .andEqualTo("studentId", studentId)
         .andEqualTo("courseCode", courseCode);
-    	ElcCourseTake elcCourseTake =courseTakeDao.selectOneByExample(example);
+    	int index = TableIndexUtil.getIndex(Long.valueOf(calendarId));
+    	ElcCourseTakeVo elcCourseTake =courseTakeDao.findElcCourseTake(studentId,Long.valueOf(calendarId),index,courseCode);
     	return elcCourseTake;
     }
     
