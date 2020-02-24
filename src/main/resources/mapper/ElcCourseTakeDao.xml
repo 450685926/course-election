@@ -2520,7 +2520,7 @@
          on el.TEACHING_CLASS_ID_= te.ID_
          <where>
               el.STUDENT_ID_ = #{studentId} and el.CALENDAR_ID_ = #{calendarId} and el.COURSE_TAKE_TYPE_ =2
-             <if test="@com.server.edu.util.MybatisUtil@isEmpty(planCourseIds)">
+             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(planCourseIds)">
               and el.ID_ in
                  <foreach collection="planCourseIds" item="id" open="(" separator="," close=")">
                      #{id}
