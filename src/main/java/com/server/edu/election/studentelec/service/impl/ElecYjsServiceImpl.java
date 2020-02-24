@@ -531,7 +531,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 
     }
 
-    @Transactional(rollbackFor = { Exception.class })
     public boolean doRealDropOutCourse(ElcCourseTake take) {
         //从数据库删除退课的课程
         if (classDao.decrElcNumber(take.getTeachingClassId()) > 0 && courseTakeDao.delete(take) > 0){
