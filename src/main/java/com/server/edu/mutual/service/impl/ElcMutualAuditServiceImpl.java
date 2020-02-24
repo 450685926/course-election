@@ -275,12 +275,14 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		elcMutualApplyDao.updateByPrimaryKeySelective(elcMutualApply);
 		Integer mode = elcMutualApply.getMode();
 		if(Constants.BK_CROSS.equals(mode)) {
+			LOG.info("method updateCultureStuPlanRpc start...");
 			//更新培养计划
 			dto.setStatus(elcMutualApply.getStatus());
 			//测试数据
 //			dto.setStudentId("1351132");
 //			dto.setCourseCode("011091");
 			updateCultureStuPlanRpc(dto);
+			LOG.info("method updateCultureStuPlanRpc end...");
 		}
 	}
 	
@@ -412,10 +414,13 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	 */
 	private void updateCultureStuPlanRpc(ElcMutualApplyDto elcMutualApply) {
 		if (elcMutualApply.getStatus().equals(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.AUDITED_APPROVED.status())))) {
+			LOG.info("updateCultureStuPlanRpc rpc begin");
 			RestResult result = CultureSerivceInvokerToMutual.updateCulturePlan4Stu(elcMutualApply);
 			if (result.getCode() != 200) {//更新培养计划异常，则手动抛出运行时异常，事务回滚
 				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApplyAudit.planFail"));
 			}
+			LOG.info("code --- > " + result.getCode());
+			LOG.info("updateCultureStuPlanRpc rpc end");
 		}
 	}
 }
