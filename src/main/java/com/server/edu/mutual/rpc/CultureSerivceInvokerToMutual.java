@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.server.edu.mutual.entity.ElcMutualApply;
+import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.vo.PlanCourseTabVo;
 
 import org.apache.commons.lang3.StringUtils;
@@ -109,9 +109,11 @@ public class CultureSerivceInvokerToMutual {
 	 * @author: zhaoerhu
 	 * @date: 2020/2/18 15:11
 	 */
-	public static RestResult updateCulturePlan4Stu(ElcMutualApply elcMutualApply) {
+	public static RestResult updateCulturePlan4Stu(ElcMutualApplyDto elcMutualApply) {
+		String studentID = elcMutualApply.getStudentId();
+		String courseCode = elcMutualApply.getCourseCode();
 		RestResult restResult = ServicePathEnum.CULTURESERVICE.
-				postForObject("/culturePlan/getCulturePlanByStudentId?id={id}&isPass={isPass}", elcMutualApply, RestResult.class);
+				getForObject("/bclCulturePlan/addCourseToPlan?studentID={studentID}&courseCode={courseCode}", RestResult.class, studentID, courseCode);
 		return restResult;
 	}
 	

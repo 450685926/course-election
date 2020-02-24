@@ -273,6 +273,15 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			}
 		}
 		elcMutualApplyDao.updateByPrimaryKeySelective(elcMutualApply);
+		Integer mode = elcMutualApply.getMode();
+		if(Constants.BK_CROSS.equals(mode)) {
+			//更新培养计划
+			dto.setStatus(elcMutualApply.getStatus());
+			//测试数据
+//			dto.setStudentId("1351132");
+//			dto.setCourseCode("011091");
+			updateCultureStuPlanRpc(dto);
+		}
 	}
 	
 	/**保存互选审核日志
@@ -401,7 +410,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	 * @author: zhaoerhu
 	 * @date: 2020/2/18 11:07
 	 */
-	private void updateCultureStuPlanRpc(ElcMutualApply elcMutualApply) {
+	private void updateCultureStuPlanRpc(ElcMutualApplyDto elcMutualApply) {
 		if (elcMutualApply.getStatus().equals(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.AUDITED_APPROVED.status())))) {
 			RestResult result = CultureSerivceInvokerToMutual.updateCulturePlan4Stu(elcMutualApply);
 			if (result.getCode() != 200) {//更新培养计划异常，则手动抛出运行时异常，事务回滚
