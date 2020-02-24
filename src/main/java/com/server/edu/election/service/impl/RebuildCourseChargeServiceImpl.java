@@ -335,10 +335,25 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        condition.getCondition().setDeptId(dptId);
+        RebuildCourseDto rebuildCourseDto = condition.getCondition();
+        rebuildCourseDto.setDeptId(dptId);
+        if(rebuildCourseDto.getCalendarId() != null){
+            SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(rebuildCourseDto.getCalendarId());
+            Integer year = calendar.getYear();
+            Integer term = calendar.getTerm();
+            if(term.intValue() == 2){
+                year = year + 1 ;
+                rebuildCourseDto.setYear(year);
+            }
+            if(term.intValue() == 1){
+                rebuildCourseDto.setYear(year);
+                rebuildCourseDto.setSemester(term);
+            }
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<StudentVo> courseNoChargeStudentList = courseTakeDao
-                .findCourseNoChargeStudentList(condition.getCondition());
+        /*Page<StudentVo> courseNoChargeStudentList = courseTakeDao
+                .findCourseNoChargeStudentList(condition.getCondition());*/
+        Page<StudentVo> courseNoChargeStudentList = courseTakeDao.ListRebuildCourseNumber(rebuildCourseDto);
         return new PageResult<>(courseNoChargeStudentList);
     }
 
@@ -907,10 +922,20 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public PageResult<RebuildCourseNoChargeList> findNoChargeListByStuId(PageCondition<RebuildCourseDto> condition) {
+        RebuildCourseDto rebuildCourseDto = condition.getCondition();
+        boolean retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
                // int mode = TableIndexUtil.getMode(c.getCalendarId());
-        condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
-        Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(condition.getCondition());
+        rebuildCourseDto.setIndex(TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId()));
+        Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
+        if(CollectionUtil.isNotEmpty(courseNoChargeList)){
+            for (RebuildCourseNoChargeList rebuildCourseNoChargeList : courseNoChargeList) {
+                if(retake){
+                    //无需缴费类型
+                    rebuildCourseNoChargeList.setPaid(2);
+                }
+            }
+        }
         return new PageResult<>(courseNoChargeList);
     }
 
@@ -921,8 +946,15 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public ExcelWriterUtil exportByStuId(RebuildCourseDto rebuildCourseDto) throws Exception {
+        boolean retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId());
         rebuildCourseDto.setIndex(TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId()));
         Page<RebuildCourseNoChargeList> list = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
+        for (RebuildCourseNoChargeList rebuildCourseNoChargeList : list) {
+            if(retake){
+                //无需缴费类型
+                rebuildCourseNoChargeList.setPaid(2);
+            }
+        }
         GeneralExcelDesigner design = getDesignByStuId();
         List<JSONObject> convertList = JacksonUtil.convertList(list);
         design.setDatas(convertList);
@@ -1087,7 +1119,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     } else if (Constants.UN_PAID.toString().equals(value)){
                         value = "未缴费";
                     }else {
-                        value = StringUtils.EMPTY;
+                        value = "无需缴费";
                     }
                     return value;
                 });
