@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.entity.Department;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import com.server.edu.mutual.util.ProjectUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +47,8 @@ import tk.mybatis.mapper.entity.Example;
  */
 @Service
 public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
+	private static Logger LOG =
+			LoggerFactory.getLogger(ElcMutualCrossServiceImpl.class);
 	@Autowired
 	private ElcMutualStdsDao elcMutualStdsDao;
 	@Autowired
@@ -417,8 +423,27 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		} 
 		return result;
 	}
-	
-	
+
+	/**
+	 * 获取当前所有启动的部门列表（包括虚拟部门）
+	 * @param virtualDept 0：不包含  1:包含虚拟部门
+	 * @param type 0：非学院，其他，全部 1：学院
+	 * @param manageDept 是否区分本研 0或null：不区分本研 1 区分本研
+	 * */
+	@Override
+	public RestResult<List<Department>> findDept(String virtualDept, Integer type, Integer manageDept) {
+		if (type ==null){
+			type = 1;
+		}
+
+		String managDeptId = String.valueOf(manageDept);
+
+		LOG.info("managDeptId : {}, === virtualDept:{} ===type:{} =======projectId：{} ", managDeptId, virtualDept, type);
+		List<Department> deptList = elcCrossStdsDao.findFaculty(virtualDept, managDeptId, type);
+		return RestResult.successData(deptList);
+	}
+
+
 	/**
 	 * 判断当前登录人是否是教务员
 	 * @return

@@ -150,6 +150,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     
 
     @SuppressWarnings("rawtypes")
+    @Transactional(rollbackFor = { Exception.class })
     @Override
     public IElecContext doELec(ElecRequest request)
     {
@@ -420,16 +421,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         				 courseCode), "已经选课");
         		 return false;
 			}
-            int	count = classDao.increElcNumber(teachClassId);
-            
-            if (count == 0)
-            {
-                respose.getFailedReasons()
-                    .put(teachClassId.toString(),
-                        I18nUtil.getMsg("ruleCheck.limitCount"));
-                return false;
-            }
-            
+
             ElcCourseTake take = new ElcCourseTake();
             take.setChooseObj(request.getChooseObj());
             take.setCourseCode(courseCode);
@@ -457,7 +449,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 context.getSelectedCourses().add(course);
                 LOG.info("-------------------context update start-----------------");
             } else {
-                failedReasons.put(String.format("%s", take.getCourseCode()), String.format("%s课程选课失败", take.getCourseCode()));
+//                failedReasons.put(String.format("%s", take.getCourseCode()), String.format("%s课程选课失败", take.getCourseCode()));
+                respose.getFailedReasons()
+                        .put(teachClassId.toString(),
+                                I18nUtil.getMsg("ruleCheck.limitCount"));
                 return false;
             }
         }
@@ -519,7 +514,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         return true;
     }
 
-    @Transactional(rollbackFor = { Exception.class })
+
+
     public boolean doRealElectiveCourse(ElcCourseTake take) {
         if (courseTakeDao.insertSelective(take) > 0 && classDao.increElcNumberAtomic(take.getTeachingClassId()) > 0 ){
             dataProvider.incrementElecNumber(take.getTeachingClassId());
@@ -532,7 +528,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 
     }
 
-    @Transactional(rollbackFor = { Exception.class })
     public boolean doRealDropOutCourse(ElcCourseTake take) {
         //从数据库删除退课的课程
         if (classDao.decrElcNumber(take.getTeachingClassId()) > 0 && courseTakeDao.delete(take) > 0){

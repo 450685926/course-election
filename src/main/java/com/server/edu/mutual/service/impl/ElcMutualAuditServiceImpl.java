@@ -164,9 +164,18 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
-		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+//		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+		if (StringUtils.equals(projectId, Constants.PROJ_GRADUATE) || StringUtils.equals(projectId,Constants.PROJ_LINE_GRADUATE)) {
 			dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
 					MutualApplyAuditStatus.AUDITED_APPROVED.status(),MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
+		}
+		
+		//跨学科选课只有当行政学院审核通过，才能进行开课学院审核
+		if(Constants.BK_CROSS.equals(dto.getMode())) {
+			if (dto.getStatus() == null) {
+				dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
+						MutualApplyAuditStatus.AUDITED_APPROVED.status(), MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
+			}
 		}
 		
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.openCollegeApplyCourseList(condition.getCondition());
@@ -208,6 +217,14 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		// 研究生发起的申请流程，本科生教务员直接进行开课学院审核
 //		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
 		if (StringUtils.equals(projectId, Constants.PROJ_GRADUATE) || StringUtils.equals(projectId,Constants.PROJ_LINE_GRADUATE)) {
+			if (dto.getStatus() == null) {
+				dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
+						MutualApplyAuditStatus.AUDITED_APPROVED.status(), MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
+			}
+		}
+		
+		//跨学科选课只有当行政学院审核通过，才能进行开课学院审核
+		if(Constants.BK_CROSS.equals(dto.getMode())) {
 			if (dto.getStatus() == null) {
 				dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
 						MutualApplyAuditStatus.AUDITED_APPROVED.status(), MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
