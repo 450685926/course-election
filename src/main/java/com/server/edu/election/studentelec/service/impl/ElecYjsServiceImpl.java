@@ -420,16 +420,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         				 courseCode), "已经选课");
         		 return false;
 			}
-            int	count = classDao.increElcNumber(teachClassId);
-            
-            if (count == 0)
-            {
-                respose.getFailedReasons()
-                    .put(teachClassId.toString(),
-                        I18nUtil.getMsg("ruleCheck.limitCount"));
-                return false;
-            }
-            
+
             ElcCourseTake take = new ElcCourseTake();
             take.setChooseObj(request.getChooseObj());
             take.setCourseCode(courseCode);
@@ -457,7 +448,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 context.getSelectedCourses().add(course);
                 LOG.info("-------------------context update start-----------------");
             } else {
-                failedReasons.put(String.format("%s", take.getCourseCode()), String.format("%s课程选课失败", take.getCourseCode()));
+//                failedReasons.put(String.format("%s", take.getCourseCode()), String.format("%s课程选课失败", take.getCourseCode()));
+                respose.getFailedReasons()
+                        .put(teachClassId.toString(),
+                                I18nUtil.getMsg("ruleCheck.limitCount"));
                 return false;
             }
         }
