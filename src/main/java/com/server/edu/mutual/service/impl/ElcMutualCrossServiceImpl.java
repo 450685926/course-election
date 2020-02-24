@@ -432,14 +432,12 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	 * */
 	@Override
 	public RestResult<List<Department>> findDept(String virtualDept, Integer type, Integer manageDept) {
-		String managDeptId ="";
 		if (type ==null){
 			type = 1;
 		}
 
-		if (manageDept !=null && manageDept.equals(1)){
-			managDeptId = String.valueOf(manageDept);
-		}
+		String managDeptId = String.valueOf(manageDept);
+
 		LOG.info("managDeptId : {}, === virtualDept:{} ===type:{} =======projectId：{} ", managDeptId, virtualDept, type);
 		List<Department> deptList = elcCrossStdsDao.findFaculty(virtualDept, managDeptId, type);
 		return RestResult.successData(deptList);
