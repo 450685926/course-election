@@ -27,7 +27,7 @@ public interface ElecYjsService
      * @param courseClass
      * @see [类、类#方法、类#成员]
      */
-    void saveElc(ElecContext context, TeachingClassCache courseClass,
+    boolean saveElc(ElecContext context, TeachingClassCache courseClass,
         ElectRuleType type);
     
     /**
