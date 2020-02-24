@@ -150,6 +150,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     
 
     @SuppressWarnings("rawtypes")
+    @Transactional(rollbackFor = { Exception.class })
     @Override
     public IElecContext doELec(ElecRequest request)
     {
@@ -513,7 +514,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         return true;
     }
 
-    @Transactional(rollbackFor = { Exception.class })
+
+
     public boolean doRealElectiveCourse(ElcCourseTake take) {
         if (courseTakeDao.insertSelective(take) > 0 && classDao.increElcNumberAtomic(take.getTeachingClassId()) > 0 ){
             dataProvider.incrementElecNumber(take.getTeachingClassId());
@@ -526,7 +528,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 
     }
 
-    @Transactional(rollbackFor = { Exception.class })
     public boolean doRealDropOutCourse(ElcCourseTake take) {
         //从数据库删除退课的课程
         if (classDao.decrElcNumber(take.getTeachingClassId()) > 0 && courseTakeDao.delete(take) > 0){
