@@ -251,7 +251,12 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Transactional
     public void updateRebuildCourse(RebuildCourseVo rebuildCourseVo) {
         Session currentSession = SessionUtils.getCurrentSession();
-        String studentId = currentSession.realUid();
+        // 判断入口是学生重修选课还是管理员教务员代选课
+        String studentId = rebuildCourseVo.getStudentId();
+        // 前端未传参studentId，说明是学生自选重修课
+        if (StringUtils.isBlank(studentId)) {
+            studentId = currentSession.realUid();
+        }
         String ip = currentSession.getIp();
         String courseCode = rebuildCourseVo.getCourseCode();
         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
