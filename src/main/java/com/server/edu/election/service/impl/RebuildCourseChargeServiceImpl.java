@@ -1112,7 +1112,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 });
         design.addCell("课程安排", "courseArr");
         design.addCell("学分", "credits").setValueHandler(new DoubleHandler());
-        design.addCell("是否缴费", "paid").setValueHandler(
+        design.addCell("缴费状态", "paid").setValueHandler(
                 (value, rawData, cell) -> {
                     if (Constants.PAID.toString().equals(value)) {
                         value = "已缴费";
