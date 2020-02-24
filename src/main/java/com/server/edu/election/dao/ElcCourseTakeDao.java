@@ -382,4 +382,7 @@ public interface ElcCourseTakeDao
     int getNumByProfession(@Param("profession")String profession, @Param("teachingClassId")Long teachingClassId, @Param("turn")Integer turn,@Param("index")int index,@Param("calendarId")Long calendarId);
 
     List<ElcCourseTakeVo> getStudentNum4FirstTurn( @Param("teachingClassId")Long teachingClassId, @Param("turn")Integer turn,@Param("index")int index,@Param("calendarId")Long calendarId);
+
+    /**重修汇总名单实现新逻辑（从成绩表里取值）*/
+    Page<StudentVo> ListRebuildCourseNumber(RebuildCourseDto dto);
 }

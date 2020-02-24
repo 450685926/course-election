@@ -85,6 +85,27 @@ public class RebuildCourseDto {
     private Long abnormalEndTime;
     private Long abnormalStartTime;
 
+    //学年
+    private Integer year;
+    //学期
+    private Integer semester;
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public Integer getSemester() {
+        return semester;
+    }
+
+    public void setSemester(Integer semester) {
+        this.semester = semester;
+    }
+
     public Long getAbnormalEndTime() {
         return abnormalEndTime;
     }
