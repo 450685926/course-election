@@ -42,6 +42,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.ForeignCourse;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -108,7 +109,7 @@ public class BKForeignStuCourseLoad extends DataProLoad<ElecContextBk>
             if(CollectionUtil.isNotEmpty(stuScore)) {
             	stuCompletedCourse = stuScore.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
             }
-            Set<ElecCourse> foreignStuCourses = context.getForeignStuCourses();//留学生课程
+            Set<ForeignCourse> foreignStuCourses = context.getForeignStuCourses();//留学生课程
             for(Course course:courses) {
             	String courseCode = course.getCode();
                 if(StringUtils.isBlank(courseCode) ||(CollectionUtil.isNotEmpty(stuCompletedCourse) && stuCompletedCourse.contains(courseCode)) ) {
@@ -120,7 +121,10 @@ public class BKForeignStuCourseLoad extends DataProLoad<ElecContextBk>
                     elecCourse.setCourseCode(courseCode);
                     elecCourse.setCourseName(course.getName());
                     elecCourse.setCredits(course.getCredits());
-                    foreignStuCourses.add(elecCourse);
+                    elecCourse.setNameEn(course.getNameEn());
+                    ForeignCourse foreignCourse = new ForeignCourse();
+                    foreignCourse.setCourse(elecCourse);
+                    foreignStuCourses.add(foreignCourse);
                 }
             }
     		
