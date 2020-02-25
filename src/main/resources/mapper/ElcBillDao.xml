@@ -63,7 +63,7 @@
           ct.NAME_ courseName,
           ct.CREDITS_ credits,
           rc.UNIT_PRICE_ unitPrice,
-          eb.BILL_NUM_ billNum,
+          bc.TRADE_NO_ billNum,
           ct.CREDITS_*rc.UNIT_PRICE_ price,
           ec.PAID_ paid
           FROM elc_bills_t eb
@@ -75,6 +75,8 @@
           on eb.ID_ = ec.BILL_ID_
           left JOIN course_t ct
           on ec.COURSE_CODE_ = ct.CODE_
+          left JOIN baseres.common_pay_order_t bc
+          on eb.BILL_NUM_ = bc.ORDER_NO_
           WHERE eb.ID_ = #{billId}
   </select>
 </mapper>
