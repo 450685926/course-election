@@ -76,7 +76,7 @@ public class ElecContextBk implements IElecContext
     private Set<CompletedCourse>  unFinishedCourses;
     
     /** 留学生课程 */
-    private Set<ElecCourse> foreignStuCourses;
+    private Set<ForeignCourse> foreignStuCourses;
 
     private ElecRequest request;
     
@@ -122,7 +122,7 @@ public class ElecContextBk implements IElecContext
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
         onlyCourses = this.contextUtil.getSet("OnlyCourses", PlanCourse.class);
-        foreignStuCourses = this.contextUtil.getSet("ForeignStuCourses", ElecCourse.class);
+        foreignStuCourses = this.contextUtil.getSet("ForeignStuCourses", ForeignCourse.class);
     }
 
     /**
@@ -302,7 +302,7 @@ public class ElecContextBk implements IElecContext
 		return onlyCourses;
 	}
 	
-    public Set<ElecCourse> getForeignStuCourses()
+    public Set<ForeignCourse> getForeignStuCourses()
     {
         return foreignStuCourses;
     }
