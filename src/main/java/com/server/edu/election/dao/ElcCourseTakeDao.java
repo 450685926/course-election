@@ -288,6 +288,16 @@ public interface ElcCourseTakeDao
     List<TeachingClassCache> findBkTeachClass(@Param("studentId") String studentId, @Param("calendarId") Long calendarId, @Param("courseCode") String courseCode,@Param("index") Integer index);
     
     List<ElcCourseTakeVo> findElcCourseTakeByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
+
+    /**
+     * 批量查询学生已选课程
+     * @param studentIds
+     * @param calendarId
+     * @return
+     */
+    List<ElcCourseTakeVo> findElcCourseTakes(@Param("studentIds") List<String> studentIds,
+                                             @Param("calendarId") Long calendarId);
+
     /**
      * 研究生查询学生课程安排，比较课程安排是否冲突使用,不区分老师
      * @param list
