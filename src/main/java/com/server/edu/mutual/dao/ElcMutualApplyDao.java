@@ -2,6 +2,8 @@ package com.server.edu.mutual.dao;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.entity.ElcMutualApply;
 import com.server.edu.mutual.vo.ElcMutualApplyVo;
@@ -46,5 +48,12 @@ public interface ElcMutualApplyDao extends Mapper<ElcMutualApply>,MySqlMapper<El
 	 * @param dto
 	 * @return
 	 */
-	List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto); 
+	List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto);
+
+	/**
+     * 查询不及格学生信息
+     * @param studentId
+     * @return
+     */
+    List<String> findStuFailedCourseCodes(@RequestParam("studentId") String studentId);
 }

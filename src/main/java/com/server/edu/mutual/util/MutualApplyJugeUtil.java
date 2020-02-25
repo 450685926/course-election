@@ -68,7 +68,9 @@ public class MutualApplyJugeUtil {
 		if (date.after(elcMutualApplyTurns.getBeginAt()) && date.before(elcMutualApplyTurns.getEndAt())) {
 			// 是否开启成绩检测
 			if (elcMutualApplyTurns.getFail().intValue() == 1) {
-				List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
+			    // ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
+			    // 接口调用失败,暂时查主表,后期分表建立完善后,再做修改
+				List<String> failedCourseCodes = elcMutualApplyDao.findStuFailedCourseCodes(studentId);
 				if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
 					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.hasFailCourses"));
 				}
