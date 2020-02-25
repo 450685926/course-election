@@ -285,4 +285,19 @@ public class ElcMutualApplyTurns implements Serializable {
         sb.append("]");
         return sb.toString();
     }
+
+    public ElcMutualApplyTurns(String projectId, Long calendarId, Date beginAt, Date endAt, Integer open, Integer category, Float gpa, Integer fail, Integer appLimit) {
+        this.projectId = projectId;
+        this.calendarId = calendarId;
+        this.beginAt = beginAt;
+        this.endAt = endAt;
+        this.open = open;
+        this.category = category;
+        this.gpa = gpa;
+        this.fail = fail;
+        this.appLimit = appLimit;
+    }
+
+    public ElcMutualApplyTurns() {
+    }
 }

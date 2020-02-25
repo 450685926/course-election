@@ -112,13 +112,19 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	@Override
 	public int apply(ElcMutualApplyDto dto) {
 		Session session = SessionUtils.getCurrentSession();
-		String projectId = session.getCurrentManageDptId();
+		//String projectId = session.getCurrentManageDptId();
+		//部门id,前端传入
+		String projectId=dto.getProjectId();
 		String studentId = session.realUid();
+		//本地调试学生id:1354051
+		//String studentId="1354051";
 		
 		int result = 0;
 		// 校验学生是否可以申请互选课程
 		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+			//初始化帮助类
 			MutualApplyJugeUtil mutualApplyJugeUtil = new MutualApplyJugeUtil(elcMutualApplySwitchDao,elcMutualApplyDao);
+			//执行校验方法
 			Boolean isApplyMutualCourseFlag = mutualApplyJugeUtil.jugeApplyMutualCourses(dto, projectId, studentId);
 			LOG.info("=========isApplyMutualCourseFlag:"+isApplyMutualCourseFlag+"=========");
 			if (!isApplyMutualCourseFlag.booleanValue()) {
