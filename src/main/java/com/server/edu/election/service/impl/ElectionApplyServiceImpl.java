@@ -293,12 +293,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
                 I18nUtil.getMsg("election.electionApply")));
         }
-        Example wExample = new Example(ElectionApply.class);
-        Example.Criteria wCriteria = wExample.createCriteria();
-        wCriteria.andEqualTo("studentId", studentId);
-        wCriteria.andEqualTo("calendarId", calendarId);
-        wCriteria.andEqualTo("courseCode", courseCode);
-        int result = electionApplyDao.deleteByExample(wExample);
         Example cExample = new Example(ElectionApplyCourses.class);
         Example.Criteria cCriteria = cExample.createCriteria();
         cCriteria.andEqualTo("calendarId", calendarId);
@@ -322,16 +316,37 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 			if(CollectionUtil.isNotEmpty(engLishCourseCodes) && engLishCourseCodes.contains(courseCode)) {
 				List<String> engLishTakeCourse = list.stream().filter(c->c!=null).filter(c->engLishCourseCodes.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
 				if(CollectionUtil.isNotEmpty(engLishTakeCourse)) {
-					throw new ParameterValidateException("已选英语课不能申请!");
+					throw new ParameterValidateException("已选一门英语课不能申请!");
 				}
 			}
 			if(CollectionUtil.isNotEmpty(PECourses) && PECourses.contains(courseCode)) {
 				List<String> peTakeCourse = list.stream().filter(c->c!=null).filter(c->PECourses.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
 				if(CollectionUtil.isNotEmpty(peTakeCourse)) {
-					throw new ParameterValidateException("已选体育课不能申请!");
+					throw new ParameterValidateException("已选一门体育课不能申请!");
 				}
 			}
 		}
+		//查询申请的体育、英语课
+		List<Integer> modeList = Arrays.asList(2,3);
+        Example egPeExample = new Example(ElectionApply.class);
+        egPeExample.createCriteria().andEqualTo("studentId", studentId).andEqualTo("calendarId", calendarId).andIn("mode", modeList);
+        List<ElectionApply> electionApplys= electionApplyDao.selectByExample(egPeExample);
+        if(CollectionUtil.isNotEmpty(electionApplys)) {
+        	List<ElectionApply> peElectionApplys = electionApplys.stream().filter(c->Constants.PE_MODEL.equals(c.getMode())).collect(Collectors.toList());
+			if(CollectionUtil.isNotEmpty(peElectionApplys)) {
+				throw new ParameterValidateException("已申请一门体育课不能申请!");
+			}
+        	List<ElectionApply> engLishElectionApplys = electionApplys.stream().filter(c->Constants.ENGLISH_MODEL.equals(c.getMode())).collect(Collectors.toList());
+    		if(CollectionUtil.isNotEmpty(engLishElectionApplys)) {
+				throw new ParameterValidateException("已申请一门英语课不能申请!");
+			}
+		}
+        Example wExample = new Example(ElectionApply.class);
+        Example.Criteria wCriteria = wExample.createCriteria();
+        wCriteria.andEqualTo("studentId", studentId);
+        wCriteria.andEqualTo("calendarId", calendarId);
+        wCriteria.andEqualTo("courseCode", courseCode);
+        int result = electionApplyDao.deleteByExample(wExample);
         ElectionApply electionApply = new ElectionApply();
         electionApply.setStudentId(studentId);
         electionApply.setCalendarId(calendarId);
