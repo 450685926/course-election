@@ -104,7 +104,7 @@ public class BKForeignStuCourseLoad extends DataProLoad<ElecContextBk>
 //            Map<String, String> map = new HashMap<>(60);
             StudentScoreDto dto = new StudentScoreDto();
             dto.setStudentId(context.getStudentInfo().getStudentId());
-            List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
+            List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getAllStudentScoreList(dto);
             List<String> stuCompletedCourse = new ArrayList<>();
             if(CollectionUtil.isNotEmpty(stuScore)) {
             	stuCompletedCourse = stuScore.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());

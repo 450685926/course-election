@@ -74,7 +74,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                 log.info("honor course size:{}", list.size());
                 StudentScoreDto dto = new StudentScoreDto();
                 dto.setStudentId(context.getStudentInfo().getStudentId());
-                List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
+                List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getAllStudentScoreList(dto);
                 List<String> selectedCourse = stuScore.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
                 //过滤属于这个学生的荣誉课程
                 list.forEach(c->{
