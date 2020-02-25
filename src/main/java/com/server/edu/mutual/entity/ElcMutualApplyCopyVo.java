@@ -245,4 +245,21 @@ public class ElcMutualApplyCopyVo implements Serializable {
                 ", courseTakeType=" + courseTakeType +
                 '}';
     }
+
+    public ElcMutualApplyCopyVo(Long id, Long calendarId, String studentId, Timestamp applyAt, String userId, Integer status, Long mutualCourseId, String remark, String auditReason, Integer mode, Integer courseTakeType) {
+        this.id = id;
+        this.calendarId = calendarId;
+        this.studentId = studentId;
+        this.applyAt = applyAt;
+        this.userId = userId;
+        this.status = status;
+        this.mutualCourseId = mutualCourseId;
+        this.remark = remark;
+        this.auditReason = auditReason;
+        this.mode = mode;
+        this.courseTakeType = courseTakeType;
+    }
+
+    public ElcMutualApplyCopyVo() {
+    }
 }

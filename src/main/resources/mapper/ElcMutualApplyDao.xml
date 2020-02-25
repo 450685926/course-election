@@ -504,6 +504,16 @@
             sco.`STUDENT_NUM_` = #{studentId} 
             AND sco.`IS_PASS_` = 'N' 
     </select>
+
+
+	<!--根据学生id查询本科生平均绩点-->
+	<select id="selectAvgPonitByStudentId" parameterType="java.lang.String" resultType="map">
+		SELECT
+			STUDENT_NUM_ AS studentId,
+			AVG(GRADE_POINT_)AS avgPoint
+		FROM course_arrangement.student_undergraduate_score_info_t
+	   WHERE STUDENT_NUM_=#{studentId}
+	</select>
   	
   	
   	

@@ -195,4 +195,16 @@ public class ElcMutualApplyAuditLogs implements Serializable {
         sb.append("]");
         return sb.toString();
     }
+
+    public ElcMutualApplyAuditLogs() {
+    }
+
+    public ElcMutualApplyAuditLogs(Integer auditType, Integer approved, String auditUserId, Date auditAt, Long muApplyId, String reason) {
+        this.auditType = auditType;
+        this.approved = approved;
+        this.auditUserId = auditUserId;
+        this.auditAt = auditAt;
+        this.muApplyId = muApplyId;
+        this.reason = reason;
+    }
 }

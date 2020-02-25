@@ -1,6 +1,7 @@
 package com.server.edu.mutual.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -56,4 +57,11 @@ public interface ElcMutualApplyDao extends Mapper<ElcMutualApply>,MySqlMapper<El
      * @return
      */
     List<String> findStuFailedCourseCodes(@RequestParam("studentId") String studentId);
+
+	/**
+	 * 根据学生id查询本科生平均绩点
+	 * @param studentId
+	 * @return
+	 */
+	Map<String, Object> selectAvgPonitByStudentId(@RequestParam("studentId") String studentId);
 }
