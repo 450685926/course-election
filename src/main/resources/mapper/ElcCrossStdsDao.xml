@@ -23,7 +23,8 @@
 		  t2.`MANAGER_DEPT_ID_` projectId,
 		  t2.TRAINING_CATEGORY_ trainingCategory,
 		  t2.DEGREE_CATEGORY_ degreeCategory,
-		  t2.FORM_LEARNING_ formLearning
+		  t2.FORM_LEARNING_ formLearning ,
+	  	  t2.DEGREE_TYPE_ degreeType
 		FROM
 		  `elc_cross_stds_t` t1 
 		   JOIN `student_t` t2 
