@@ -90,7 +90,7 @@ public class BKForeignStuCourseLoad extends DataProLoad<ElecContextBk>
     {
         //查询留学生课程
     	Example example = new Example(ElectionConstants.class);
-    	example.createCriteria().andEqualTo("managerDeptId", Constants.FIRST).andEqualTo("key", "FOREIGN_STU_COURSE");
+    	example.createCriteria().andEqualTo("managerDeptId", Constants.FIRST).andEqualTo("key", "FOR_OVERSEAS_STUDENT_COURSES");
     	ElectionConstants electionConstants = electionConstantsDao.selectOneByExample(example);
     	String value = electionConstants.getValue();
     	if(StringUtils.isNoneBlank(value)) {
