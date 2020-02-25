@@ -280,16 +280,21 @@ public class ElcCourseTakeYjsController
     			courseTakeService.courseTakeNameListPage(condition);
     	return RestResult.successData(list);
     }
-    
+
+    /**
+     * 只给正常修读的学生加课，重修，免修不考虑
+     * @param value
+     * @return
+     */
     @ApiOperation(value = "研究生学生加课")
     @PutMapping("/graduateAdd")
     public RestResult<?> graduateAdd(@RequestBody ElcCourseTakeAddDto value)
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
-        Session session = SessionUtils.getCurrentSession();
-        String currentRole = session.getCurrentRole();
-        boolean adminFlag = session.isAdmin();
-        String msg = courseTakeService.graduateAdd(value,currentRole,adminFlag,session.getCurrentManageDptId());
+//        Session session = SessionUtils.getCurrentSession();
+//        String currentRole = session.getCurrentRole();
+//        boolean adminFlag = session.isAdmin();
+        String msg = courseTakeService.graduateAdd(value);
         return RestResult.success(msg);
     }   
     

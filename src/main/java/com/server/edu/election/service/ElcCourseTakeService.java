@@ -166,7 +166,8 @@ public interface ElcCourseTakeService
 	 * @param teachingClassIds
      * @param studentId
      */
-	String graduateAdd(ElcCourseTakeAddDto value,String currentRole, boolean adminFlag, String projId);
+//	String graduateAdd(ElcCourseTakeAddDto value,String currentRole, boolean adminFlag, String projId);
+	String graduateAdd(ElcCourseTakeAddDto value);
 
 	/**
 	 * 个人培养计划中有该课程且又没有选课的学生名单
