@@ -882,7 +882,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 if (CollectionUtil.isNotEmpty(ids)) {
                     for (ElcCourseTakeVo elcCourseTake : elcCourseTakes) {
                         Long teachingClassId = elcCourseTake.getTeachingClassId();
-                        if (ids.contains(teachingClassId)) {
+                        if (teachingClassId != null && ids.contains(teachingClassId)) {
                             set.add(elcCourseTake.getStudentId());
                         }
                     }
