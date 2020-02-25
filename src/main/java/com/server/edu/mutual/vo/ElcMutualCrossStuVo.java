@@ -6,7 +6,7 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 public class ElcMutualCrossStuVo {
 
 	/*学位类别*/
-	@Code2Text(transformer = "X_XWLB")
+	@Code2Text(transformer = "X_XWLX")
 	private String degreeType;
 
 	private Long id;
