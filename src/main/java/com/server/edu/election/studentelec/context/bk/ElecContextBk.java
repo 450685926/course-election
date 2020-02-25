@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.server.edu.common.entity.BclHonorModule;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -73,6 +74,9 @@ public class ElecContextBk implements IElecContext
 
     /** 未修完的课程 */
     private Set<CompletedCourse>  unFinishedCourses;
+    
+    /** 留学生课程 */
+    private Set<ElecCourse> foreignStuCourses;
 
     private ElecRequest request;
     
@@ -118,6 +122,7 @@ public class ElecContextBk implements IElecContext
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
         onlyCourses = this.contextUtil.getSet("OnlyCourses", PlanCourse.class);
+        foreignStuCourses = this.contextUtil.getSet("ForeignStuCourses", ElecCourse.class);
     }
 
     /**
@@ -146,6 +151,7 @@ public class ElecContextBk implements IElecContext
         this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
         this.contextUtil.updateMem(REPLACE_COURSES, this.replaceCourses);
         this.contextUtil.updateMem("OnlyCourses", this.onlyCourses);
+        this.contextUtil.updateMem("ForeignStuCourses", this.foreignStuCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -180,8 +186,8 @@ public class ElecContextBk implements IElecContext
         this.getApplyCourse().clear();
         this.getElecApplyCourses().clear();
         this.getReplaceCourses().clear();
-        this.getPlanCourses().clear();
         this.getOnlyCourses().clear();
+        this.getForeignStuCourses().clear();
     }
     
     public void courseClear()
@@ -295,6 +301,11 @@ public class ElecContextBk implements IElecContext
 	public Set<PlanCourse> getOnlyCourses() {
 		return onlyCourses;
 	}
+	
+    public Set<ElecCourse> getForeignStuCourses()
+    {
+        return foreignStuCourses;
+    }
     
 
 }
