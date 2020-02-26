@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.score.dao.ScoreRecordModeDao">
+  <resultMap id="SetResultMap" type="com.server.edu.mutual.vo.Scoresetting">
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="CORETYPE_CODE_" jdbcType="INTEGER" property="coretypeCode" />
+    <result column="CHINESE_NAME_" jdbcType="VARCHAR" property="chineseName" />
+    <result column="ENGLISH_NAME_" jdbcType="VARCHAR" property="englishName" />
+    <result column="PASSLINE_" jdbcType="DOUBLE" property="passline" />
+    <result column="UPDATE_TIME_" jdbcType="BIGINT" property="updateTime" />
+    <result column="DELETE_STATUS" jdbcType="INTEGER" property="isDelete" />
+    <result column="PROJECT_ID_" jdbcType="VARCHAR" property="manageDptId" />
+    <collection property="scoresettingDetailList" ofType="com.server.edu.mutual.vo.ScoresettingDetail" select="getSetDetails" column="ID_">
+      <id column="ID_" jdbcType="BIGINT" property="detailid" />
+      <result column="SCORE_SETTING_ID_" jdbcType="BIGINT" property="scoreSettingId" />
+      <result column="SCORE_NAME_" jdbcType="VARCHAR" property="scoreName" />
+      <result column="MIN_SCORE_" jdbcType="DOUBLE" property="minScore" />
+      <result column="MAX_SCORE_" jdbcType="DOUBLE" property="maxScore" />
+      <result column="DEFAULT_SCORE_" jdbcType="DOUBLE" property="defaultScore" />
+      <result column="SCORE_POINT_" jdbcType="DOUBLE" property="scorePoint" />
+      <result column="UPDATE_TIME_" jdbcType="BIGINT" property="updateTimeDet" />
+      <result column="DELETE_STATUS" jdbcType="INTEGER" property="isDeleteDet" />
+    </collection>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID_,CORETYPE_CODE_,CHINESE_NAME_,ENGLISH_NAME_,PASSLINE_,UPDATE_TIME_,DELETE_STATUS,PROJECT_ID_
+  </sql>
+  
+  <!--获取成绩记录方式-->
+  <select id="queryRecordMode" resultMap ="SetResultMap">
+     select <include refid="Base_Column_List" /> 
+     from score_setting_t where DELETE_STATUS=0  ORDER BY CORETYPE_CODE_
+  </select>
+  <!--按课程获取部门id-->
+    <select id="findPidByCourseCode" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT DISTINCT
+        PROJ_ID_
+        FROM
+        course_open_t
+        WHERE
+        COURSE_CODE_ = #{courseCode}
+        AND CALENDAR_ID_ = #{calendarId}
+    </select>
+ </mapper> 
