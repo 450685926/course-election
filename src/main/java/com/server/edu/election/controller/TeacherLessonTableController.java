@@ -85,10 +85,8 @@ public class TeacherLessonTableController
         else if (StringUtils.equals(session.getCurrentRole(), "1")
             && !session.isAdmin() && session.isAcdemicDean())
         {
-            if (StringUtils.isBlank(classCodeToTeacher.getFaculty())) {
                 List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
                 classCodeToTeacher.setFaculties(deptIds);
-            }
             classTeacher =
                 lessonTableService.findTeacherTimeTableByRole(condition);
         }
