@@ -1560,12 +1560,13 @@
         SELECT 
 	       te.CODE_ classCode ,co.CODE_ courseCode,co.NAME_ courseName,
 	       el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,
-	     -- pc.ASSESSMENT_MODE_ assessmentMode,
+	      pc.ASSESSMENT_MODE_ assessmentMode,
+	      pc.compulsory compulsory,
 	       el.TEACHING_CLASS_ID_ teachingClassId,
 	       te.CAMPUS_ campus,te.REMARK_ remark,te.NAME_ className
         FROM elc_course_takes_t el
         LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
-        -- LEFT JOIN v_student_plan_course pc on (el.COURSE_CODE_ =pc.courseCode  and el.STUDENT_ID_ = pc.studentId)
+        LEFT JOIN v_student_plan_course pc on (el.COURSE_CODE_ =pc.courseCode  and el.STUDENT_ID_ = pc.studentId)
         LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
         LEFT JOIN teaching_class_t te on (te.ID_=el.TEACHING_CLASS_ID_ and te.DELETE_STATUS_ = 0)
         where el.STUDENT_ID_=#{studentId,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
