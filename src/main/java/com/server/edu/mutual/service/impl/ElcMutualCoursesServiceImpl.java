@@ -201,8 +201,15 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 	@Override
 	public int getElcMutualCourseCount(Long calendarId,Integer mode) {
 		ElcMutualCoursesDto dto = new ElcMutualCoursesDto();
-		Session session = SessionUtils.getCurrentSession();
-		dto.setProjectId(session.getCurrentManageDptId());
+		//Session session = SessionUtils.getCurrentSession();
+		//dto.setProjectId(session.getCurrentManageDptId());
+		
+		if(Constants.BK_MUTUAL.equals(mode)){
+			dto.setProjectId(Constants.PROJ_UNGRADUATE);
+		}else{
+			dto.setProjectId(Constants.PROJ_GRADUATE);
+		}
+
 		dto.setCalendarId(calendarId);
 		if(Constants.BK_CROSS.equals(mode)) {
 			dto.setInType(Constants.FIRST);
