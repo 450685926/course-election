@@ -1,39 +1,15 @@
 package com.server.edu.mutual.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.entity.LabelCreditCount;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.constants.Constants;
-import com.server.edu.election.constants.CourseTakeType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.server.edu.election.util.CommonConstant;
-import com.server.edu.exception.ParameterValidateException;
-import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
-import com.server.edu.mutual.controller.ElcMutualApplyController;
 import com.server.edu.mutual.dao.ElcCrossStdsDao;
-import com.server.edu.mutual.dao.ElcMutualApplyDao;
-import com.server.edu.mutual.dao.ElcMutualApplySwitchDao;
-import com.server.edu.mutual.dao.ElcMutualListDao;
-import com.server.edu.mutual.dao.ElcMutualStdsDao;
-import com.server.edu.mutual.dto.ElcMutualApplyDto;
-import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
-import com.server.edu.mutual.entity.ElcMutualApply;
 import com.server.edu.mutual.entity.ElcMutualApplyTurns;
-import com.server.edu.mutual.rpc.CultureSerivceInvokerToMutual;
-import com.server.edu.mutual.service.ElcMutualApplyService;
-import com.server.edu.mutual.util.MutualApplyJugeUtil;
-import com.server.edu.mutual.util.ProjectUtil;
 import com.server.edu.mutual.vo.CulturePlanVo;
-import com.server.edu.mutual.vo.ElcMutualApplyVo;
-import com.server.edu.mutual.vo.ElcMutualCrossStuVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
-import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +17,36 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.LabelCreditCount;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.constants.Constants;
+import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
+import com.server.edu.mutual.controller.ElcMutualApplyController;
+import com.server.edu.mutual.dao.ElcMutualApplyDao;
+import com.server.edu.mutual.dao.ElcMutualApplySwitchDao;
+import com.server.edu.mutual.dao.ElcMutualListDao;
+import com.server.edu.mutual.dao.ElcMutualStdsDao;
+import com.server.edu.mutual.dto.ElcMutualApplyDto;
+import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
+import com.server.edu.mutual.entity.ElcMutualApply;
+import com.server.edu.mutual.rpc.CultureSerivceInvokerToMutual;
+import com.server.edu.mutual.service.ElcMutualApplyService;
+import com.server.edu.mutual.util.MutualApplyJugeUtil;
+import com.server.edu.mutual.util.ProjectUtil;
+import com.server.edu.mutual.vo.ElcMutualApplyVo;
+import com.server.edu.mutual.vo.ElcMutualCrossStuVo;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
+import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	private static Logger LOG =
@@ -116,9 +115,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		//部门id,前端传入
 		String projectId=dto.getProjectId();
 		String studentId = session.realUid();
-		//本地调试学生id:1354051
-		//String studentId="1354051";
-		
+
 		int result = 0;
 		// 校验学生是否可以申请互选课程
 		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
@@ -414,7 +411,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
 			projectIds.add(Constants.PROJ_UNGRADUATE);
 		} else {
-			projectIds = ProjectUtil.getProjectIds(projectId);
+			projectIds = ProjectUtil.getProjectIds(dto.getProjectId());
 		}
 
 		dto.setProjectIds(projectIds);
