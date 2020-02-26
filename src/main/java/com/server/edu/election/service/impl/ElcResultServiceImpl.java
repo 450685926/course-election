@@ -457,129 +457,129 @@ public class ElcResultServiceImpl implements ElcResultService
 	}
     
     
-//    @Override
-//    public PageResult<TeachingClassVo> graduatePage(
-//        PageCondition<ElcResultQuery> page)
-//    {
-//        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-//        ElcResultQuery condition = page.getCondition();
-//        Session session = SessionUtils.getCurrentSession();
-//        //教务员登录情况下 : 1、查看自己管理学院和所属学院的数据 2、值允许查看专业课程
-//        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean()) {
-//            String faculty = condition.getFaculty();
-//            //如果筛选条件学院为空,则获取session中的学院;否则设置条件学院
-//            if(StringUtils.isEmpty(faculty)) {
-//                condition.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
-//            }else {
-//                condition.setFaculty(faculty);
-//            }
-//            condition.setNature("2");
-//        }
-//        logger.info("-------- alex -------the qurey parames:{}",condition.toString());
-//		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
-//		// 添加教室容量
-//		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
-//
-//		Set<String> set = new HashSet<String>(roomIds);
-//		roomIds.clear();
-//		roomIds.addAll(set);
-//
-//        List<ClassroomN> classroomList = null;
-//        classroomList = CollectionUtil.isEmpty(roomIds)?ClassroomCacheUtil.getAll():ClassroomCacheUtil.getList(roomIds);
-//        for (TeachingClassVo teachingClassVo : listPage) {
-//        	teachingClassVo.setClassNumberStr("不限");
-//        	if(CollectionUtil.isNotEmpty(classroomList)
-//        			&& StringUtils.isNotBlank(teachingClassVo.getRoomId())
-//        			&& !StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
-//        		ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->teachingClassVo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
-//        		if(classroom!=null && classroom.getClassCapacity()!=null) {
-//        			teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
-//        		}
-//        	}
-//        }
-//
-//        List<TeachingClassVo> list = listPage.getResult();
-//        if(CollectionUtil.isNotEmpty(list)) {
-//        	List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
-//    	    // 查找任课教师信息
-//            Example teacherExample = new Example(TeachingClassTeacher.class);
-//            teacherExample.createCriteria().andIn("teachingClassId", classIds).
-//                    andEqualTo("type",Constants.TEACHER_DEFAULT);
-//            List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
-//            for(TeachingClassVo vo: list) {
-//            	if(CollectionUtil.isNotEmpty(teacherList)) {
-//                	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
-//                	StringBuilder stringBuilder = new StringBuilder();
-//                	if(CollectionUtil.isNotEmpty(teachers)) {
-//                		for(TeachingClassTeacher teacher:teachers) {
-//                			stringBuilder.append(teacher.getTeacherName());
-//                			stringBuilder.append("(");
-//                			stringBuilder.append(teacher.getTeacherCode());
-//                			stringBuilder.append(")");
-//                			stringBuilder.append(",");
-//                		}
-//                		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
-//                	}
-//            	}
-//            }
-//            // 处理教学安排（上课时间地点）信息
-//            getTimeList(list);
-//        }
-//        return new PageResult<>(listPage);
-//    }
-
-
     @Override
     public PageResult<TeachingClassVo> graduatePage(
-            PageCondition<ElcResultQuery> page)
+        PageCondition<ElcResultQuery> page)
     {
+        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
-
         Session session = SessionUtils.getCurrentSession();
-        // 教务员判断
-        if (StringUtils.equals(session.getCurrentRole(), "1")
-                && !session.isAdmin() && session.isAcdemicDean())
-        {
-            List<String> deptIds = SessionUtils.getCurrentSession().
-                    getGroupData().get(GroupDataEnum.department.getValue());
-            condition.setFaculties(deptIds);
+        //教务员登录情况下 : 1、查看自己管理学院和所属学院的数据 2、值允许查看专业课程
+        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean()) {
+            String faculty = condition.getFaculty();
+            //如果筛选条件学院为空,则获取session中的学院;否则设置条件学院
+            if(StringUtils.isEmpty(faculty)) {
+                condition.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
+            }else {
+                condition.setFaculty(faculty);
+            }
             condition.setNature("2");
         }
+        logger.info("-------- alex -------the qurey parames:{}",condition.toString());
+		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
+		// 添加教室容量
+		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
 
-        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        Page<TeachingClassVo> listPage = classDao.graduatePage(condition);
-        if (CollectionUtil.isNotEmpty(listPage)) {
-            List<Long> ids = listPage.stream().
-                    map(TeachingClassVo::getId).collect(Collectors.toList());
-            List<TimeTableMessage> tableMessages = courseTakeDao.findCourseArrange(ids);
-            Map<Long, List<TimeTableMessage>> map = tableMessages.
-                    stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
-            for (TeachingClassVo teachingClassVo : listPage) {
-                Long id = teachingClassVo.getId();
-                List<TimeTableMessage> timeTableMessages = map.get(id);
-                if (CollectionUtil.isEmpty(timeTableMessages)) {
-                    continue;
-                }
-                List<String> list = new ArrayList<>(3);
-                for (TimeTableMessage tableMessage : timeTableMessages) {
-                    Integer dayOfWeek = tableMessage.getDayOfWeek();
-                    Integer timeStart = tableMessage.getTimeStart();
-                    Integer timeEnd = tableMessage.getTimeEnd();
-                    String roomID = tableMessage.getRoomId();
-                    String[] str = tableMessage.getWeekNum().split(",");
-                    List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
-                    List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
-                    String weekNumStr = weekNums.toString();//周次
-                    String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
-                    String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
-                    list.add(timeStr);
-                }
-                teachingClassVo.setTimeAndRoom(String.join(",", list));
-            }
+		Set<String> set = new HashSet<String>(roomIds);
+		roomIds.clear();
+		roomIds.addAll(set);
+
+        List<ClassroomN> classroomList = null;
+        classroomList = CollectionUtil.isEmpty(roomIds)?ClassroomCacheUtil.getAll():ClassroomCacheUtil.getList(roomIds);
+        for (TeachingClassVo teachingClassVo : listPage) {
+        	teachingClassVo.setClassNumberStr("不限");
+        	if(CollectionUtil.isNotEmpty(classroomList)
+        			&& StringUtils.isNotBlank(teachingClassVo.getRoomId())
+        			&& !StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
+        		ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->teachingClassVo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+        		if(classroom!=null && classroom.getClassCapacity()!=null) {
+        			teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
+        		}
+        	}
         }
 
+        List<TeachingClassVo> list = listPage.getResult();
+        if(CollectionUtil.isNotEmpty(list)) {
+        	List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+    	    // 查找任课教师信息
+            Example teacherExample = new Example(TeachingClassTeacher.class);
+            teacherExample.createCriteria().andIn("teachingClassId", classIds).
+                    andEqualTo("type",Constants.TEACHER_DEFAULT);
+            List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
+            for(TeachingClassVo vo: list) {
+            	if(CollectionUtil.isNotEmpty(teacherList)) {
+                	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
+                	StringBuilder stringBuilder = new StringBuilder();
+                	if(CollectionUtil.isNotEmpty(teachers)) {
+                		for(TeachingClassTeacher teacher:teachers) {
+                			stringBuilder.append(teacher.getTeacherName());
+                			stringBuilder.append("(");
+                			stringBuilder.append(teacher.getTeacherCode());
+                			stringBuilder.append(")");
+                			stringBuilder.append(",");
+                		}
+                		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+                	}
+            	}
+            }
+            // 处理教学安排（上课时间地点）信息
+            getTimeList(list);
+        }
         return new PageResult<>(listPage);
     }
+
+
+//    @Override
+//    public PageResult<TeachingClassVo> graduatePage(
+//            PageCondition<ElcResultQuery> page)
+//    {
+//        ElcResultQuery condition = page.getCondition();
+//
+//        Session session = SessionUtils.getCurrentSession();
+//        // 教务员判断
+//        if (StringUtils.equals(session.getCurrentRole(), "1")
+//                && !session.isAdmin() && session.isAcdemicDean())
+//        {
+//            List<String> deptIds = SessionUtils.getCurrentSession().
+//                    getGroupData().get(GroupDataEnum.department.getValue());
+//            condition.setFaculties(deptIds);
+//            condition.setNature("2");
+//        }
+//
+//        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+//        Page<TeachingClassVo> listPage = classDao.graduatePage(condition);
+//        if (CollectionUtil.isNotEmpty(listPage)) {
+//            List<Long> ids = listPage.stream().
+//                    map(TeachingClassVo::getId).collect(Collectors.toList());
+//            List<TimeTableMessage> tableMessages = courseTakeDao.findCourseArrange(ids);
+//            Map<Long, List<TimeTableMessage>> map = tableMessages.
+//                    stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+//            for (TeachingClassVo teachingClassVo : listPage) {
+//                Long id = teachingClassVo.getId();
+//                List<TimeTableMessage> timeTableMessages = map.get(id);
+//                if (CollectionUtil.isEmpty(timeTableMessages)) {
+//                    continue;
+//                }
+//                List<String> list = new ArrayList<>(3);
+//                for (TimeTableMessage tableMessage : timeTableMessages) {
+//                    Integer dayOfWeek = tableMessage.getDayOfWeek();
+//                    Integer timeStart = tableMessage.getTimeStart();
+//                    Integer timeEnd = tableMessage.getTimeEnd();
+//                    String roomID = tableMessage.getRoomId();
+//                    String[] str = tableMessage.getWeekNum().split(",");
+//                    List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+//                    List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+//                    String weekNumStr = weekNums.toString();//周次
+//                    String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+//                    String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
+//                    list.add(timeStr);
+//                }
+//                teachingClassVo.setTimeAndRoom(String.join(",", list));
+//            }
+//        }
+//
+//        return new PageResult<>(listPage);
+//    }
     
 	private List<TeachingClassVo>  getTimeList(List<TeachingClassVo> list){
 		if(CollectionUtil.isNotEmpty(list)){
