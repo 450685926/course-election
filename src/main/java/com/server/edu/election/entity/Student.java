@@ -72,6 +72,12 @@ public class Student implements Serializable
      */
     @Column(name = "GRADE_")
     private Integer grade;
+
+    /**
+     * 学生当前年级
+     */
+    @Column(name = "CURRENT_GRADE_")
+    private Integer currentGrade;
     
     /**
      * 专项计划
@@ -682,7 +688,15 @@ public class Student implements Serializable
     {
         this.enrolMethods = enrolMethods == null ? null : enrolMethods.trim();
     }
-    
+
+    public Integer getCurrentGrade() {
+        return currentGrade;
+    }
+
+    public void setCurrentGrade(Integer currentGrade) {
+        this.currentGrade = currentGrade;
+    }
+
     @Override
     public String toString()
     {
@@ -699,6 +713,7 @@ public class Student implements Serializable
         sb.append(", faculty=").append(faculty);
         sb.append(", profession=").append(profession);
         sb.append(", grade=").append(grade);
+        sb.append(",currentGrade=").append(currentGrade);
         sb.append(", spcialPlan=").append(spcialPlan);
         sb.append(", registrationStatus=").append(registrationStatus);
         sb.append(", enrolSeason=").append(enrolSeason);
