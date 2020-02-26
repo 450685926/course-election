@@ -316,13 +316,13 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 			if(CollectionUtil.isNotEmpty(engLishCourseCodes) && engLishCourseCodes.contains(courseCode)) {
 				List<String> engLishTakeCourse = list.stream().filter(c->c!=null).filter(c->engLishCourseCodes.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
 				if(CollectionUtil.isNotEmpty(engLishTakeCourse)) {
-					throw new ParameterValidateException("已选一门英语课不能申请!");
+					throw new ParameterValidateException("已选一门英语课,不能再申请!");
 				}
 			}
 			if(CollectionUtil.isNotEmpty(PECourses) && PECourses.contains(courseCode)) {
 				List<String> peTakeCourse = list.stream().filter(c->c!=null).filter(c->PECourses.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
 				if(CollectionUtil.isNotEmpty(peTakeCourse)) {
-					throw new ParameterValidateException("已选一门体育课不能申请!");
+					throw new ParameterValidateException("已选一门体育课,不能再申请!");
 				}
 			}
 		}
@@ -334,11 +334,11 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         if(CollectionUtil.isNotEmpty(electionApplys)) {
         	List<ElectionApply> peElectionApplys = electionApplys.stream().filter(c->Constants.PE_MODEL.equals(c.getMode())).collect(Collectors.toList());
 			if(CollectionUtil.isNotEmpty(peElectionApplys)) {
-				throw new ParameterValidateException("已申请一门体育课不能申请!");
+				throw new ParameterValidateException("已申请一门体育课,不能再申请!");
 			}
         	List<ElectionApply> engLishElectionApplys = electionApplys.stream().filter(c->Constants.ENGLISH_MODEL.equals(c.getMode())).collect(Collectors.toList());
     		if(CollectionUtil.isNotEmpty(engLishElectionApplys)) {
-				throw new ParameterValidateException("已申请一门英语课不能申请!");
+				throw new ParameterValidateException("已申请一门英语课,不能再申请!");
 			}
 		}
         Example wExample = new Example(ElectionApply.class);
