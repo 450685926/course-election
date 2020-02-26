@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -38,6 +40,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ElcMutualListServiceImpl implements ElcMutualListService {
+    private static Logger LOG =
+            LoggerFactory.getLogger(ElcMutualListServiceImpl.class);
     @Autowired
     private ElcMutualListDao elcMutualListDao;
 
@@ -78,7 +82,7 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
                 dto.setOpenCollege(faculty);  // 开课学院
             }
         }
-
+        LOG.info("=======修读类型的courseTakeType==========" + dto.getCourseTakeType());
         List<ElcMutualListVo> list = elcMutualListDao.getMutualStuList(dto);
         //获取教学安排
         for(ElcMutualListVo vo:list) {

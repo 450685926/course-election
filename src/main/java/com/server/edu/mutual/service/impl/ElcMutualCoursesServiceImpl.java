@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.entity.CampusProfession;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.util.CommonConstant;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang3.StringUtils;
@@ -201,8 +203,15 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 	@Override
 	public int getElcMutualCourseCount(Long calendarId,Integer mode) {
 		ElcMutualCoursesDto dto = new ElcMutualCoursesDto();
-		Session session = SessionUtils.getCurrentSession();
-		dto.setProjectId(session.getCurrentManageDptId());
+		//Session session = SessionUtils.getCurrentSession();
+		//dto.setProjectId(session.getCurrentManageDptId());
+		
+		if(Constants.BK_MUTUAL.equals(mode)){
+			dto.setProjectId(Constants.PROJ_UNGRADUATE);
+		}else{
+			dto.setProjectId(Constants.PROJ_GRADUATE);
+		}
+
 		dto.setCalendarId(calendarId);
 		if(Constants.BK_CROSS.equals(mode)) {
 			dto.setInType(Constants.FIRST);
@@ -212,7 +221,7 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 		int count = elcMutualCoursesDao.getElcMutualCourseCount(dto);
 		return count;
 	}
-	
+
 	/**
 	 * 获取本科生（或者研究生）已经排课的课程
 	 * @param calendarId 学年学期
