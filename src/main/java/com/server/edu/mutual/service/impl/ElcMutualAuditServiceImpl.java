@@ -459,14 +459,17 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		criteria.andEqualTo("studentCode", dto.getStudentId());
 		Student student = studentDao.selectOneByExample(stuExample);
 		Integer currentGrade = student.getCurrentGrade();
+		LOG.info("student current grade:" + currentGrade);
 		//查询本科生当前学期
 		Long stuCalendarId = BaseresServiceExamInvoker.getCalendarId(currentGrade, 1);
+		LOG.info("student current calendarId:" + stuCalendarId);
 		if (stuCalendarId == null) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApplyAudit.getCalendarFail"));
 		}
 		//获取学生所选课程的当前学期
 		Long courseCalendarId = dto.getCalendarId();
 		BigDecimal semester = new BigDecimal(courseCalendarId).subtract(new BigDecimal(stuCalendarId));
+		LOG.info("semester:" + semester.longValue());
 		dto.setSemester(semester.longValue());
 		//更新培养计划
 		dto.setStatus(elcMutualApply.getStatus());
