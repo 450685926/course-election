@@ -256,6 +256,9 @@
 		  JOIN `student_t` t4 ON t4.`STUDENT_CODE_` = t1.`STUDENT_ID_`
 		 <where>
 		    t1.CALENDAR_ID_  = #{calendarId}
+			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+				 and t1.MODE_ = #{mode}
+			 </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
 		    </if>
