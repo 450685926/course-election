@@ -68,6 +68,8 @@ public class TeachingClassCache extends ElecCourse implements Serializable
     private Integer manArrangeFlag;
 
     private String replaceCourse;
+
+    private String replaceCourseName;
     
     private Double period;
     
@@ -101,6 +103,14 @@ public class TeachingClassCache extends ElecCourse implements Serializable
     private int firstTurnNum;
 
     private int secondTurnNum;
+
+    public String getReplaceCourseName() {
+        return replaceCourseName;
+    }
+
+    public void setReplaceCourseName(String replaceCourseName) {
+        this.replaceCourseName = replaceCourseName;
+    }
 
     public int getFirstTurnNum() {
         return firstTurnNum;
