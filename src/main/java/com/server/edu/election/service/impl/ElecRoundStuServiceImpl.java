@@ -1,8 +1,11 @@
 package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -53,6 +56,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     
     @Autowired
     private RedisTemplate<String, AsyncResult> redisTemplate;
+
+    @Autowired
+    private RoundDataProvider dataProvider;
     
     @Override
     public PageResult<Student4Elc> listPage(
@@ -84,6 +90,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         List<String> listExistStu = elecRoundStuDao.listExistStu(studentCodes, session.getCurrentManageDptId());
         List<String> listAddedStu =
             elecRoundStuDao.listAddedStu(roundId, studentCodes);
+        Set<String> updateCache = new HashSet<>();
         List<String> notExistStu = new ArrayList<>();
         for (String code : studentCodes)
         {
@@ -93,6 +100,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                     int i = studentDao.findJieYeStudent(code);
                     if(i > 0){
                         elecRoundStuDao.add(roundId, code);
+                        updateCache.add(code);
                     }else{
                         notExistStu.add(code);
                     }
@@ -100,11 +108,13 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                     int i = studentDao.findLiuXueJieYeStudent(code);
                     if(i > 0){
                         elecRoundStuDao.add(roundId, code);
+                        updateCache.add(code);
                     }else{
                         notExistStu.add(code);
                     }
                 }else if (RoundMode.NORMAL.eq(mode) || RoundMode.ShiJian.eq(mode)){
                     elecRoundStuDao.add(roundId, code);
+                    updateCache.add(code);
                 }else {
                     notExistStu.add(code);
                 }
@@ -114,6 +124,11 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                 notExistStu.add(code);
             }
         }
+        //更新轮此缓存学生信息
+        if(CollectionUtil.isNotEmpty(updateCache)){
+            dataProvider.updateRoundCache(roundId);
+        }
+
         return StringUtils.join(notExistStu, ",");
     }
     
@@ -123,6 +138,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     {
     	Session session = SessionUtils.getCurrentSession();
         stu.setProjectId(session.getCurrentManageDptId());
+        Set<String> updateCache = new HashSet<>();
         // 1普通选课 2实践选课
         if(RoundMode.NORMAL.eq(stu.getMode()) || RoundMode.ShiJian.eq(stu.getMode())){ //来源学生
 
@@ -134,6 +150,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                 for (Student4Elc info : listStudent)
                 {
                     elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
+                    updateCache.add(info.getStudentId());
                 }
             } else {
                 throw new ParameterValidateException("没有匹配的学生");
@@ -149,10 +166,15 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             if(CollectionUtil.isNotEmpty(stringList)){
                 for (String s : stringList) {
                     elecRoundStuDao.add(stu.getRoundId(), s);
+                    updateCache.add(s);
                 }
             } else {
                 throw new ParameterValidateException("没有匹配的学生");
             }
+        }
+
+        if(CollectionUtil.isNotEmpty(updateCache)){
+            dataProvider.updateRoundCache(stu.getRoundId());
         }
     }
     
@@ -228,6 +250,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             }
             elecRoundStuDao.deleteAll(roundId);
         }
+        dataProvider.updateRoundCache(roundId);
     }
     
     @Transactional
