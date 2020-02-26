@@ -147,13 +147,33 @@ public interface Constants
     
     public static final Integer PAGE_SIZE = 1000;
     
-    /** 管理员*/
-    public static final String MANAGER_TYPE = "1";
-    /** 教务员*/
-    public static final String INNER_ROLE_ACDEMIC_DEAN = "2";
+	/**
+	 * 修读类别：免修
+	 */
+	public static String TEACHING_CLASS_SCORE_XDLB_MX = "4";
+	
+	
+	/**
+	 * 考试性质：免修
+	 */
+	public static String EXAMTYPE_MX = "11";
+	
+	/**
+	 * 成绩记录方式：百分制
+	 */
+	public static String TEACHING_CLASS_SCORE_CJJLFS_BFZ = "1";
 
-    public static final Integer THREE_MODE=3;
-    public static final Integer FOUR_MODE=4;
+	/**
+	 * 成绩记录方式：十分制
+	 */
+	public static String TEACHING_CLASS_SCORE_CJJLFS_SFZ = "8";
+
+	/**
+	 * 成绩记录方式：二十分制
+	 */
+	public static String TEACHING_CLASS_SCORE_CJJLFS_ESFZ = "15";
+	
+
     
 
 }

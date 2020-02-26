@@ -3,6 +3,7 @@ package com.server.edu.mutual.dao;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
@@ -39,7 +40,7 @@ public interface ElcMutualApplyDao extends Mapper<ElcMutualApply>,MySqlMapper<El
 	
 	/**
 	 * 开课学院审核学生视图列表
-	 * @param condition
+	 * @param dto
 	 * @return
 	 */
 	List<ElcMutualApplyVo> openCollegeApplyStuList(ElcMutualApplyDto dto);
