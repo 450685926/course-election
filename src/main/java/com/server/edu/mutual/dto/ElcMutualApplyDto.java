@@ -48,13 +48,16 @@ public class ElcMutualApplyDto extends ElcMutualApply {
     
     /** 本研互选开关类别：1:本研互选  2：跨学科互选 */
     private Integer category;
+
+    /*学生申请增加选课标志位*/
+    private String courseSelectionMark;
     
     private Integer byType;
     
     private Integer inType;
     
     private List<Long> mutualCourseIds;
-    
+    //部门id
     private String projectId;
     private List<String> projectIds;
     
@@ -85,8 +88,8 @@ public class ElcMutualApplyDto extends ElcMutualApply {
     //可管理的学院（当前学院+管理的学院）
     private List<String> collegeList;
 
-	/*学生申请增加选课标志位*/
-	private String courseSelectionMark;
+    //学期差值
+    private  Long semester;
 
 	public String getCourseSelectionMark() {
 		return courseSelectionMark;
@@ -249,11 +252,18 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 		this.collegeList = collegeList;
 	}
 
-	public ElcMutualApplyDto() {
-
+	public Long getSemester() {
+		return semester;
 	}
 
-	public ElcMutualApplyDto(String courseCode, String courseName, Double credits, String college, String openCollege, String nature, String isElective, String assessmentMode, String trainingLevel, Integer mode, Integer category, Integer byType, Integer inType, List<Long> mutualCourseIds, String projectId, List<String> projectIds, String profession, String studentName, String stuTrainingLevel, Integer grade, Integer auditFlag, Integer auditType, String keyWords, List<Integer> statusArray, List<String> collegeList, String courseSelectionMark) {
+	public void setSemester(Long semester) {
+		this.semester = semester;
+	}
+
+	public ElcMutualApplyDto() {
+	}
+
+	public ElcMutualApplyDto(String courseCode, String courseName, Double credits, String college, String openCollege, String nature, String isElective, String assessmentMode, String trainingLevel, Integer mode, Integer category, String courseSelectionMark, Integer byType, Integer inType, List<Long> mutualCourseIds, String projectId, List<String> projectIds, String profession, String studentName, String stuTrainingLevel, Integer grade, Integer auditFlag, Integer auditType, String keyWords, List<Integer> statusArray, List<String> collegeList) {
 		this.courseCode = courseCode;
 		this.courseName = courseName;
 		this.credits = credits;
@@ -265,6 +275,7 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 		this.trainingLevel = trainingLevel;
 		this.mode = mode;
 		this.category = category;
+		this.courseSelectionMark = courseSelectionMark;
 		this.byType = byType;
 		this.inType = inType;
 		this.mutualCourseIds = mutualCourseIds;
@@ -279,7 +290,6 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 		this.keyWords = keyWords;
 		this.statusArray = statusArray;
 		this.collegeList = collegeList;
-		this.courseSelectionMark = courseSelectionMark;
 	}
 
 	@Override
@@ -296,10 +306,12 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 				", trainingLevel='" + trainingLevel + '\'' +
 				", mode=" + mode +
 				", category=" + category +
+				", courseSelectionMark='" + courseSelectionMark + '\'' +
 				", byType=" + byType +
 				", inType=" + inType +
 				", mutualCourseIds=" + mutualCourseIds +
 				", projectId='" + projectId + '\'' +
+				", semester='" + semester + '\'' +
 				", projectIds=" + projectIds +
 				", profession='" + profession + '\'' +
 				", studentName='" + studentName + '\'' +
@@ -310,7 +322,6 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 				", keyWords='" + keyWords + '\'' +
 				", statusArray=" + statusArray +
 				", collegeList=" + collegeList +
-				", courseSelectionMark='" + courseSelectionMark + '\'' +
 				'}';
 	}
 }

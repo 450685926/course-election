@@ -812,12 +812,13 @@ public class ElecBkServiceImpl implements ElecBkService
         Map<String, String> failedReasons = respose.getFailedReasons();
         //已选课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        List<CompletedCourse> list = new ArrayList<>();
-        //已完成课程
-        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        Set<CompletedCourse> failedCourse = context.getFailedCourse();
-        list.addAll(failedCourse);
-        list.addAll(completedCourses);
+        //重修英语课不能超过三门（当前学期已经选择重修英语课最多只能两门，新修一门）
+//        List<CompletedCourse> list = new ArrayList<>();
+//        //已完成课程
+//        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+//        Set<CompletedCourse> failedCourse = context.getFailedCourse();
+//        list.addAll(failedCourse);
+//        list.addAll(completedCourses);
 
 
         List<String> asList =
@@ -835,19 +836,30 @@ public class ElecBkServiceImpl implements ElecBkService
         boolean isRetake = RetakeCourseUtil.isRetakeCourseBk(context, teachClass.getCourseCode());
 
         if (isRetake) {
-            if (CollectionUtil.isEmpty(completedCourses)){
+
+            //为了数据准确性，会对这个学期已经选取的课程进行查库操作
+            ElecRequest request = context.getRequest();
+            StudentInfoCache studentInfo = context.getStudentInfo();
+            ElectionRounds round = dataProvider.getRound(request.getRoundId());
+            Long calendarId = round.getCalendarId();
+            List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+            if(CollectionUtil.isEmpty(courseTakes)){
                 return true;
             }
-            Set<CompletedCourse> selectedcourse1 = new HashSet<>();
-            for (CompletedCourse course:list){
+
+            List<ElcCourseTakeVo> collect = courseTakes.stream().filter(vo -> vo.getCourseTakeType().intValue() == 2).collect(Collectors.toList());
+
+            Set<ElcCourseTakeVo> selectedcourse1 = new HashSet<>();
+
+            for (ElcCourseTakeVo course:collect){
                 for (String string:asList){
-                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
+                    if(StringUtils.equalsIgnoreCase(course.getCourseCode(),string)){
                         selectedcourse1.add(course);
                     }
                 }
             }
 
-            if (selectedcourse1.size()<2) {
+            if (selectedcourse1.size() < 2) {
                 return true;
             }else{
                 failedReasons.put(String.format("%s[%s]",

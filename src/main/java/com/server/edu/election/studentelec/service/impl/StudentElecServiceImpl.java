@@ -280,6 +280,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         if(round ==null) {
         	round = roundDao.selectByPrimaryKey(roundId);
         }
+        Student student = stuDao.findStudentByCode(studentId);
         Assert.notNull(round, "elec.roundCourseExistTip");
         Long calendarId = round.getCalendarId();
         elecRequest.setCalendarId(calendarId);
@@ -307,8 +308,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 ElectionParameter elecparam = paramList.get(0);
                 if (Boolean.parseBoolean(elecparam.getValue())) {
                     //获取学生的当前年级
-                    Student studentByCode = stuDao.findStudentByCode(studentId);
-                    Integer grade = studentByCode.getGrade();
+                    Integer grade = student.getGrade();
                     //获取当前学年
                     SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                     Integer year = schoolCalendar.getYear();
@@ -435,6 +435,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         respose.setIsDetainedStudent(isDetainedStudent);
         respose.setOnlyRetakeFilter(onlyRetakeRule);
         respose.setNoRetakeRule(noRetakeRule);
+        respose.setIsOverseas(student.getIsOverseas());
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
             for(int i=0;i<loginExceutors.size();i++) {

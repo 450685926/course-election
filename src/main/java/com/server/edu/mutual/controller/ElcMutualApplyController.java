@@ -2,6 +2,7 @@ package com.server.edu.mutual.controller;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.common.rest.ResultStatus;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,14 @@ public class ElcMutualApplyController {
         throws Exception
     {
         LOG.info("获取已申请的互选课程列表 page.start");
-        PageInfo<ElcMutualApplyVo> list = elcMutualApplyService.getElcMutualApplyList(dto);
+        PageInfo<ElcMutualApplyVo> list = new PageInfo<>();
+        try {
+             list = elcMutualApplyService.getElcMutualApplyList(dto);
+        }catch (Exception e){
+             LOG.info("======Exception====" + e.getMessage());
+             return RestResult.success(e.getMessage());
+        }
+
         return RestResult.successData(list);
     }
     

@@ -25,6 +25,7 @@ import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.RetakeCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
@@ -35,6 +36,7 @@ import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
@@ -76,6 +78,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
 //    @Autowired
 //    private ElecYjsServiceImpl elecYjsServiceImpl;
@@ -340,6 +345,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.statusError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
+
+        applicationContext
+                .publishEvent(new ElectLoadEvent(calendarId, studentId));
     }
 
     @Override
@@ -347,6 +355,10 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         Session session = SessionUtils.getCurrentSession();
         Student student = studentDao.selectByPrimaryKey(studentId);
         String currentManageDptId = session.getCurrentManageDptId();
+        if (student == null || !currentManageDptId.equals(student.getManagerDeptId()))
+        {
+            throw new ParameterValidateException("学号" + studentId + "不存在");
+        }
         // 判断是不是教务员
         if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());

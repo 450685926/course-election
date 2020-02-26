@@ -144,4 +144,14 @@ public class ElcMutualCourses implements Serializable {
         sb.append("]");
         return sb.toString();
     }
+
+    public ElcMutualCourses(Long calendarId, Long courseId, Integer byType, Integer inType) {
+        this.calendarId = calendarId;
+        this.courseId = courseId;
+        this.byType = byType;
+        this.inType = inType;
+    }
+
+    public ElcMutualCourses() {
+    }
 }

@@ -752,105 +752,209 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 //	}
 
     @Override
-    public String graduateAdd(ElcCourseTakeAddDto value, String currentRole, boolean adminFlag, String projId) {
-        Date date = new Date();
+    public String graduateAdd(ElcCourseTakeAddDto value) {
+        Integer status = value.getStatus();
+
+        // 获取教学班
+        List<Long> teachingClassIds = value.getTeachingClassIds();
+        Long teachingClassId = teachingClassIds.get(0);
+        TeachingClass teachingClass =
+                teachingClassDao.selectByPrimaryKey(teachingClassId);
+        List<TimeTableMessage> courseArrange =
+                courseTakeDao.findCourseArrange(teachingClassIds);
+        // 获取要加课的学生
         List<String> studentIds = value.getStudentIds();
-        if (CollectionUtil.isEmpty(studentIds)) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noStudent",I18nUtil.getMsg("elecResultSwitch.noStudent")));
-        }
-        //如果当前操作人是老师
-        if ("1".equals(currentRole)&&!adminFlag)
-        {
-            //判断选课结果开关状态
-            ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),projId);
-            if (elcResultSwitch.getStatus() == Constants.ZERO) {
-                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
-            } else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
-                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.operationalerror",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+        Long calendarId = value.getCalendarId();
+
+        // 0或者null第一次进来，需校验规则，status = 1，强制添加
+        if (status == null || status == 0) {
+            // 不管是管理员还是教务员，都不能跨校区加课
+            // 判断学生校区和课程校区
+            Example stuExample = new Example(Student.class);
+            stuExample.createCriteria()
+                    .andIn("studentCode", studentIds);
+            List<Student> students = studentDao.selectByExample(stuExample);
+            String campus = teachingClass.getCampus();
+
+            List<String> list = new ArrayList<>(studentIds.size());
+            for (Student student : students) {
+                if (!campus.equals(student.getCampus())) {
+                    list.add(student.getStudentCode());
+                }
             }
 
-            //判断课程性质
-
-            Example example = new Example(Course.class);
-            Criteria createCriteria = example.createCriteria();
-            createCriteria.andEqualTo("code",value.getCourseCode());
-            Course course = courseDao.selectOneByExample(example);
-            if(course.getIsElective().intValue() == Constants.ONE){
-                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noPower",I18nUtil.getMsg("elecResultSwitch.noPower")));
+            if (CollectionUtil.isNotEmpty(list)) {
+                throw new ParameterValidateException("学生"
+                        + String.join(",", list) +
+                        "所在校区与课程校区不一致，请重新添加");
             }
-            String studentId = studentIds.get(0);
-            String courseCode = value.getCourseCode();
-            // 判断是否重修,重修不受任何规则限制，直接可以选
-            int retake = courseTakeDao.isRetake(studentId, courseCode);
-            if (retake == 0 ) {
-                // 不是重修，受容量和校区限制
-                List<Long> teachingClassIds = value.getTeachingClassIds();
-                Long teachingClassId = teachingClassIds.get(0);
-                TeachingClass teachingClass = teachingClassDao.selectByPrimaryKey(teachingClassId);
+
+            Session session = SessionUtils.getCurrentSession();
+            boolean isAdmin = StringUtils.equals(session.getCurrentRole(), "1")
+                    && session.isAdmin();
+
+            if (isAdmin) {
+                Set<String> set = conflictStu(courseArrange, studentIds, calendarId);
+                if (CollectionUtil.isNotEmpty(set)) {
+                    String mag = "当前课程与学生" + String.join(",", set)
+                            + "已选课程上课时间冲突，您确定要添加吗？";
+                    return mag;
+                }
+            } else {
+                //判断选课结果开关状态
+                boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, session.getCurrentManageDptId());
+                // 教务员需判断选课开关是否开启
+                if (!switchStatus) {
+                    throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled"));
+                }
                 // 判断教学班容量
                 if (teachingClass.getElcNumber() + studentIds.size() > teachingClass.getNumber()) {
-                    throw new ParameterValidateException("教学班容量超出上限，请重新添加");
+                    throw new ParameterValidateException("已达教室容量上限");
                 }
-
-                // 判断学生校区和课程校区
-                Example stuExample = new Example(Student.class);
-                stuExample.createCriteria()
-                        .andIn("studentCode", studentIds);
-                List<Student> students = studentDao.selectByExample(stuExample);
-                String campus = teachingClass.getCampus();
-                List<String> list = new ArrayList<>(studentIds.size());
-                for (Student student : students) {
-                    if (!campus.equals(student.getCampus())) {
-                        list.add(student.getStudentCode());
-                    }
-                }
-                if (CollectionUtil.isNotEmpty(list)) {
-                    throw new ParameterValidateException("学生"
-                            + String.join(",", list) +
-                            "所在校区与课程校区不一致，请重新添加学生");
+                // 判断上课时间冲突
+                Set<String> set = conflictStu(courseArrange, studentIds, calendarId);
+                if (CollectionUtil.isNotEmpty(set)) {
+                    throw new ParameterValidateException("当前课程与学生"
+                            + String.join(",", set) +
+                            "已选课程上课时间冲突，请重新添加");
                 }
             }
-
+            return graduateAddCourse(value);
+        } else {
+            return graduateAddCourse(value);
         }
-        return this.graduateAddCourse(value);
     }
+
+    private Set<String> conflictStu(List<TimeTableMessage> courseArrange,
+                                    List<String> studentIds, Long calendarId)
+    {
+        Set<String> set = new HashSet<>(20);
+        if (CollectionUtil.isNotEmpty(courseArrange)) {
+            // 获取学生当前学期选课记录
+            List<ElcCourseTakeVo> elcCourseTakes =
+                    courseTakeDao.findElcCourseTakes(studentIds, calendarId);
+            // 获取教学班id集合
+
+            Set<Long> collect = elcCourseTakes.stream().
+                    filter(s -> s.getTeachingClassId() != null).
+                    map(ElcCourseTakeVo::getTeachingClassId).
+                    collect(Collectors.toSet());
+
+            if (CollectionUtil.isNotEmpty(collect)) {
+                // 查询教学班课程安排
+                List<TimeTableMessage> courseArranges =
+                        courseTakeDao.findCourseArrange(new ArrayList<>(collect));
+
+                // 获取与当前教学班上课时间冲突的教学班
+                Set<Long> ids = new HashSet<>(10);
+                for (TimeTableMessage timeTableMessage : courseArrange) {
+                    String[] split = timeTableMessage.getWeekNum().split(",");
+                    Set<String> addWeeks = new HashSet<>(Arrays.asList(split));
+                    int dayOfWeek = timeTableMessage.getDayOfWeek().intValue();
+                    int timeStart = timeTableMessage.getTimeStart().intValue();
+                    int timeEnd = timeTableMessage.getTimeEnd().intValue();
+                    int addSize = addWeeks.size();
+                    for (TimeTableMessage arrange : courseArranges) {
+                        String[] week = arrange.getWeekNum().split(",");
+                        Set<String> selectWeeks = new HashSet<>(Arrays.asList(week));
+                        int selectSize = selectWeeks.size();
+                        Set<String> weeks = new HashSet<>(addSize + selectSize);
+                        weeks.addAll(addWeeks);
+                        weeks.addAll(selectWeeks);
+                        // 判断上课周是否冲突
+                        if (addSize + selectSize > weeks.size()) {
+                            //上课周冲突，判断上课天
+                            if (dayOfWeek == arrange.getDayOfWeek().intValue()) {
+                                // 上课天相同，比价上课节次
+                                int start = arrange.getTimeStart().intValue();
+                                int end = arrange.getTimeEnd().intValue();
+                                // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
+                                if ( (start <= timeStart && timeStart <= end)
+                                        || (start <= timeEnd && timeEnd <= end)
+                                        || (timeStart <= start && start <= timeEnd)
+                                        || (timeStart <= end && end <= timeEnd)) {
+                                    ids.add(arrange.getTeachingClassId());
+                                }
+                            }
+                        }
+                    }
+                }
+                if (CollectionUtil.isNotEmpty(ids)) {
+                    for (ElcCourseTakeVo elcCourseTake : elcCourseTakes) {
+                        Long teachingClassId = elcCourseTake.getTeachingClassId();
+                        if (teachingClassId != null && ids.contains(teachingClassId)) {
+                            set.add(elcCourseTake.getStudentId());
+                        }
+                    }
+                }
+            }
+        }
+        return set;
+    }
+
+
     @Transactional
     private String graduateAddCourse(ElcCourseTakeAddDto add)
     {
-        StringBuilder sb = new StringBuilder();
         Date date = new Date();
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
-        List<Long> teachingClassIds = add.getTeachingClassIds();
         Integer mode = add.getMode();
         for (String studentId : studentIds)
         {
-            for (int i = 0; i < teachingClassIds.size(); i++)
+            List<ElcStudentVo> courseInfo = courseTakeDao.findCourseInfo(add.getTeachingClassIds());
+            ElcStudentVo vo = courseInfo.get(0);
+            String courseCode = vo.getCourseCode();
+            Long teachingClassId = vo.getTeachingClassId();
+            String courseName = vo.getCourseName();
+            String teachingClassCode = vo.getClassCode();
+
+            ElcCourseTake record = new ElcCourseTake();
+            record.setStudentId(studentId);
+            record.setCourseCode(courseCode);
+            record.setCalendarId(calendarId);
+            int selectCount = courseTakeDao.selectCount(record);
+            if (selectCount == 0)
             {
-                Long teachingClassId = teachingClassIds.get(i);
-                ElcCourseTakeVo vo = courseTakeDao
-                        .getTeachingClassInfo(calendarId, teachingClassId, null);
-                if (null != vo && vo.getCourseCode() != null)
-                {
-                    graduateAddCourseTake(date, calendarId, studentId, vo, mode);
+                ElcCourseTake take = new ElcCourseTake();
+                take.setCalendarId(calendarId);
+                take.setChooseObj(ChooseObj.ADMIN.type());
+                take.setCourseCode(courseCode);
+                take.setCourseTakeType(CourseTakeType.NORMAL.type());
+                take.setCreatedAt(date);
+                take.setStudentId(studentId);
+                take.setTeachingClassId(teachingClassId);
+                take.setMode(mode);
+                take.setTurn(0);
+                courseTakeDao.insertSelective(take);
+                try {
+                    elecYjsServiceImpl.updateSelectCourse(studentId,courseCode,ElectRuleType.ELECTION);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                else
-                {
-                    String code = teachingClassId.toString();
-                    if (vo != null)
-                    {
-                        code = vo.getTeachingClassCode();
-                    }
-                    sb.append("教学班[" + code + "]对应的课程不存在,");
-                }
+                // 增加选课人数
+                classDao.increElcNumber(teachingClassId);
+                // 添加选课日志
+                ElcLog log = new ElcLog();
+                log.setCalendarId(calendarId);
+                log.setCourseCode(courseCode);
+                log.setCourseName(courseName);
+                Session currentSession = SessionUtils.getCurrentSession();
+                log.setCreateBy(currentSession.getUid());
+                log.setCreatedAt(date);
+                log.setCreateIp(currentSession.getIp());
+                log.setMode(ElcLogVo.MODE_2);
+                log.setStudentId(studentId);
+                log.setTeachingClassCode(teachingClassCode);
+                log.setTurn(0);
+                log.setType(ElcLogVo.TYPE_1);
+                this.elcLogDao.insertSelective(log);
+
+                applicationContext
+                        .publishEvent(new ElectLoadEvent(calendarId, studentId));
             }
         }
-
-        if (sb.length() > 0)
-        {
-            return sb.substring(0, sb.length() - 1);
-        }
-        return StringUtils.EMPTY;
+        return "";
     }
     
     @Transactional

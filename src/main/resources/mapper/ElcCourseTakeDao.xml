@@ -1560,7 +1560,9 @@
         SELECT 
 	       te.CODE_ classCode ,co.CODE_ courseCode,co.NAME_ courseName,
 	       el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,
-	       pc.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
+	      pc.ASSESSMENT_MODE_ assessmentMode,
+	      pc.compulsory compulsory,
+	       el.TEACHING_CLASS_ID_ teachingClassId,
 	       te.CAMPUS_ campus,te.REMARK_ remark,te.NAME_ className
         FROM elc_course_takes_t el
         LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
@@ -2240,6 +2242,19 @@
         join course_t co on ec.COURSE_CODE_ = co.CODE_
         where STUDENT_ID_ = #{studentId}
         and CALENDAR_ID_ = #{calendarId}
+    </select>
+
+    <select id="findElcCourseTakes" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
+        select
+          ec.STUDENT_ID_ studentId,ec.TEACHING_CLASS_ID_ teachingClassId,
+          ec.COURSE_CODE_ courseCode,co.NAME_ courseName
+        from elc_course_takes_t ec
+        join course_t co on ec.COURSE_CODE_ = co.CODE_
+        where ec.CALENDAR_ID_ = #{calendarId}
+        and ec.STUDENT_ID_ in
+        <foreach item="studentId" collection="studentIds" index="index" open="(" separator="," close=")">
+            #{studentId}
+        </foreach>
     </select>
 
     <select id="findCourseArrange" resultType="com.server.edu.election.dto.TimeTableMessage">

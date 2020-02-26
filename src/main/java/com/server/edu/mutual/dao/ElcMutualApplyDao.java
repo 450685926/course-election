@@ -1,6 +1,10 @@
 package com.server.edu.mutual.dao;
 
 import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.entity.ElcMutualApply;
@@ -36,7 +40,7 @@ public interface ElcMutualApplyDao extends Mapper<ElcMutualApply>,MySqlMapper<El
 	
 	/**
 	 * 开课学院审核学生视图列表
-	 * @param condition
+	 * @param dto
 	 * @return
 	 */
 	List<ElcMutualApplyVo> openCollegeApplyStuList(ElcMutualApplyDto dto);
@@ -46,5 +50,19 @@ public interface ElcMutualApplyDao extends Mapper<ElcMutualApply>,MySqlMapper<El
 	 * @param dto
 	 * @return
 	 */
-	List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto); 
+	List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto);
+
+	/**
+     * 查询不及格学生信息
+     * @param studentId
+     * @return
+     */
+    List<String> findStuFailedCourseCodes(@RequestParam("studentId") String studentId);
+
+	/**
+	 * 根据学生id查询本科生平均绩点
+	 * @param studentId
+	 * @return
+	 */
+	Map<String, Object> selectAvgPonitByStudentId(@RequestParam("studentId") String studentId);
 }

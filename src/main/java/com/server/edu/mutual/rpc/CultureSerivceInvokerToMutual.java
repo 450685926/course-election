@@ -112,8 +112,12 @@ public class CultureSerivceInvokerToMutual {
 	public static RestResult updateCulturePlan4Stu(ElcMutualApplyDto elcMutualApply) {
 		String studentID = elcMutualApply.getStudentId();
 		String courseCode = elcMutualApply.getCourseCode();
+		Long semester = elcMutualApply.getSemester();
+		LOG.info("updateCulturePlan4Stu studentID:" + studentID);
+		LOG.info("updateCulturePlan4Stu courseCode:" + courseCode);
+		LOG.info("updateCulturePlan4Stu semester:" + semester);
 		RestResult restResult = ServicePathEnum.CULTURESERVICE.
-				getForObject("/bclCulturePlan/addCourseToPlan?studentID={studentID}&courseCode={courseCode}", RestResult.class, studentID, courseCode);
+				getForObject("/bclCulturePlan/addCourseToPlan?studentID={studentID}&courseCode={courseCode}&semester={semester}", RestResult.class, studentID, courseCode, semester);
 		return restResult;
 	}
 	

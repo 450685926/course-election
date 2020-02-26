@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+
 import com.server.edu.election.studentelec.utils.ElecStatus;
 
 /**
@@ -40,8 +42,21 @@ public class ElecRespose
     private  Integer turn;
 
     private  Integer isDetainedStudent;
+    
+    /**
+     * 是否留学生 0：否  1：是
+     */
+    private String isOverseas;
+    
+    public String getIsOverseas() {
+		return isOverseas;
+	}
 
-    public Integer getIsLimit() {
+	public void setIsOverseas(String isOverseas) {
+		this.isOverseas = isOverseas;
+	}
+
+	public Integer getIsLimit() {
         return isLimit;
     }
 

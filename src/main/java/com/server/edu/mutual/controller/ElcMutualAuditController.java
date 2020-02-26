@@ -83,7 +83,7 @@ public class ElcMutualAuditController {
     		@RequestBody PageCondition<ElcMutualApplyDto> dto)
         throws Exception
     {
-        LOG.info("getElcMutualApplyList.start");
+        LOG.info("openCollegeApplyCourseList.start");
         PageInfo<ElcMutualApplyVo> list =elcMutualAuditService.openCollegeApplyCourseList(dto);
         return RestResult.successData(list);
     }
@@ -101,7 +101,7 @@ public class ElcMutualAuditController {
     		@RequestBody PageCondition<ElcMutualApplyDto> dto)
     				throws Exception
     {
-    	LOG.info("getElcMutualApplyList.start");
+    	LOG.info("openCollegeApplyStuList.start");
     	PageInfo<ElcMutualApplyVo> list =elcMutualAuditService.openCollegeApplyStuList(dto);
     	return RestResult.successData(list);
     }
