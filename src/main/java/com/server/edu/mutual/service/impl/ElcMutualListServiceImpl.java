@@ -117,6 +117,15 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         } else {
             dto.setByType(Constants.FIRST);
         }
+        
+        //课程维度 mode是1 是查询研究生选本科生的课程
+        //mode是2 是查询本科生选研究生的课程,此处的mode需要调整
+        if (Constants.BK_MUTUAL.equals(dto.getMode())) {
+            dto.setMode(Constants.GRADUATE_MUTUAL);
+        } 
+        if (Constants.GRADUATE_MUTUAL.equals(dto.getMode())) {
+            dto.setMode(Constants.BK_MUTUAL);
+        }
 
         boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
         if (isAcdemicDean) {
