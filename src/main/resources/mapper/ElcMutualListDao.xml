@@ -105,6 +105,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
 		        and t2.BY_TYPE_  = #{byType}
 		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseTakeType)">
+				and t1.COURSE_TAKE_TYPE_ = #{courseTakeType}
+			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
 		        and t2.IN_TYPE_  = #{inType}
 		    </if>
