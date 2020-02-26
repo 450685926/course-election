@@ -54,7 +54,9 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @see [类、类#方法、类#成员]
      */
     Page<TeachingClassVo> grduateListPage(ElcResultQuery condition);
-    
+
+    Page<TeachingClassVo> graduatePage(ElcResultQuery condition);
+
     /**
      * 对选课人数进行自增，不会判断限制人数
      * 
