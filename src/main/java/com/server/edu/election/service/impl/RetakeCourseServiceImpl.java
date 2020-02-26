@@ -347,6 +347,10 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         Session session = SessionUtils.getCurrentSession();
         Student student = studentDao.selectByPrimaryKey(studentId);
         String currentManageDptId = session.getCurrentManageDptId();
+        if (student == null || !currentManageDptId.equals(student.getManagerDeptId()))
+        {
+            throw new ParameterValidateException("学号" + studentId + "不存在");
+        }
         // 判断是不是教务员
         if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
