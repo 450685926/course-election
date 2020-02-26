@@ -384,6 +384,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 }
                 if(elcCouSubsVo!=null) {
                 	lesson.setReplaceCourse(elcCouSubsVo.getSubCourseCode());
+                    lesson.setReplaceCourseName(elcCouSubsVo.getSubCourseName());
                 }
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setCalendarId(calendarId);
