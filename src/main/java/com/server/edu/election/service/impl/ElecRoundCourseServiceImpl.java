@@ -11,6 +11,7 @@ import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,9 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 
     @Autowired
     private TeachClassCacheService teachClassCacheService;
+
+    @Autowired
+    private RoundDataProvider dataProvider;
 
     @Override
     public PageResult<CourseOpenDto> listPage(
@@ -187,6 +191,11 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         	}
         }
         roundCourseDao.batchInsert(list);
+
+        //由于缓存更新过慢，添加课程时手动调用刷新
+        if(CollectionUtil.isNotEmpty(list)){
+            dataProvider.updateRoundCache(roundId);
+        }
     }
     
     @Override
@@ -213,6 +222,13 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
                 list.add(electionRoundsCour);
             }
             roundCourseDao.batchInsert(list);
+
+            //手动刷新
+            if(condition.getRoundId() != null){
+
+                dataProvider.updateRoundCache(condition.getRoundId());
+            }
+
         }
     }
     
@@ -226,6 +242,10 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         	criteria.andEqualTo("roundsId", roundId);
         	criteria.andIn("teachingClassId", teachingClassIds);
             roundCourseDao.deleteByExample(example);
+            if(roundId != null){
+
+                dataProvider.updateRoundCache(roundId);
+            }
         }
     }
     
@@ -233,6 +253,12 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     public void deleteAll(Long roundId)
     {
         roundCourseDao.deleteByRoundId(roundId);
+
+        if(roundId != null){
+
+            dataProvider.updateRoundCache(roundId);
+        }
+
     }
     
     @Override
