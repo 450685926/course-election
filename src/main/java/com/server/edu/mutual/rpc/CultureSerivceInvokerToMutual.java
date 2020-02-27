@@ -113,11 +113,14 @@ public class CultureSerivceInvokerToMutual {
 		String studentID = elcMutualApply.getStudentId();
 		String courseCode = elcMutualApply.getCourseCode();
 		Long semester = elcMutualApply.getSemester();
+		Long calendarId = elcMutualApply.getCalendarId();
 		LOG.info("updateCulturePlan4Stu studentID:" + studentID);
 		LOG.info("updateCulturePlan4Stu courseCode:" + courseCode);
 		LOG.info("updateCulturePlan4Stu semester:" + semester);
+		LOG.info("updateCulturePlan4Stu calendarId:" + calendarId);
 		RestResult restResult = ServicePathEnum.CULTURESERVICE.
-				getForObject("/bclCulturePlan/addCourseToPlan?studentID={studentID}&courseCode={courseCode}&semester={semester}", RestResult.class, studentID, courseCode, semester);
+				getForObject("/bclCulturePlan/addCourseToPlan?studentID={studentID}&courseCode={courseCode}&semester={semester}&calendarId={calendarId}",
+						RestResult.class, studentID, courseCode, semester,calendarId);
 		return restResult;
 	}
 	
