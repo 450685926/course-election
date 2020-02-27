@@ -12,6 +12,17 @@ public class AddCourseDto {
 
     private List<Long> teachingClassId;
 
+    // 状态码。0或者null第一次进来，1强制添加
+    private Integer status;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     public Long getCalendarId() {
         return calendarId;
     }
