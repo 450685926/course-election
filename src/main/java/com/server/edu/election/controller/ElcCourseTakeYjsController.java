@@ -218,7 +218,7 @@ public class ElcCourseTakeYjsController
     @PostMapping("/addCourse")
     public RestResult addCourse(@RequestBody AddCourseDto courseDto) {
         String msg = courseTakeService.addCourse(courseDto);
-        return RestResult.successData(msg);
+        return RestResult.success(msg);
     }
 
     /**
