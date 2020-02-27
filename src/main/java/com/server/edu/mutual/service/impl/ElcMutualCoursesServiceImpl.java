@@ -11,6 +11,8 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.util.CommonConstant;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,8 @@ import com.server.edu.util.CollectionUtil;
 import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
+	private static Logger LOG =
+			LoggerFactory.getLogger(ElcMutualCoursesServiceImpl.class);
 	@Autowired
 	private ElcMutualCoursesDao elcMutualCoursesDao;
 	
@@ -205,10 +209,12 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 		ElcMutualCoursesDto dto = new ElcMutualCoursesDto();
 		//Session session = SessionUtils.getCurrentSession();
 		//dto.setProjectId(session.getCurrentManageDptId());
-		
+		LOG.info("======日历id=" +calendarId+  "===区分本研mode===" + mode);
 		if(Constants.BK_MUTUAL.equals(mode)){
+			LOG.info("=====projectId=======" + Constants.PROJ_UNGRADUATE);
 			dto.setProjectId(Constants.PROJ_UNGRADUATE);
 		}else{
+			LOG.info("=====projectId=======" + Constants.PROJ_GRADUATE);
 			dto.setProjectId(Constants.PROJ_GRADUATE);
 		}
 
@@ -218,7 +224,9 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 		}else {
 			dto.setByType(Constants.FIRST);
 		}
+		LOG.info("=====设置ElcMutualCoursesDto的属性=======projectId=" + dto.getProjectId());
 		int count = elcMutualCoursesDao.getElcMutualCourseCount(dto);
+		LOG.info("=====count=======" + count);
 		return count;
 	}
 
