@@ -3,9 +3,12 @@ package com.server.edu.mutual.dao;
 import java.util.List;
 
 import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
+import com.server.edu.mutual.entity.ElcMutualStdVo;
 import com.server.edu.mutual.entity.ElcMutualStds;
 import com.server.edu.mutual.vo.ElcMutualCrossStuVo;
 
+import org.apache.ibatis.annotations.Param;
+import org.springframework.web.bind.annotation.RequestParam;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 
@@ -21,4 +24,11 @@ public interface ElcMutualStdsDao extends Mapper<ElcMutualStds>,MySqlMapper<ElcM
 	 * @return
 	 */
 	List<ElcMutualCrossStuVo> isInElcMutualStdList(ElcMutualCrossStuDto dto);
+
+	/**
+	 * 根据条件全量删除本研互选学生
+	 * @param calendarId
+	 * @param studentList
+	 */
+	int deleteMutualByParames(@Param("calendarId") long calendarId,@Param("studentList") List<String> studentList);
 }

@@ -105,4 +105,21 @@
 		    </if>
 		</where>  
   </select>
+
+	<!--根据条件全量删除本研互选学生-->
+	<delete id="deleteMutualByParames">
+		DELETE FROM elc_mutual_stds_t
+		WHERE 1=1
+		<!--学期-->
+		<if test="calendarId != null " >
+			AND CALENDAR_ID_=#{calendarId}
+		</if>
+		<!--学生id-->
+		<if test="studentList != null and studentList.size() > 0" >
+			AND STUDENT_ID_ IN
+			<foreach collection="studentList" item="item" index="index" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</delete>
 </mapper>
