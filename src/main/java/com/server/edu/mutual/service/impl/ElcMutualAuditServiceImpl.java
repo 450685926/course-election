@@ -470,7 +470,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		Long courseCalendarId = dto.getCalendarId();
 		BigDecimal semester = new BigDecimal(courseCalendarId).subtract(new BigDecimal(stuCalendarId));
 		LOG.info("semester:" + semester.longValue());
-		dto.setSemester(semester.longValue());
+		// 经与宁娟、吕鹏沟通，学期差值+1，和选课计算方式保持一致
+		dto.setSemester(semester.longValue() + 1);
 		//更新培养计划
 		dto.setStatus(elcMutualApply.getStatus());
 	}
