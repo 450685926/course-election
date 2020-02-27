@@ -197,7 +197,7 @@ public class ElcCourseTakeYjsController
     }
 
     /**
-     * 返回研究生可以选的课程
+     * 返回研究生可以选的课程，不包含重修课
      * @param condition
      * @return
      */
