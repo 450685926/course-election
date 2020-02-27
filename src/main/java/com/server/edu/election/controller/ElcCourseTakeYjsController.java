@@ -216,13 +216,9 @@ public class ElcCourseTakeYjsController
      */
     @ApiOperation(value = "课程维护模块研究生加课")
     @PostMapping("/addCourse")
-    public RestResult<CourseConflictVo> addCourse(@RequestBody AddCourseDto courseDto) {
-        CourseConflictVo vo = courseTakeService.addCourse(courseDto);
-        if (vo == null) {
-            return new RestResult<>(200,"加课成功", vo);
-        } else {
-            return new RestResult<>(200,"课程冲突", vo);
-        }
+    public RestResult addCourse(@RequestBody AddCourseDto courseDto) {
+        String msg = courseTakeService.addCourse(courseDto);
+        return RestResult.successData(msg);
     }
 
     /**

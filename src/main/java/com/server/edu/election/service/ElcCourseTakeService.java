@@ -196,7 +196,7 @@ public interface ElcCourseTakeService
      * @param courseDto
      * @return
      */
-    CourseConflictVo addCourse(AddCourseDto courseDto);
+    String addCourse(AddCourseDto courseDto);
 
     void forceAdd(AddCourseDto courseDto);
 

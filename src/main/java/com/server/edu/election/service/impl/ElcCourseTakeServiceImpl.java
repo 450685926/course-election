@@ -1742,47 +1742,88 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Override
     @Transactional
-    public CourseConflictVo addCourse(AddCourseDto courseDto) {
-        Session session = SessionUtils.getCurrentSession();
-        Long calendarId = courseDto.getCalendarId();
-        // 判断登录角色及选课维护开关状态
-        Integer chooseObj = getChooseObj(session, calendarId);
+    public String addCourse(AddCourseDto courseDto) {
+        String studentId = courseDto.getStudentId();
+        Student student = studentDao.selectByPrimaryKey(studentId);
+        String campus = student.getCampus();
         // 查询要添加教学班的课程信息
         List<Long> teachingClassIds = courseDto.getTeachingClassId();
         // 查询要添加教学班的课程信息
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
-        int size = elcStudentVos.size();
-        // 重修课程集合
-        List<ElcStudentVo> failedClass = new ArrayList<>(size);
-        String studentId = courseDto.getStudentId();
+
+        int size = teachingClassIds.size();
+        List<String> campusList = new ArrayList<>(size);
+        List<String> numList = new ArrayList<>(size);
         Map<Long, String> addMap = new HashMap<>(size);
         for (ElcStudentVo elcStudentVo : elcStudentVos) {
-            String courseCode = elcStudentVo.getCourseCode();
-            addMap.put(elcStudentVo.getTeachingClassId(), courseCode + elcStudentVo.getCourseName());
-            int count = courseTakeDao.courseCount(courseCode, studentId);
-            if(count != 0) {
-                elcStudentVo.setCourseTakeType(2);
-                failedClass.add(elcStudentVo);
-            }else {
-                elcStudentVo.setCourseTakeType(1);
+            String classCode = elcStudentVo.getClassCode();
+            addMap.put(elcStudentVo.getTeachingClassId(), elcStudentVo.getClassCode());
+            if (!campus.equals(elcStudentVo.getCampus()))
+            {
+                campusList.add(classCode);
+            }
+            if (elcStudentVo.getElcNumber() + 1 > elcStudentVo.getNumber())
+            {
+                numList.add(classCode);
             }
         }
-        // 如果含有重修课程且代选课对象为教务员，则需根据重修规则对课程进行判断
-        if (CollectionUtil.isNotEmpty(failedClass) && chooseObj.intValue() == 2) {
-            Student student = studentDao.findStudentByCode(studentId);
-            Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
-            if (maxCount == null) {
-                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimitError"));
+        if (CollectionUtil.isNotEmpty(campusList)) {
+            throw new ParameterValidateException("课程"
+                    + String.join(",", campusList) +
+                    "所在校区与学生校区不一致，请重新添加");
+        }
+        Session session = SessionUtils.getCurrentSession();
+        boolean isAdmin = StringUtils.equals(session.getCurrentRole(), "1")
+                && session.isAdmin();
+        Long calendarId = courseDto.getCalendarId();
+        Integer chooseObj;
+        if (isAdmin) {
+            chooseObj = 3;
+            StringBuffer sb = new StringBuffer();
+            if (CollectionUtil.isNotEmpty(numList)) {
+                sb.append("教学班").append(String.join(",", numList)).
+                        append("已达教室容量上限,");
             }
-            Set<String> retakeCourseCode = courseTakeDao.findRetakeCount(studentId);
-            if (retakeCourseCode.size() + failedClass.size() > maxCount) {
-                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit"));
+            String msg = conflictMsg(courseDto, addMap);
+            sb.append(msg);
+            String s = sb.toString();
+            if (!"".equals(s)) {
+                return s + "您确定要添加吗？";
+            }
+        } else {
+            chooseObj = 2;
+            //判断选课结果开关状态
+            boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, session.getCurrentManageDptId());
+            // 教务员需判断选课开关是否开启
+            if (!switchStatus) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled"));
+            }
+            if (CollectionUtil.isNotEmpty(numList)) {
+                throw new ParameterValidateException("教学班"
+                        + String.join(",", numList) + "已达教室容量上限");
+            }
+            String msg = conflictMsg(courseDto, addMap);
+            if (!"".equals(msg)) {
+                throw new ParameterValidateException(msg);
             }
         }
+        List<ElcCourseTake> elcCourseTakes = new ArrayList<>(size);
+        List<ElcLog> elcLogs = new ArrayList<>(size);
+        // 保存数据
+        addToList(session, chooseObj, courseDto, elcStudentVos, elcCourseTakes, elcLogs);
+        saveCourse(courseDto, elcCourseTakes, elcLogs);
+        return "";
+    }
+
+    private String conflictMsg(AddCourseDto courseDto, Map<Long, String> addMap){
+        String studentId = courseDto.getStudentId();
+        Long calendarId = courseDto.getCalendarId();
+        List<Long> teachingClassIds = courseDto.getTeachingClassId();
+        String msg = "";
         // 查询已选课程上课时间
-        List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.findElcCourseTakeByStudentId(courseDto.getStudentId(), calendarId);
+        List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.findElcCourseTakeByStudentId(studentId, calendarId);
         if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
-            Map<Long, String> selectedMap = elcCourseTakeVos.stream().collect(Collectors.toMap(ElcCourseTakeVo::getTeachingClassId, s -> s.getCourseCode() + s.getCourseName()));
+            Map<Long, String> selectedMap = elcCourseTakeVos.stream().collect(Collectors.toMap(ElcCourseTakeVo::getTeachingClassId, s -> s.getCourseCode()));
             Set<Long> set = selectedMap.keySet();
             List<Long> ids = new ArrayList<>(set);
             List<TimeTableMessage> selectCourseArrange = courseTakeDao.findCourseArrange(ids);
@@ -1799,19 +1840,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     addCourses.add(addCourse);
                     selectedCourses.add(selectedCourse);
                 }
-                CourseConflictVo courseConflictVo = new CourseConflictVo();
-                courseConflictVo.setAddCourse(addCourses);
-                courseConflictVo.setSelectedCourse(selectedCourses);
-                return courseConflictVo;
+                msg = "课程" + String.join(",", addCourses)
+                        + "与学生已选课程" + String.join(",", selectedCourses)
+                        + "上课时间冲突,";
             }
         }
-
-        List<ElcCourseTake> elcCourseTakes = new ArrayList<>(size);
-        List<ElcLog> elcLogs = new ArrayList<>(size);
-        // 保存数据
-        addToList(session, chooseObj, courseDto, elcStudentVos, elcCourseTakes, elcLogs);
-        saveCourse(courseDto, elcCourseTakes, elcLogs);
-        return null;
+        return msg;
     }
 
     private void saveCourse(AddCourseDto courseDto, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {
@@ -2142,7 +2176,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             elcCourseTake.setChooseObj(chooseObj);
             elcCourseTake.setCreatedAt(new Date());
             elcCourseTake.setTurn(0);
-            elcCourseTake.setCourseTakeType(elcStudentVo.getCourseTakeType());
+            // 课程维护加课只加正常修读的课
+            elcCourseTake.setCourseTakeType(1);
             elcCourseTakes.add(elcCourseTake);
             ElcLog elcLog = new ElcLog();
             elcLog.setStudentId(studentId);
