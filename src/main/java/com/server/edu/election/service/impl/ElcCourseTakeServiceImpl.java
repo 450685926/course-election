@@ -1743,70 +1743,72 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     @Transactional
     public String addCourse(AddCourseDto courseDto) {
-        String studentId = courseDto.getStudentId();
-        Student student = studentDao.selectByPrimaryKey(studentId);
-        String campus = student.getCampus();
-        // 查询要添加教学班的课程信息
-        List<Long> teachingClassIds = courseDto.getTeachingClassId();
-        // 查询要添加教学班的课程信息
-        List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
-
-        int size = teachingClassIds.size();
-        List<String> campusList = new ArrayList<>(size);
-        List<String> numList = new ArrayList<>(size);
-        Map<Long, String> addMap = new HashMap<>(size);
-        for (ElcStudentVo elcStudentVo : elcStudentVos) {
-            String classCode = elcStudentVo.getClassCode();
-            addMap.put(elcStudentVo.getTeachingClassId(), elcStudentVo.getClassCode());
-            if (!campus.equals(elcStudentVo.getCampus()))
-            {
-                campusList.add(classCode);
-            }
-            if (elcStudentVo.getElcNumber() + 1 > elcStudentVo.getNumber())
-            {
-                numList.add(classCode);
-            }
-        }
-        if (CollectionUtil.isNotEmpty(campusList)) {
-            throw new ParameterValidateException("课程"
-                    + String.join(",", campusList) +
-                    "所在校区与学生校区不一致，请重新添加");
-        }
+        Integer status = courseDto.getStatus();
         Session session = SessionUtils.getCurrentSession();
         boolean isAdmin = StringUtils.equals(session.getCurrentRole(), "1")
                 && session.isAdmin();
-        Long calendarId = courseDto.getCalendarId();
-        Integer chooseObj;
-        if (isAdmin) {
-            chooseObj = 3;
-            StringBuffer sb = new StringBuffer();
-            if (CollectionUtil.isNotEmpty(numList)) {
-                sb.append("教学班").append(String.join(",", numList)).
-                        append("已达教室容量上限,");
+        Integer chooseObj = isAdmin ? 3 : 2 ;
+        // 查询要添加教学班的课程信息
+        List<Long> teachingClassIds = courseDto.getTeachingClassId();
+        List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
+        int size = teachingClassIds.size();
+
+        if (status == null || status == 0) {
+            String studentId = courseDto.getStudentId();
+            Student student = studentDao.selectByPrimaryKey(studentId);
+            String campus = student.getCampus();
+
+            List<String> campusList = new ArrayList<>(size);
+            List<String> numList = new ArrayList<>(size);
+            Map<Long, String> addMap = new HashMap<>(size);
+            for (ElcStudentVo elcStudentVo : elcStudentVos) {
+                String classCode = elcStudentVo.getClassCode();
+                addMap.put(elcStudentVo.getTeachingClassId(), elcStudentVo.getClassCode());
+                if (!campus.equals(elcStudentVo.getCampus()))
+                {
+                    campusList.add(classCode);
+                }
+                if (elcStudentVo.getElcNumber() + 1 > elcStudentVo.getNumber())
+                {
+                    numList.add(classCode);
+                }
             }
-            String msg = conflictMsg(courseDto, addMap);
-            sb.append(msg);
-            String s = sb.toString();
-            if (!"".equals(s)) {
-                return s + "您确定要添加吗？";
+            if (CollectionUtil.isNotEmpty(campusList)) {
+                throw new ParameterValidateException("课程"
+                        + String.join(",", campusList) +
+                        "所在校区与学生校区不一致，请重新添加");
             }
-        } else {
-            chooseObj = 2;
-            //判断选课结果开关状态
-            boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, session.getCurrentManageDptId());
-            // 教务员需判断选课开关是否开启
-            if (!switchStatus) {
-                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled"));
-            }
-            if (CollectionUtil.isNotEmpty(numList)) {
-                throw new ParameterValidateException("教学班"
-                        + String.join(",", numList) + "已达教室容量上限");
-            }
-            String msg = conflictMsg(courseDto, addMap);
-            if (!"".equals(msg)) {
-                throw new ParameterValidateException(msg);
+            Long calendarId = courseDto.getCalendarId();
+            if (isAdmin) {
+                StringBuffer sb = new StringBuffer();
+                if (CollectionUtil.isNotEmpty(numList)) {
+                    sb.append("教学班").append(String.join(",", numList)).
+                            append("已达教室容量上限,");
+                }
+                String msg = conflictMsg(courseDto, addMap);
+                sb.append(msg);
+                String s = sb.toString();
+                if (!"".equals(s)) {
+                    return s + "您确定要添加吗？";
+                }
+            } else {
+                //判断选课结果开关状态
+                boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, session.getCurrentManageDptId());
+                // 教务员需判断选课开关是否开启
+                if (!switchStatus) {
+                    throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled"));
+                }
+                if (CollectionUtil.isNotEmpty(numList)) {
+                    throw new ParameterValidateException("教学班"
+                            + String.join(",", numList) + "已达教室容量上限");
+                }
+                String msg = conflictMsg(courseDto, addMap);
+                if (!"".equals(msg)) {
+                    throw new ParameterValidateException(msg);
+                }
             }
         }
+
         List<ElcCourseTake> elcCourseTakes = new ArrayList<>(size);
         List<ElcLog> elcLogs = new ArrayList<>(size);
         // 保存数据
