@@ -9,12 +9,15 @@ import java.util.stream.Collectors;
 
 import com.server.edu.common.entity.Department;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.mutual.entity.ElcCrossStdVo;
+import com.server.edu.mutual.entity.ElcMutualStdVo;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import com.server.edu.mutual.util.ProjectUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Transient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,7 +98,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		return pageInfo;
 	}
 	
-    @Transactional
+	@Transactional
 	@Override
 	public int init(Long calendarId) {
 		int result = Constants.ZERO;
@@ -373,22 +376,88 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	}
 
 	@Override
+	@Transient
 	public int deleteAll(Long calendarId, Integer mode) {
 		int result = Constants.ZERO;
+		//获取管理学院和所属学院
+		Session session = SessionUtils.getCurrentSession();
+		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(),String.valueOf(Constants.ONE))
+				&& !session.isAdmin() && session.isAcdemicDean();
+		//定义全局学院,作为条件删除
+		String facultyCondition = "";
+		//判断是否是教务员，如果是进行下列操作
+		//boolean isAcdemicDean=true;
+		if(isAcdemicDean){
+			//获取当前用户的所属学院
+			String faculty = session.getFaculty();
+			//String faculty="000163";
+			//获取当前用户的管理学院
+			String manageFaculty = session.getManageFaculty();
+			//String manageFaculty="000215,000287";
+			//学院数据分权
+			//  1 如果mock所属学院为空,则取所属管理学院;
+			//  2 如果所管理学院为空,取mock学院;
+			//  3 如果都不为空,取管理学院
+			if(StringUtils.isNotEmpty(manageFaculty)){
+				facultyCondition = manageFaculty;
+			}else{
+				facultyCondition = faculty;
+			}
+		}
+		//通过学院查询学生id
+		List<String> studentList=elcCrossStdsDao.queryStudentIdByFacuty(facultyCondition);
 		//修改为以对象形式接收前端参数，因为前端使用json格式上传
 //		Long calendarId = dto.getCalendarId();
 //		Integer mode = dto.getMode();
+		LOG.info("----------the parapes of delete is calendarId:{},facultyCondition:{}",calendarId,facultyCondition);
 		if(Constants.BK_CROSS.equals(mode)) {
 			Example example = new Example(ElcCrossStds.class);
-			Example.Criteria criteria =example.createCriteria();
+			Example.Criteria criteria = example.createCriteria();
 			criteria.andEqualTo("calendarId", calendarId);
-			result = elcCrossStdsDao.deleteByExample(example);
+			//result = elcCrossStdsDao.deleteByExample(example);
+			/*ElcCrossStdVo elcCrossStdVo=new ElcCrossStdVo();
+			elcCrossStdVo.setCalendarId(calendarId);
+			elcCrossStdVo.setFaculty(facultyCondition);*/
+			if (studentList!=null && studentList.size()>0){
+				List<String> strList=new ArrayList<>();
+				for(String str:studentList) {
+					strList.add(str);
+					if(strList.size()>500){
+						result = elcCrossStdsDao.deleteCrossByParames(calendarId, strList);
+						strList = new ArrayList<>();
+					}
+				}
+				//整除500条移除后的余条数
+				if(strList.size()>0){
+					result = elcCrossStdsDao.deleteCrossByParames(calendarId, strList);
+				}
+		    }
 		}else {
 			Example example = new Example(ElcMutualStds.class);
 			Example.Criteria criteria =example.createCriteria();
 			criteria.andEqualTo("calendarId", calendarId);
-			result = elcMutualStdsDao.deleteByExample(example);
-		} 
+			//result = elcMutualStdsDao.deleteByExample(example);
+			/*ElcMutualStdVo elcMutualStdVo=new ElcMutualStdVo();
+			elcMutualStdVo.setCalendarId(calendarId);
+			elcMutualStdVo.setFaculty(facultyCondition);*/
+			/*if (studentList!=null && studentList.size()>0){
+				result=elcMutualStdsDao.deleteMutualByParames(calendarId,studentList);
+			}*/
+			if (studentList!=null && studentList.size()>0){
+				List<String> currentList=new ArrayList<>();
+				for(String str:studentList) {
+					currentList.add(str);
+					if(currentList.size()>500){
+						result=elcMutualStdsDao.deleteMutualByParames(calendarId,currentList);
+						currentList = new ArrayList<>();
+					}
+				}
+				//整除500条移除后的余条数
+				if(currentList.size()>0){
+					result=elcMutualStdsDao.deleteMutualByParames(calendarId,currentList);
+				}
+			}
+		}
 		return result;
 	}
 

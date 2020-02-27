@@ -116,4 +116,38 @@
 		</if>
 		ORDER BY  t.DEPT_ID_ NOT IN ('697'),t.DEPT_CODE_ ASC
 	</select>
+
+	<!--根据条件全量删除跨专业选课学生-->
+	<delete id="deleteCrossByParames">
+		DELETE FROM elc_cross_stds_t
+		WHERE 1=1
+		<!--学期-->
+		<if test="calendarId != null " >
+			AND CALENDAR_ID_=#{calendarId}
+		</if>
+		<!--学生id-->
+		<if test="studentList != null and studentList.size() > 0" >
+			AND STUDENT_ID_ IN
+			<foreach collection="studentList" item="item" index="index" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</delete>
+
+	<!--通过学院查询学生id-->
+	<select id="queryStudentIdByFacuty" parameterType="java.lang.String" resultType="string">
+		SELECT
+			st.STUDENT_CODE_
+		  FROM
+			student_t st
+		  WHERE 1 = 1
+			<!-- 学院条件-->
+			<if test="facultyCondition != null and facultyCondition.length>0 ">
+				AND st.FACULTY_ IN
+				<foreach collection="facultyCondition.split(',')" item="facultyCondition"
+						 index="index" open="(" close=")" separator=",">
+					#{facultyCondition}
+				</foreach>
+			</if>
+	</select>
 </mapper>
