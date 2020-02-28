@@ -76,25 +76,17 @@ public class TeacherLessonTableController
         Session session = SessionUtils.getCurrentSession();
         PageResult<ClassCodeToTeacher> classTeacher = null;
         classCodeToTeacher.setProjectId(session.getCurrentManageDptId());
-        if (StringUtils.equals(session.getCurrentRole(), "1")
-            && session.isAdmin())
-        {
-            classTeacher =
-                lessonTableService.findTeacherTimeTableByRole(condition);
-        }
-        else if (StringUtils.equals(session.getCurrentRole(), "1")
-            && !session.isAdmin() && session.isAcdemicDean())
-        {
-                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-                classCodeToTeacher.setFaculties(deptIds);
-            classTeacher =
-                lessonTableService.findTeacherTimeTableByRole(condition);
-        }
-        else if (StringUtils.equals(session.getCurrentRole(), "2"))
+
+        if (StringUtils.equals(session.getCurrentRole(), "2"))
         {
             classCodeToTeacher.setTeacherCode(session.realUid());
             classTeacher =
                 lessonTableService.findTeacherTimeTableByRole(condition);
+        }else{
+            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+            classCodeToTeacher.setFaculties(deptIds);
+            classTeacher =
+                    lessonTableService.findTeacherTimeTableByRole(condition);
         }
         return RestResult.successData(classTeacher);
     }
