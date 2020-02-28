@@ -27,6 +27,8 @@ import com.server.edu.common.entity.LabelCreditCount;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
 import com.server.edu.mutual.controller.ElcMutualApplyController;
@@ -66,6 +68,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	
 	@Autowired
 	private ElcMutualListDao elcMutualListDao;
+	
+	@Autowired
+    private ElcCourseTakeDao elcCourseTakeDao;
 	
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualApplyList(PageCondition<ElcMutualApplyDto> condition) {
@@ -443,8 +448,28 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 				List<String> courseCodes = CultureSerivceInvokerToMutual.getCulturePlanCourseCodeByStudentId(studentId);
 				LOG.info("---------------getCulturePlanCourseCodeByStudentId--------------"+courseCodes.size());
 //				list2 = list2.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
+				//过滤培养计划中的课程
 				list = list.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
+				
+				String id = CultureSerivceInvokerToMutual.getStudentCultureScheme(studentId);
+				if(StringUtils.isNotEmpty(id)) {
+					List<String> courseCodes1 = CultureSerivceInvokerToMutual.getStudentCultureSchemeCourseCode(studentId);
+					//过滤培养方案中的课程
+					list = list.stream().filter(vo->!courseCodes1.contains(vo.getCourseCode())).collect(Collectors.toList());
+				}
+				Example example = new Example(ElcCourseTake.class);
+				List<ElcCourseTake> elcs = elcCourseTakeDao.selectByExample(example);
+				Example.Criteria criteria = example.createCriteria();
+				criteria.andEqualTo("studentId", studentId);
+				List<String> courseCodes2 = elcs.stream().map(vo->vo.getCourseCode()).distinct().collect(Collectors.toList());
+				//过滤已选课程中的课程
+				list = list.stream().filter(vo->!courseCodes2.contains(vo.getCourseCode())).collect(Collectors.toList());
+			
+				List<String> courseCodes3 = elcMutualApplyDao.getStuCourseCodesFromScore(studentId);
+				//过滤已有成绩的课程
+				list = list.stream().filter(vo->!courseCodes3.contains(vo.getCourseCode())).collect(Collectors.toList());
 			}
+			
 //			pageInfo=new PageInfo<ElcMutualApplyVo>(list2);
 //			pageInfo.setList(list2);
 

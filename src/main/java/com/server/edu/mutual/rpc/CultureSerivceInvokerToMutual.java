@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.ServicePathEnum;
@@ -69,7 +70,7 @@ public class CultureSerivceInvokerToMutual {
 	public static List<String> getCulturePlanCourseCodeByStudentId(String studentId){
 		RestResult result = ServicePathEnum.CULTURESERVICE
                 .getForObject("/bclCulturePlan/findPlanCourseTab?studentID={0}", RestResult.class,studentId);
-		LOG.info("return value:"+JSONObject.toJSONString(result));
+		LOG.info("findPlanCourseTab return value:"+JSONObject.toJSONString(result));
 		
 		if (null != result
                 && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
@@ -122,6 +123,67 @@ public class CultureSerivceInvokerToMutual {
 				getForObject("/bclCulturePlan/addCourseToPlan?studentID={studentID}&courseCode={courseCode}&semester={semester}&calendarId={calendarId}",
 						RestResult.class, studentID, courseCode, semester,calendarId);
 		return restResult;
+	}
+	
+	/**
+	 * 获取本科生培养方案获取模板id
+	 * @param studentId
+	 * @return
+	 */
+	public static String getStudentCultureScheme(String studentId){
+		String res = "";
+		RestResult result = ServicePathEnum.CULTURESERVICE
+                .getForObject("/bclStudentCultureRel/queryStudentCultureScheme?stuid={0}", RestResult.class,studentId);
+		LOG.info(" queryStudentCultureScheme return value:"+JSONObject.toJSONString(result));
+		
+		if (null != result
+                && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
+        {
+			String json =JSONObject.toJSON(result.getData()).toString();
+			Map<String, Object> parse = (Map)JSON.parse(json);
+			for (String key : parse.keySet()) {
+				if (StringUtils.equals(key, "id")) {
+					res = parse.get(key).toString();
+					break;
+				}
+			}
+        }
+        return res;
+	}
+	
+	/**
+	 * 获取本科生培养方案课程列表
+	 * @param studentId
+	 * @return
+	 */
+	public static List<String> getStudentCultureSchemeCourseCode(String id){
+		RestResult result = ServicePathEnum.CULTURESERVICE
+                .getForObject("bclCourseLabelRelation/list/{}?type=2", RestResult.class,id);
+		LOG.info(" findCultureSchemeById return value:"+JSONObject.toJSONString(result));
+		
+		if (null != result
+                && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
+        {
+			List<String> list=new ArrayList<>(); 
+			String json =JSONObject.toJSON(result.getData()).toString();
+			Map<String, Object> parse = (Map)JSON.parse(json);
+			for (String key : parse.keySet()) {
+				if (StringUtils.equals(key, "courseLabelRelationList")) {
+					String courseCodeList = parse.get(key).toString();
+					if(StringUtils.isNotEmpty(courseCodeList)) {
+						Map<String, Object> ps = (Map)JSON.parse(courseCodeList);
+						for (String key1 : ps.keySet()) {
+							if (StringUtils.equals(key, "courseCode")) {
+								String courseCode =ps.get(key).toString();
+								list.add(courseCode);
+							}
+						}
+					}
+				}
+			}
+        	return list;
+        }
+        return Collections.emptyList();
 	}
 	
 	
