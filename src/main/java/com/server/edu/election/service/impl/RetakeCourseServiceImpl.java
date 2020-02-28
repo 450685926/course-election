@@ -438,35 +438,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     Map<Long, List<TimeTableMessage>> map = timeTableMessages.stream().
                             collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
                     for (RebuildCourseVo rebuildCourseVo : page) {
-                        List<TimeTableMessage> timeTables = map.get(rebuildCourseVo.getTeachingClassId());
-                        Set<String> set = new HashSet<>(3);
-                        if (CollectionUtil.isNotEmpty(timeTables)) {
-                            List<String> courseArrange = new ArrayList<>(timeTables.size());
-                            for (TimeTableMessage timeTable : timeTables) {
-                                courseArrange.add(timeTable.getTimeAndRoom());
-                                String roomId = timeTable.getRoomId();
-                                if (StringUtils.isNotBlank(roomId)) {
-                                    set.add(roomId);
-                                }
-                            }
-                            rebuildCourseVo.setCourseArrange(courseArrange);
-                        }
+                        Set<String> set = getRoomIds(map, rebuildCourseVo);
                         // 判断这门课程是可以进行选课操作还是退课操作
                         int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
                         if (count == 0) {
-                            // 教室容量判断，管理员不能超过教室容量
-                            Integer status = 0;
-                            if (CollectionUtil.isNotEmpty(set)) {
-                                for (String s : set) {
-                                    ClassroomN classroom = ClassroomCacheUtil.getClassroom(s);
-                                    Integer classCapacity = classroom.getClassCapacity();
-                                    if (rebuildCourseVo.getSelectNumber() + 1 > classCapacity) {
-                                        status = null;
-                                        break;
-                                    }
-                                }
-                            }
-                            rebuildCourseVo.setStatus(status);
+                           setStatus(set, rebuildCourseVo);
                         } else {
                             rebuildCourseVo.setStatus(1);
                         }
@@ -505,11 +481,13 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             // 重修规则为空说明所有重修课程都可以选择
             if (courseRole.isEmpty()) {
                 for (RebuildCourseVo rebuildCourseVo : page) {
-                    setCourseArrange(map, rebuildCourseVo);
+                    Set<String> set = getRoomIds(map, rebuildCourseVo);
+
                     // 判断这门课程是可以进行选课操作还是退课操作
                     int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
                     if (count == 0) {
-                        rebuildCourseVo.setStatus(0);
+
+                        setStatus(set, rebuildCourseVo);
                     } else {
                         rebuildCourseVo.setStatus(1);
                     }
@@ -519,13 +497,15 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                 if (i == 1) {
                     String campus = studentDao.findCampus(studentId);
                     for (RebuildCourseVo rebuildCourseVo : page) {
-                        setCourseArrange(map, rebuildCourseVo);
+                        Set<String> set = getRoomIds(map, rebuildCourseVo);
+
                         int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
                         // 为0说明学生要进行选课操作，需判断规则
                         if (count == 0) {
                             // 校区相同才可进行选课
                             if (campus.equals(rebuildCourseVo.getCampus())) {
-                                rebuildCourseVo.setStatus(0);
+
+                                setStatus(set, rebuildCourseVo);
                             }
                         } else {
                             // 退课无需判断规则，直接退
@@ -547,13 +527,13 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     }
                 } else if (i == 3) {
                     for (RebuildCourseVo rebuildCourseVo : page) {
-                        setCourseArrange(map, rebuildCourseVo);
+                        Set<String> set = getRoomIds(map, rebuildCourseVo);
                         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
                         int count = courseTakeDao.findCount(studentId, calendarId, teachingClassId);
                         if (count == 0) {
                             if (getCourseConflict(selectTimeTables, map.get(teachingClassId))) {
-                                rebuildCourseVo.setStatus(0);
 
+                                setStatus(set, rebuildCourseVo);
                             }
                         } else {
                             rebuildCourseVo.setStatus(1);
@@ -581,7 +561,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                 } else if (courseRole.contains(1) && courseRole.contains(3)) {
                     String campus = studentDao.findCampus(studentId);
                     for (RebuildCourseVo rebuildCourseVo : page) {
-                        setCourseArrange(map, rebuildCourseVo);
+                        Set<String> set = getRoomIds(map, rebuildCourseVo);
+
                         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
                         int count = courseTakeDao.findCount(studentId, calendarId, teachingClassId);
                         if (count == 0) {
@@ -589,7 +570,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                             if (campus.equals(rebuildCourseVo.getCampus())) {
                                 // 判断课程安排
                                 if (getCourseConflict(selectTimeTables, map.get(teachingClassId))) {
-                                    rebuildCourseVo.setStatus(0);
+                                    setStatus(set, rebuildCourseVo);
                                 }
                             }
                         } else {
@@ -654,6 +635,48 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             rebuildCourseVo.setCourseArrange(courseArrange);
         }
 
+    }
+
+    /**
+     * 设置教学安排并获取教室
+     *
+     * @param map
+     * @param rebuildCourseVo
+     */
+    private Set<String> getRoomIds(Map<Long, List<TimeTableMessage>> map, RebuildCourseVo rebuildCourseVo) {
+        List<TimeTableMessage> timeTables = map.get(rebuildCourseVo.getTeachingClassId());
+        Set<String> set = new HashSet<>(3);
+        if (CollectionUtil.isNotEmpty(timeTables)) {
+            if (CollectionUtil.isNotEmpty(timeTables)) {
+                List<String> courseArrange = new ArrayList<>(timeTables.size());
+                for (TimeTableMessage timeTable : timeTables) {
+                    courseArrange.add(timeTable.getTimeAndRoom());
+                    String roomId = timeTable.getRoomId();
+                    if (StringUtils.isNotBlank(roomId)) {
+                        set.add(roomId);
+                    }
+                }
+                rebuildCourseVo.setCourseArrange(courseArrange);
+            }
+        }
+        return set;
+    }
+
+    private void setStatus(Set<String> set, RebuildCourseVo rebuildCourseVo)
+    {
+        // 教室容量判断，管理员不能超过教室容量
+        Integer status = 0;
+        if (CollectionUtil.isNotEmpty(set)) {
+            for (String s : set) {
+                ClassroomN classroom = ClassroomCacheUtil.getClassroom(s);
+                Integer classCapacity = classroom.getClassCapacity();
+                if (rebuildCourseVo.getSelectNumber() + 1 > classCapacity) {
+                    status = null;
+                    break;
+                }
+            }
+        }
+        rebuildCourseVo.setStatus(status);
     }
 
     /**

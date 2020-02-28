@@ -232,13 +232,21 @@ public class ElecAgentController
     }
     
     @ApiOperation(value = "清除轮次所有学生缓存状态")
-    @PostMapping("/initRoundStuCache")
-    public RestResult<?> initRoundStuCache(@RequestParam("roundId") Long roundId)
+    @PostMapping("/initAsyRoundStuCache")
+    public RestResult<?> initAsyRoundStuCache(@RequestParam("roundId") Long roundId)
     {
-        AsyncResult asyncResult = elecService.initRoundStuCache(roundId);
+        AsyncResult asyncResult = elecService.initAsyRoundStuCache(roundId);
         return RestResult.successData(asyncResult);
     }
     
+    
+    @ApiOperation(value = "清除轮次所有学生缓存状态")
+    @PostMapping("/initRoundStuCache")
+    public RestResult<?> initRoundStuCache(@RequestParam("roundId") Long roundId)
+    {
+        elecService.initRoundStuCache(roundId);
+        return RestResult.success();
+    }
     
     @ApiOperation(value = "外部服务清除学生选课缓存数据")
     @PostMapping("/outInitElcStuCache")
@@ -264,6 +272,24 @@ public class ElecAgentController
     @GetMapping("/findInitRoundStuCache")
     public RestResult<AsyncResult> findInitRoundStuCache(@RequestParam String key){
         AsyncResult asyncResult = AsyncProcessUtil.getResult(key);
+        return RestResult.successData(asyncResult);
+    }
+    
+    @ApiOperation(value = "释放选课定时分布式锁")
+    @PostMapping("/clearTimeLock")
+    public RestResult<?> clearTimeLock()
+    {
+    	Long caKey = 0L;
+        String key = "dataLoad";
+    	ElecContextUtil.unlock(caKey, key);
+        return RestResult.success();
+    }
+    
+    @ApiOperation(value = "选课异步缓存加载")
+    @PostMapping("/asyncLoad")
+    public RestResult<?> asyncLoad()
+    {
+    	AsyncResult asyncResult = elecService.asyncLoad();
         return RestResult.successData(asyncResult);
     }
     
