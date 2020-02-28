@@ -761,7 +761,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         return true;
     }
     
-    public AsyncResult initAsyRoundStuCache(Long roundId) {
+    public AsyncResult asyncInitAllStuCache(Long roundId) {
     	AsyncResult resul = AsyncProcessUtil.submitTask("initRoundStuCache", new AsyncExecuter() {
             @Override
             public void execute() {
@@ -790,7 +790,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
     }
     
     
-    public void initRoundStuCache(Long roundId) {
+    public void initStuCache(Long roundId) {
     	ElectionRounds round = roundDao.selectByPrimaryKey(roundId);
         Long calendarId = round.getCalendarId();
         List<String> stuIds = roundStuDao.findStuByRoundId(roundId);

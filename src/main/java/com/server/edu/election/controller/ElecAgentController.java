@@ -232,19 +232,19 @@ public class ElecAgentController
     }
     
     @ApiOperation(value = "清除轮次所有学生缓存状态")
-    @PostMapping("/initAsyRoundStuCache")
-    public RestResult<?> initAsyRoundStuCache(@RequestParam("roundId") Long roundId)
+    @PostMapping("/asyncInitAllStuCache")
+    public RestResult<?> asyncInitAllStuCache(@RequestParam("roundId") Long roundId)
     {
-        AsyncResult asyncResult = elecService.initAsyRoundStuCache(roundId);
+        AsyncResult asyncResult = elecService.asyncInitAllStuCache(roundId);
         return RestResult.successData(asyncResult);
     }
     
     
     @ApiOperation(value = "清除轮次所有学生缓存状态")
-    @PostMapping("/initRoundStuCache")
-    public RestResult<?> initRoundStuCache(@RequestParam("roundId") Long roundId)
+    @PostMapping("/initStuCache")
+    public RestResult<?> initStuCache(@RequestParam("roundId") Long roundId)
     {
-        elecService.initRoundStuCache(roundId);
+        elecService.initStuCache(roundId);
         return RestResult.success();
     }
     
