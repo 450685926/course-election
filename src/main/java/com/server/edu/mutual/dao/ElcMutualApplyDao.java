@@ -65,4 +65,11 @@ public interface ElcMutualApplyDao extends Mapper<ElcMutualApply>,MySqlMapper<El
 	 * @return
 	 */
 	Map<String, Object> selectAvgPonitByStudentId(@RequestParam("studentId") String studentId);
+	
+	/**
+     * 获取学生已有成绩的课程
+     * @param studentId
+     * @return
+     */
+    List<String> getStuCourseCodesFromScore(@RequestParam("studentId") String studentId);
 }

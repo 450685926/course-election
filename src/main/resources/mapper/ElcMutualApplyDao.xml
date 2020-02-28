@@ -517,7 +517,14 @@
 	   WHERE STUDENT_NUM_=#{studentId}
 	</select>
 
-
+<select id="getStuCourseCodesFromScore" resultType="java.lang.String">
+        SELECT
+			COURSE_CODE_ 
+		FROM
+			score_student_result_t 
+		WHERE
+			STUDENT_ID_ =#{studentId}
+    </select>
 
 
 </mapper>
