@@ -761,7 +761,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         return true;
     }
     
-    public AsyncResult initRoundStuCache(Long roundId) {
+    public AsyncResult initAsyRoundStuCache(Long roundId) {
     	AsyncResult resul = AsyncProcessUtil.submitTask("initRoundStuCache", new AsyncExecuter() {
             @Override
             public void execute() {
@@ -784,6 +784,30 @@ public class StudentElecServiceImpl extends AbstractCacheService
              			this.updateResult(result);
              		}
                  }
+            }
+        });
+		return resul;
+    }
+    
+    
+    public void initRoundStuCache(Long roundId) {
+    	ElectionRounds round = roundDao.selectByPrimaryKey(roundId);
+        Long calendarId = round.getCalendarId();
+        List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
+        if(CollectionUtil.isNotEmpty(stuIds)) {
+    		for(String studentId :stuIds) {
+               ElecContextUtil.setElecStatus(calendarId,
+               		studentId,
+                       ElecStatus.Init);
+    		}
+        }
+    }
+    
+    public AsyncResult asyncLoad() {
+    	AsyncResult resul = AsyncProcessUtil.submitTask("asyncLoad", new AsyncExecuter() {
+            @Override
+            public void execute() {
+            	dataProvider.load();
             }
         });
 		return resul;

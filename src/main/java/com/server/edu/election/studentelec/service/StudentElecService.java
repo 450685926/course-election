@@ -62,7 +62,11 @@ public interface StudentElecService
     void getDataBk(ElecContextBk c, Long roundId);
     
     /** 排除有限制学生的教学班*/
-    AsyncResult initRoundStuCache(Long roundId);
+    AsyncResult initAsyRoundStuCache(Long roundId);
+    
+    void initRoundStuCache(Long roundId);
+    
+    AsyncResult asyncLoad();
 
     List<PublicCourseTag> getPublicCourse(PublicCourseQuery query);
 }
