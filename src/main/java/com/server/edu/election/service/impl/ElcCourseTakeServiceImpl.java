@@ -794,11 +794,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     && session.isAdmin();
 
             if (isAdmin) {
+                StringBuffer sb = new StringBuffer("当前课程");
+                if (teachingClass.getElcNumber() + studentIds.size() > teachingClass.getNumber()) {
+                    sb.append("已达教室容量上限,");
+                }
                 Set<String> set = conflictStu(courseArrange, studentIds, calendarId);
                 if (CollectionUtil.isNotEmpty(set)) {
-                    String mag = "当前课程与学生" + String.join(",", set)
-                            + "已选课程上课时间冲突，您确定要添加吗？";
-                    return mag;
+                    sb.append("与学生").append(String.join(",", set)).
+                            append("已选课程上课时间冲突，");
+                }
+                String msg = sb.toString();
+                if (!"".equals(msg)) {
+                    msg = msg + "您确定要添加吗？";
+                    return msg;
+
                 }
             } else {
                 //判断选课结果开关状态
