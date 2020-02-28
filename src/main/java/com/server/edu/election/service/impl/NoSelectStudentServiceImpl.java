@@ -84,12 +84,10 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
     	 String deptId = session.getCurrentManageDptId();
          NoSelectCourseStdsDto noSelectCourseStdsDto = condition.getCondition();
          noSelectCourseStdsDto.setDeptId(deptId);
-         //通过session信息获取访问接口人员角色
-         if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-             List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-             noSelectCourseStdsDto.setFaculties(deptIds);
-             
-         }
+
+         List<String> deptIds = session.getGroupData().get(GroupDataEnum.department.getValue());
+         noSelectCourseStdsDto.setFaculties(deptIds);
+
          PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
 
          Page<NoSelectCourseStdsDto> electCourseList;

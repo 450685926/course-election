@@ -52,26 +52,24 @@ public class ElcLogController
     {
     	Session session = SessionUtils.getCurrentSession();
     	String projId = session.getCurrentManageDptId();
-        ElcLogQuery condition2 = condition.getCondition();
-        condition2.setDeptId(projId);
-        if (null != condition2
-            && CollectionUtil.isNotEmpty(condition2.getStudentIds()))
+        ElcLogQuery elcLogQuery = condition.getCondition();
+        elcLogQuery.setDeptId(projId);
+        if (null != elcLogQuery
+            && CollectionUtil.isNotEmpty(elcLogQuery.getStudentIds()))
         {
             Set<String> ids = new HashSet<>();
-            ids.addAll(condition2.getStudentIds());
-            condition2.getStudentIds().clear();
-            condition2.getStudentIds().addAll(ids);
+            ids.addAll(elcLogQuery.getStudentIds());
+            elcLogQuery.getStudentIds().clear();
+            elcLogQuery.getStudentIds().addAll(ids);
         }
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-            condition2.setFaculties(deptIds);
-        }
+
+        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+        elcLogQuery.setFaculties(deptIds);
         if("1".equals(projId)){
             //体育部和外语学院教务员比较特殊能看所有学生 体育教学部000293 外国语学院 000268
-            List<String> faculties = condition2.getFaculties();
-            if(CollectionUtil.isNotEmpty(faculties)){
-                if(faculties.contains("000293") || faculties.contains("000268")){
-                    condition2.setFaculties(new ArrayList<>());
+            if(CollectionUtil.isNotEmpty(deptIds)){
+                if(deptIds.contains("000293") || deptIds.contains("000268")){
+                    elcLogQuery.setFaculties(new ArrayList<>());
                 }
             }
         }
