@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.ClassroomN;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
@@ -437,11 +438,35 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     Map<Long, List<TimeTableMessage>> map = timeTableMessages.stream().
                             collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
                     for (RebuildCourseVo rebuildCourseVo : page) {
-                        setCourseArrange(map, rebuildCourseVo);
+                        List<TimeTableMessage> timeTables = map.get(rebuildCourseVo.getTeachingClassId());
+                        Set<String> set = new HashSet<>(3);
+                        if (CollectionUtil.isNotEmpty(timeTables)) {
+                            List<String> courseArrange = new ArrayList<>(timeTables.size());
+                            for (TimeTableMessage timeTable : timeTables) {
+                                courseArrange.add(timeTable.getTimeAndRoom());
+                                String roomId = timeTable.getRoomId();
+                                if (StringUtils.isNotBlank(roomId)) {
+                                    set.add(roomId);
+                                }
+                            }
+                            rebuildCourseVo.setCourseArrange(courseArrange);
+                        }
                         // 判断这门课程是可以进行选课操作还是退课操作
                         int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
                         if (count == 0) {
-                            rebuildCourseVo.setStatus(0);
+                            // 教室容量判断，管理员不能超过教室容量
+                            Integer status = 0;
+                            if (CollectionUtil.isNotEmpty(set)) {
+                                for (String s : set) {
+                                    ClassroomN classroom = ClassroomCacheUtil.getClassroom(s);
+                                    Integer classCapacity = classroom.getClassCapacity();
+                                    if (rebuildCourseVo.getSelectNumber() + 1 > classCapacity) {
+                                        status = null;
+                                        break;
+                                    }
+                                }
+                            }
+                            rebuildCourseVo.setStatus(status);
                         } else {
                             rebuildCourseVo.setStatus(1);
                         }
