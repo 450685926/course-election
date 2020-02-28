@@ -213,13 +213,9 @@ public class ElcResultServiceImpl implements ElcResultService
     	ElcResultQuery condition = page.getCondition();
     	
     	Session session = SessionUtils.getCurrentSession();
-    	//通过session信息获取访问接口人员角色
-    	if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            if (StringUtils.isBlank(condition.getFaculty())) {
-                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-                condition.setFaculties(deptIds);
-            }
-		}
+
+        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+        condition.setFaculties(deptIds);
         Page<TeachingClassVo> listPage = null;
         listPage = getListPage(condition, listPage, page);
         List<TeachingClassVo> list = listPage.getResult();
