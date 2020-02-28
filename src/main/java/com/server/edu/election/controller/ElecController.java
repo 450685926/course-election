@@ -166,7 +166,7 @@ public class ElecController
 
     @ApiOperation(value = "获取课程对应的教学班数据(同时排除掉不满足选课限制的班级)")
     @PostMapping("/getTeachClass4Limit")
-    @Cacheable(value = "teachingClassCacheVo", key ="#roundId+'-'+#courseCode+'-'+#studentId" )
+//    @Cacheable(value = "teachingClassCacheVo", key ="#roundId+'-'+#courseCode+'-'+#studentId" )
     public RestResult<List<TeachingClassCache>> getTeachClass4Limit(
             @RequestParam("roundId") @NotNull Long roundId,
             @RequestParam("studentId") @NotNull Long studentId,
