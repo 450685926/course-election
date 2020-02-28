@@ -454,6 +454,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                         // 判断这门课程是可以进行选课操作还是退课操作
                         int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
                         if (count == 0) {
+                            // 教室容量判断，管理员不能超过教室容量
                             Integer status = 0;
                             if (CollectionUtil.isNotEmpty(set)) {
                                 for (String s : set) {
