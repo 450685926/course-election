@@ -7,6 +7,7 @@ import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRule;
+import com.server.edu.election.util.TableIndexUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -89,6 +90,9 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
 
         //教学班Id
         Long teachClassId = courseClass.getTeachClassId();
+        //学期
+        Long calendarId = context.getCalendarId();
+        int mode = TableIndexUtil.getIndex(calendarId);
 
         //教学班年级专业人数限制
         List<SuggestProfessionDto> suggestProfessionDtos =
@@ -163,51 +167,62 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                     String sex = String.valueOf(studentInfo.getSex());
                     Integer numberMale = restrictAttr.getNumberMale();//男生人数 1
                     Integer numberFemale = restrictAttr.getNumberFemale();//女生人数 2
-                    if (isDivsex != null && isDivsex != "") {
-                        ElcCourseLimitDto sexNumber =
-                                takeDao.findSexNumber(teachClassId);
-                        int currentNum = 0;
-                        if (sexNumber == null)
-                        {//当前还没有选课人数
-                            currentNum = 0;
-                        }
-                        else
-                        {
-                            if (MALE.equals(sex) && sexNumber.getMaleNum() != null)
-                            {
-                                currentNum = sexNumber.getMaleNum();
-                            }
-                            if (FEMALE.equals(sex) && sexNumber.getFeMaleNum() != null)
-                            {
-                                currentNum = sexNumber.getFeMaleNum();
-                            }
-                        }
 
-                        Integer limitNumber = 0;
-                        if (MALE.equals(sex))
-                        {//男
-                            limitNumber = numberMale;
-                        }
-                        else
-                        {
-                            limitNumber = numberFemale;
-
-                        }
-                        if (limitNumber == null || (limitNumber != null && (currentNum + 1) <= limitNumber))
-                        {
-                            resultFlag = true;
-                        }
-                        else
-                        {
-                            resultFlag = false;
+                    if(StringUtils.isNotBlank(isDivsex) && !isDivsex.equals(IS_NOT_OVERSEAS_)){
+                        if(!isDivsex.equals(sex)){
+                            ElecRespose respose = context.getRespose();
+                            respose.getFailedReasons()
+                                    .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
+                                            I18nUtil.getMsg("ruleCheck.classLimit.isDivsex"));
+                            return false;
                         }
                     }
+
+                    ElcCourseLimitDto sexNumber =
+                            takeDao.findSexNumber(teachClassId,mode);
+                    int currentNum = 0;
+
+                    if (sexNumber == null)
+                    {//当前还没有选课人数
+                        currentNum = 0;
+                    }
+                    else
+                    {
+                        if (MALE.equals(sex) && sexNumber.getMaleNum() != null)
+                        {
+                            currentNum = sexNumber.getMaleNum();
+                        }
+                        if (FEMALE.equals(sex) && sexNumber.getFeMaleNum() != null)
+                        {
+                            currentNum = sexNumber.getFeMaleNum();
+                        }
+                    }
+
+                    Integer limitNumber = 0;
+                    if (MALE.equals(sex))
+                    {//男
+                        limitNumber = numberMale;
+                    }
+                    else
+                    {
+                        limitNumber = numberFemale;
+
+                    }
+                    if (limitNumber == null || (limitNumber != null && (currentNum + 1) <= limitNumber))
+                    {
+                        resultFlag = true;
+                    }
+                    else
+                    {
+                        resultFlag = false;
+                    }
+
                 }
                 if (!resultFlag) {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
                             .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
-                                    I18nUtil.getMsg("ruleCheck.classLimit.isDivsex"));
+                                    I18nUtil.getMsg("ruleCheck.classLimit.isDivsexNum "));
                     return false;
                 }
             }else if (enabled && StringUtils.equals("ISOVERSEAS", parameter.getName())){//是否留学限制
