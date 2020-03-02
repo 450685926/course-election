@@ -332,20 +332,24 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		int result = Constants.ZERO;
 		
 		// 校验学生是否可以申请互选课程
-		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
-			ElcMutualApplyDto dto2 = new ElcMutualApplyDto();
-			dto2.setCalendarId(dto.getCalendarId());
-			dto2.setCategory(dto.getCategory());
-			dto2.setMutualCourseIds(Arrays.asList(dto.getMutualCourseId()));
-			dto2.setMode(dto.getMode());
-			
-			MutualApplyJugeUtil mutualApplyJugeUtil = new MutualApplyJugeUtil(elcMutualApplySwitchDao,elcMutualApplyDao);
-			Boolean isApplyMutualCourseFlag = mutualApplyJugeUtil.jugeApplyMutualCourses(dto2, projectId, dto.getStudentId());
-			LOG.info("=========isApplyMutualCourseFlag:"+isApplyMutualCourseFlag+"=========");
-			if (!isApplyMutualCourseFlag.booleanValue()) {
-				return result;
-			}
-		}
+        if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+            ElcMutualApplyDto dto2 = new ElcMutualApplyDto();
+            dto2.setCalendarId(dto.getCalendarId());
+            dto2.setCategory(dto.getCategory());
+            dto2.setMutualCourseIds(Arrays.asList(dto.getMutualCourseId()));
+            dto2.setMode(dto.getMode());
+            //初始化工具类
+            MutualApplyJugeUtil mutualApplyJugeUtil = new MutualApplyJugeUtil(elcMutualApplySwitchDao,elcMutualApplyDao);
+            //Boolean isApplyMutualCourseFlag = mutualApplyJugeUtil.jugeApplyMutualCourses(dto2, projectId, dto.getStudentId());
+            LOG.info("===========it is current user is or not Academic officer:{}",StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+                    && !session.isAdmin() && session.isAcdemicDean());
+            //跨学科课程添加申请校验
+            Boolean judgmentAcademicApplyMutualCourses = mutualApplyJugeUtil.judgmentAcademicApplyMutualCourses(dto2, projectId, dto.getStudentId(), session);
+            LOG.info("=========isApplyMutualCourseFlag:"+judgmentAcademicApplyMutualCourses+"=========");
+            if (!judgmentAcademicApplyMutualCourses.booleanValue()) {
+                return result;
+            }
+        }
 		
 		Example example = new Example(ElcMutualApply.class);
 		Example.Criteria criteria = example.createCriteria();
