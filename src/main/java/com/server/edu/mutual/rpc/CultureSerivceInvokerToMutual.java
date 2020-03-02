@@ -133,7 +133,7 @@ public class CultureSerivceInvokerToMutual {
 	 */
 	public static List<String> getStudentCultureScheme(String studentId){
 //		String res = "";
-		RestResult<List<CultureScheme>> result = ServicePathEnum.CULTURESERVICE
+		RestResult result = ServicePathEnum.CULTURESERVICE
                 .getForObject("/bclStudentCultureRel/queryStudentCultureScheme?stuid={0}", RestResult.class,studentId);
 		LOG.info(" queryStudentCultureScheme return value:"+JSONObject.toJSONString(result));
 		
@@ -141,7 +141,8 @@ public class CultureSerivceInvokerToMutual {
                 && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
         {
 			List<String> list=new ArrayList<>(); 
-			List<CultureScheme> cultureSchemes = result.getData();
+			String json = JSONObject.toJSON(result.getData()).toString();
+			List<CultureScheme> cultureSchemes = JSONArray.parseArray(json, CultureScheme.class);
 			for(CultureScheme cs : cultureSchemes) {
 				String res = String.valueOf(cs.getId());
 				list.add(res);
