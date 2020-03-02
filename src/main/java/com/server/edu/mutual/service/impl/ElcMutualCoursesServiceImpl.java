@@ -188,7 +188,9 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 		Session session = SessionUtils.getCurrentSession();
 		String projecetId = session.getCurrentManageDptId();
 		// 获取全部排课课程ID
-		List<CourseOpenDto> courses = getOpenedCourses(calendarId,projecetId);
+		//List<CourseOpenDto> courses = getOpenedCourses(calendarId,projecetId);
+		//sjd 获取全部排课课程ID 查询时，查询包含未查询的
+		List<CourseOpenDto> courses = getOpenedCoursesInfo(calendarId,projecetId);
 		Set<Long> courseIds = courses.stream().map(CourseOpenDto::getId).collect(Collectors.toSet());
 		
 		Example example = new Example(ElcMutualCourses.class);
@@ -245,6 +247,18 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 //		}
 		
 		List<CourseOpenDto> courses = elecRoundCourseDao.selectCourseByCalendarIdForMutual(calendarId,projectId);
+		return courses;
+	}
+
+	/**
+	 * 获取本科生（或者研究生）排课的课程（未排课也查询）
+	 * @param calendarId 学年学期
+	 * @param projectId 用户管理部门ID
+	 * @return List<CourseOpenDto>
+	 */
+	private List<CourseOpenDto> getOpenedCoursesInfo(Long calendarId, String projectId){
+
+		List<CourseOpenDto> courses = elecRoundCourseDao.selectCourseInfoByCalendarIdForMutual(calendarId,projectId);
 		return courses;
 	}
 
