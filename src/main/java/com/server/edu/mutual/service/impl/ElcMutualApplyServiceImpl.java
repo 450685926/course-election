@@ -17,6 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -451,9 +452,16 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 				//过滤培养计划中的课程
 				list = list.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
 				
-				String id = CultureSerivceInvokerToMutual.getStudentCultureScheme(studentId);
-				if(StringUtils.isNotEmpty(id)) {
-					List<String> courseCodes1 = CultureSerivceInvokerToMutual.getStudentCultureSchemeCourseCode(studentId);
+				List<String> ids = CultureSerivceInvokerToMutual.getStudentCultureScheme(studentId);
+				if(!CollectionUtils.isEmpty(ids)) {
+					List<String> courseCodes1 =new ArrayList<>();
+					for(String id : ids) {
+						List<String> courses = CultureSerivceInvokerToMutual.getStudentCultureSchemeCourseCode(id);
+						if(!CollectionUtils.isEmpty(courses)) {
+							courseCodes1.addAll(courses);
+						}
+					}
+					 
 					//过滤培养方案中的课程
 					list = list.stream().filter(vo->!courseCodes1.contains(vo.getCourseCode())).collect(Collectors.toList());
 				}

@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.entity.CultureScheme;
 import com.server.edu.common.entity.LabelCreditCount;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
@@ -130,25 +131,32 @@ public class CultureSerivceInvokerToMutual {
 	 * @param studentId
 	 * @return
 	 */
-	public static String getStudentCultureScheme(String studentId){
-		String res = "";
-		RestResult result = ServicePathEnum.CULTURESERVICE
+	public static List<String> getStudentCultureScheme(String studentId){
+//		String res = "";
+		RestResult<List<CultureScheme>> result = ServicePathEnum.CULTURESERVICE
                 .getForObject("/bclStudentCultureRel/queryStudentCultureScheme?stuid={0}", RestResult.class,studentId);
 		LOG.info(" queryStudentCultureScheme return value:"+JSONObject.toJSONString(result));
 		
 		if (null != result
                 && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
         {
-			String json =JSONObject.toJSON(result.getData()).toString();
-			Map<String, Object> parse = (Map)JSON.parse(json);
-			for (String key : parse.keySet()) {
-				if (StringUtils.equals(key, "id")) {
-					res = parse.get(key).toString();
-					break;
-				}
+			List<String> list=new ArrayList<>(); 
+			List<CultureScheme> cultureSchemes = result.getData();
+			for(CultureScheme cs : cultureSchemes) {
+				String res = String.valueOf(cs.getId());
+				list.add(res);
 			}
+			
+			return list;
+//			Map<String, Object> parse = (Map)JSON.parse(json);
+//			for (String key : parse.keySet()) {
+//				if (StringUtils.equals(key, "id")) {
+//					res = parse.get(key).toString();
+//					break;
+//				}
+//			}
         }
-        return res;
+		return Collections.emptyList();
 	}
 	
 	/**
