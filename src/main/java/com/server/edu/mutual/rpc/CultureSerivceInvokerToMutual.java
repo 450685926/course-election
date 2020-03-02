@@ -131,7 +131,7 @@ public class CultureSerivceInvokerToMutual {
 	 * @param studentId
 	 * @return
 	 */
-	public static List<String> getStudentCultureScheme(String studentId){
+	public static List<Long> getStudentCultureScheme(String studentId){
 //		String res = "";
 		RestResult result = ServicePathEnum.CULTURESERVICE
                 .getForObject("/bclStudentCultureRel/queryStudentCultureScheme?stuid={0}", RestResult.class,studentId);
@@ -140,12 +140,14 @@ public class CultureSerivceInvokerToMutual {
 		if (null != result
                 && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
         {
-			List<String> list=new ArrayList<>(); 
+			List<Long> list=new ArrayList<>(); 
 			String json = JSONObject.toJSON(result.getData()).toString();
 			List<CultureScheme> cultureSchemes = JSONArray.parseArray(json, CultureScheme.class);
 			for(CultureScheme cs : cultureSchemes) {
-				String res = String.valueOf(cs.getId());
-				list.add(res);
+				if(null != cs) {
+					
+					list.add(cs.getId());
+				}
 			}
 			
 			return list;
@@ -165,9 +167,9 @@ public class CultureSerivceInvokerToMutual {
 	 * @param studentId
 	 * @return
 	 */
-	public static List<String> getStudentCultureSchemeCourseCode(String id){
+	public static List<String> getStudentCultureSchemeCourseCode(Long id){
 		RestResult result = ServicePathEnum.CULTURESERVICE
-                .getForObject("bclCourseLabelRelation/list/{}?type=2", RestResult.class,id);
+                .getForObject("bclCourseLabelRelation/list/{0}?type=2", RestResult.class,id);
 		LOG.info(" findCultureSchemeById return value:"+JSONObject.toJSONString(result));
 		
 		if (null != result

@@ -452,10 +452,10 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 				//过滤培养计划中的课程
 				list = list.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
 				
-				List<String> ids = CultureSerivceInvokerToMutual.getStudentCultureScheme(studentId);
+				List<Long> ids = CultureSerivceInvokerToMutual.getStudentCultureScheme(studentId);
 				if(!CollectionUtils.isEmpty(ids)) {
 					List<String> courseCodes1 =new ArrayList<>();
-					for(String id : ids) {
+					for(Long id : ids) {
 						List<String> courses = CultureSerivceInvokerToMutual.getStudentCultureSchemeCourseCode(id);
 						if(!CollectionUtils.isEmpty(courses)) {
 							courseCodes1.addAll(courses);
