@@ -143,7 +143,7 @@
 	  	<where>
 		  	t1.CALENDAR_ID_ = #{calendarId}
 		  	and t1.IS_OPEN_ = 1
-			<!--经与需求沟通,状态为调整课程时间的也可以出现在选课列表中 1:已排课 2:教室待定 3:学院通知 19:调整课时-->
+			<!--经与需求沟通,状态为调整课程时间的也可以出现在选课列表中 1:已排课 2:教室待定 3:学院通知 大于4的状态标识(t4.MAN_ARRANGE_FLAG_ IN(1,2,3) OR t4.MAN_ARRANGE_FLAG_ &gt;4)-->
 			AND t4.MAN_ARRANGE_FLAG_ IN(1,2,3,19)
 			<!--逻辑删除标识-->
 			AND t4.`DELETE_STATUS_`=0
