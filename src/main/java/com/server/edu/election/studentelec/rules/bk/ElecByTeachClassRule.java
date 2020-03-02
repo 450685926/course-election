@@ -168,6 +168,16 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                     Integer numberMale = restrictAttr.getNumberMale();//男生人数 1
                     Integer numberFemale = restrictAttr.getNumberFemale();//女生人数 2
 
+                    if(StringUtils.isNotBlank(isDivsex) && !isDivsex.equals(IS_NOT_OVERSEAS_)){
+                        if(!isDivsex.equals(sex)){
+                            ElecRespose respose = context.getRespose();
+                            respose.getFailedReasons()
+                                    .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
+                                            I18nUtil.getMsg("ruleCheck.classLimit.isDivsex"));
+                            return false;
+                        }
+                    }
+
                     ElcCourseLimitDto sexNumber =
                             takeDao.findSexNumber(teachClassId,mode);
                     int currentNum = 0;
@@ -212,7 +222,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
                             .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
-                                    I18nUtil.getMsg("ruleCheck.classLimit.isDivsex"));
+                                    I18nUtil.getMsg("ruleCheck.classLimit.isDivsexNum "));
                     return false;
                 }
             }else if (enabled && StringUtils.equals("ISOVERSEAS", parameter.getName())){//是否留学限制
