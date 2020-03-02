@@ -222,7 +222,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
                             .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
-                                    I18nUtil.getMsg("ruleCheck.classLimit.isDivsexNum "));
+                                    I18nUtil.getMsg("ruleCheck.classLimit.isDivsexNum"));
                     return false;
                 }
             }else if (enabled && StringUtils.equals("ISOVERSEAS", parameter.getName())){//是否留学限制
