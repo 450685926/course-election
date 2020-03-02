@@ -182,12 +182,9 @@ public class CultureSerivceInvokerToMutual {
 				if (StringUtils.equals(key, "courseLabelRelationList")) {
 					String courseCodeList = parse.get(key).toString();
 					if(StringUtils.isNotEmpty(courseCodeList)) {
-						Map<String, Object> ps = (Map)JSON.parse(courseCodeList);
-						for (String key1 : ps.keySet()) {
-							if (StringUtils.equals(key, "courseCode")) {
-								String courseCode =ps.get(key).toString();
-								list.add(courseCode);
-							}
+						List<Map> ps = JSONArray.parseArray(courseCodeList,Map.class);
+						for (Map mp : ps) {
+							list.add(mp.get("courseCode").toString());
 						}
 					}
 				}

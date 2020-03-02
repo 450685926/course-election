@@ -173,10 +173,10 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	public PageInfo<ElcMutualApplyVo> getElcMutualCoursesForStu(PageCondition<ElcMutualApplyDto> condition){
 		LOG.info("*******getElcMutualCoursesForStu********");
 ////		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-//		ElcMutualApplyDto dto = condition.getCondition();
+//		ElcMutualApplyDto dto = condition.grrentManageDptId();
+////		//本地调试部门idetCondition();
 //		Session session = SessionUtils.getCurrentSession();
-//		String projectId = session.getCurrentManageDptId();
-//		//本地调试部门id
+//		String projectId = session.getCu
 //		//String projectId="1";
 //		String studentId = dto.getStudentId();
 //
@@ -364,7 +364,6 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		Session session = SessionUtils.getCurrentSession();
 		String projectId = session.getCurrentManageDptId();
 		//本地调试部门id
-//		String projectId="2";
 		String studentId = dto.getStudentId();
 
 		ElcMutualCrossStuDto stuDto = new ElcMutualCrossStuDto();
@@ -466,9 +465,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 					list = list.stream().filter(vo->!courseCodes1.contains(vo.getCourseCode())).collect(Collectors.toList());
 				}
 				Example example = new Example(ElcCourseTake.class);
-				List<ElcCourseTake> elcs = elcCourseTakeDao.selectByExample(example);
 				Example.Criteria criteria = example.createCriteria();
 				criteria.andEqualTo("studentId", studentId);
+				List<ElcCourseTake> elcs = elcCourseTakeDao.selectByExample(example);
 				List<String> courseCodes2 = elcs.stream().map(vo->vo.getCourseCode()).distinct().collect(Collectors.toList());
 				//过滤已选课程中的课程
 				list = list.stream().filter(vo->!courseCodes2.contains(vo.getCourseCode())).collect(Collectors.toList());
