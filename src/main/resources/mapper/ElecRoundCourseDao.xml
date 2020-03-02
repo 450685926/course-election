@@ -473,4 +473,30 @@
 	   		</otherwise>
 	   </choose>
   </select>
+
+	<!-- 查询学年学期所有可选课程(本研互选) -->
+	<select id="selectCourseInfoByCalendarIdForMutual" resultMap="CourseOpenDtoMap">
+		<choose>
+			<when test="projectId==1">
+				select
+				distinct op.COURSE_CODE_,op.FACULTY_,op.ID_
+				from course_open_t op
+				JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
+				JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DELETE_STATUS_ =0)
+				where
+				op.CALENDAR_ID_ = #{calendarId} and op.DELETE_STATUS_ = 0
+			</when>
+			<otherwise>
+				select
+				distinct op.COURSE_CODE_,op.FACULTY_,op.ID_
+				from course_open_t op
+				JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
+				JOIN teaching_class_t cl ON cl.TASK_ID_=ta.ID_
+				where
+				cl.MAN_ARRANGE_FLAG_ in(1,2,3) and
+				op.PROJ_ID_ = #{projectId} and
+				op.CALENDAR_ID_ = #{calendarId} and op.DELETE_STATUS_ = 0
+			</otherwise>
+		</choose>
+	</select>
 </mapper>

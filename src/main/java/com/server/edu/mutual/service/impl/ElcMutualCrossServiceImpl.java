@@ -322,9 +322,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 			Example.Criteria criteria =example.createCriteria();
 			criteria.andIn("id", dto.getIds());
 			List<ElcMutualStds> list =  elcMutualStdsDao.selectByExample(example);
-			if(CollectionUtil.isEmpty(list)) {
-				throw new ParameterValidateException(I18nUtil.getMsg("common.dataError","本研互选")); 			
-			}
+//			if(CollectionUtil.isEmpty(list)) {
+//				throw new ParameterValidateException(I18nUtil.getMsg("common.dataError","本研互选"));
+//			}
 			result = elcMutualStdsDao.deleteByExample(example);
 		}
 		return result;
