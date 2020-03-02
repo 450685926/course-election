@@ -1689,7 +1689,7 @@
 
     <select id="findSexNumber" resultType="com.server.edu.election.dto.ElcCourseLimitDto">
         select sum((case t2.SEX_ when 1 then 1 end)) maleNum,
-        sum((case t2.SEX_ when 2 then 1 end)) feMaleNum from elc_course_takes_${mode} t1
+        sum((case t2.SEX_ when 2 then 1 end)) feMaleNum from elc_course_takes_t_${mode} t1
          JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
         where t1.TEACHING_CLASS_ID_=#{teachClassId};
     </select>
