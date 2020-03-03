@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.entity.Student;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
@@ -107,5 +110,16 @@ public class ElcCouSubsController
         int result = elcNoGradCouSubsService.delete(ids);
         return RestResult.successData(result);
     }
-    
+
+    @ApiOperation(value = "替代课程学生查询")
+    @PostMapping("/findStuInfoList")
+    public RestResult<PageResult<Student>> findStuInfoList(
+            @RequestBody PageCondition<ElcCouSubsDto> condition)
+
+    {
+
+        PageResult<Student> list = elcNoGradCouSubsService.findStuInfoList(condition);
+
+        return RestResult.successData(list);
+    }
 }

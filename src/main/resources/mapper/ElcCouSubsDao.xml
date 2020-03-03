@@ -87,4 +87,26 @@
 		</where>
 		 ORDER BY t1.CREATED_AT_ DESC
   </select>
+
+	<select id="findStuInfoList" parameterType="com.server.edu.election.dto.ElcCouSubsDto" resultType="com.server.edu.election.entity.Student">
+		select STUDENT_CODE_ studentCode,NAME_ name,TRAINING_LEVEL_ trainingLevel,FACULTY_ faculty,PROFESSION_ profession
+		from student_t
+		<where>
+			<if test="mode == 1 ">
+				and LEAVE_SCHOOL_ = 1
+			</if>
+			<if test="mode == 3">
+				and EXISTS (select XH tj_ungraduate where STUDENT_CODE_ = XH)
+			</if>
+			<if test="mode == 4 ">
+				and EXISTS (select XH tj_ungraduate_foreign where STUDENT_CODE_ = XH)
+			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+				and ( STUDENT_CODE_ like concat ('%', #{keyword},'%') or t4.NAME_ like concat ('%', #{keyword},'%'))
+			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+				and PROJ_ID_ = #{projectId}
+			</if>
+		</where>
+	</select>
 </mapper>
