@@ -132,11 +132,11 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         //mode是2 是查询本科生选研究生的课程,此处的mode需要调整
         if (Constants.BK_MUTUAL.equals(dto.getMode())) {
             dto.setMode(Constants.GRADUATE_MUTUAL);
-        } 
-        if (Constants.GRADUATE_MUTUAL.equals(dto.getMode())) {
+        } else if (Constants.GRADUATE_MUTUAL.equals(dto.getMode())) {
             dto.setMode(Constants.BK_MUTUAL);
         }
 
+        LOG.info("=======getMutualCourseList dto.getMode==========" + dto.getMode());
         boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
         if (isAcdemicDean) {
             dto.setOpenCollege(faculty);
