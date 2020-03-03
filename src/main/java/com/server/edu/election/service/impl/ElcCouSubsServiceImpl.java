@@ -5,6 +5,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.github.pagehelper.Page;
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.entity.Student;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -204,5 +209,21 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
             elcCouSubsDao.selectByExample(example);
         return list;
     }
-    
+
+    @Override
+    public PageResult<Student> findStuInfoList(PageCondition<ElcCouSubsDto> condition) {
+        ElcCouSubsDto elcCouSubsDto = condition.getCondition();
+
+        Integer mode = elcCouSubsDto.getMode();
+        if(mode == null){
+            throw new ParameterValidateException(
+                    I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        elcCouSubsDto.setMode(mode);
+        elcCouSubsDto.setProjectId(dptId);
+        Page<Student> studentPage =  elcCouSubsDao.findStuInfoList(elcCouSubsDto);
+        return new PageResult<>(studentPage);
+    }
+
 }
