@@ -9,7 +9,10 @@ import com.server.edu.mutual.entity.ElcMutualApply;
 @CodeI18n
 public class ElcMutualApplyDto extends ElcMutualApply {
     private static final long serialVersionUID = 1L;
-    
+
+    //主键标识 默认为0 标识没数据， 其他值标识有数据 区分：新增和更新
+    private int idSign=0;
+
     private String courseCode;
     
     private String courseName;
@@ -260,6 +263,14 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 		this.semester = semester;
 	}
 
+	public int getIdSign() {
+		return idSign;
+	}
+
+	public void setIdSign(int idSign) {
+		this.idSign = idSign;
+	}
+
 	public ElcMutualApplyDto() {
 	}
 
@@ -322,6 +333,7 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 				", keyWords='" + keyWords + '\'' +
 				", statusArray=" + statusArray +
 				", collegeList=" + collegeList +
+				", idSign=" + idSign +
 				'}';
 	}
 }
