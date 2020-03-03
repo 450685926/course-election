@@ -2,7 +2,6 @@ package com.server.edu.mutual.controller;
 
 import javax.validation.constraints.NotNull;
 
-import com.server.edu.common.rest.ResultStatus;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
