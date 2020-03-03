@@ -4,6 +4,7 @@ package com.server.edu.mutual.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.server.edu.common.enums.GroupDataEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -62,7 +63,9 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 
         Session session = SessionUtils.getCurrentSession();
-        String faculty = session.getFaculty();
+
+//        String faculty = session.getFaculty();
+
         String projectId = session.getCurrentManageDptId();
 
         ElcMutualListDto dto = condition.getCondition();
@@ -76,10 +79,13 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         // 教务员查看本学院申请了本研互选选课的学生和申请了本学院开设课程的学生
         boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
         if (isAcdemicDean) {
+            List<String> deptIds = SessionUtils.getCurrentSession().
+                    getGroupData().get(GroupDataEnum.department.getValue());
+
             if (dto.getProjectIds().contains(projectId)) {
-                dto.setCollege(faculty);  // 学生行政学院
+                dto.setColleges(deptIds);  // 学生行政学院
             } else {
-                dto.setOpenCollege(faculty);  // 开课学院
+                dto.setOpenColleges(deptIds);  // 开课学院
             }
         }
         LOG.info("=======修读类型的courseTakeType==========" + dto.getCourseTakeType());
@@ -126,11 +132,11 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         //mode是2 是查询本科生选研究生的课程,此处的mode需要调整
         if (Constants.BK_MUTUAL.equals(dto.getMode())) {
             dto.setMode(Constants.GRADUATE_MUTUAL);
-        } 
-        if (Constants.GRADUATE_MUTUAL.equals(dto.getMode())) {
+        } else if (Constants.GRADUATE_MUTUAL.equals(dto.getMode())) {
             dto.setMode(Constants.BK_MUTUAL);
         }
 
+        LOG.info("=======getMutualCourseList dto.getMode==========" + dto.getMode());
         boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
         if (isAcdemicDean) {
             dto.setOpenCollege(faculty);
