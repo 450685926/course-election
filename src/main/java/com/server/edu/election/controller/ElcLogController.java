@@ -62,17 +62,17 @@ public class ElcLogController
             elcLogQuery.getStudentIds().clear();
             elcLogQuery.getStudentIds().addAll(ids);
         }
-
-        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-        elcLogQuery.setFaculties(deptIds);
-        if("1".equals(projId)){
-            //体育部和外语学院教务员比较特殊能看所有学生 体育教学部000293 外国语学院 000268
-            if(CollectionUtil.isNotEmpty(deptIds)){
-                if(deptIds.contains("000293") || deptIds.contains("000268")){
-                    elcLogQuery.setFaculties(new ArrayList<>());
-                }
-            }
-        }
+//        本科报表管理管理都不要数据分权
+//        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+//        elcLogQuery.setFaculties(deptIds);
+//        if("1".equals(projId)){
+//            //体育部和外语学院教务员比较特殊能看所有学生 体育教学部000293 外国语学院 000268
+//            if(CollectionUtil.isNotEmpty(deptIds)){
+//                if(deptIds.contains("000293") || deptIds.contains("000268")){
+//                    elcLogQuery.setFaculties(new ArrayList<>());
+//                }
+//            }
+//        }
         PageResult<ElcLogVo> list = service.listPage(condition);
         
         return RestResult.successData(list);

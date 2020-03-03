@@ -408,15 +408,15 @@ public class ReportManagementServiceImpl implements ReportManagementService
         ReportManagementCondition reportManagementCondition = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
 
-        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-        reportManagementCondition.setFaculties(deptIds);
+//        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+//        reportManagementCondition.setFaculties(deptIds);
 
         //体育部和外语学院教务员比较特殊能看所有学生 体育教学部000293 外国语学院 000268
-        if(CollectionUtil.isNotEmpty(deptIds)){
-            if(deptIds.contains("000293") || deptIds.contains("000268")){
-                reportManagementCondition.setFaculties(new ArrayList<>());
-            }
-        }
+//        if(CollectionUtil.isNotEmpty(deptIds)){
+//            if(deptIds.contains("000293") || deptIds.contains("000268")){
+//                reportManagementCondition.setFaculties(new ArrayList<>());
+//            }
+//        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> allSchoolTimetab =
             courseTakeDao.findAllSchoolTimetab(reportManagementCondition);
@@ -531,8 +531,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
     {
         RollBookConditionDto rollBookConditionDto = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
-        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-        rollBookConditionDto.setFaculties(deptIds);
+//        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+//        rollBookConditionDto.setFaculties(deptIds);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         int index = TableIndexUtil.getIndex(rollBookConditionDto.getCalendarId());
         rollBookConditionDto.setIndex(index);
