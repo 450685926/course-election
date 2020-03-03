@@ -22,11 +22,21 @@ public class ElcMutualListDto{
      * 学生学院（学生所在行政学院）
      */
     private String college;
-    
+
+	/**
+	 * 教务员学院（学生所在行政学院）
+	 */
+    private List<String> colleges;
+
     /**
      * 开课学院
      */
     private String openCollege;
+
+	/**
+	 * 教务员学院（开课学院）
+	 */
+	private List<String> openColleges;
     
     /**
      * 专业
@@ -107,7 +117,23 @@ public class ElcMutualListDto{
     private Integer byType;
     
     private Integer inType;
-    
+
+	public List<String> getColleges() {
+		return colleges;
+	}
+
+	public void setColleges(List<String> colleges) {
+		this.colleges = colleges;
+	}
+
+	public List<String> getOpenColleges() {
+		return openColleges;
+	}
+
+	public void setOpenColleges(List<String> openColleges) {
+		this.openColleges = openColleges;
+	}
+
 	public Long getCalendarId() {
 		return calendarId;
 	}
