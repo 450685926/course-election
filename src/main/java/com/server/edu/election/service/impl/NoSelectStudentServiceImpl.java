@@ -85,8 +85,8 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
          NoSelectCourseStdsDto noSelectCourseStdsDto = condition.getCondition();
          noSelectCourseStdsDto.setDeptId(deptId);
 
-         List<String> deptIds = session.getGroupData().get(GroupDataEnum.department.getValue());
-         noSelectCourseStdsDto.setFaculties(deptIds);
+//         List<String> deptIds = session.getGroupData().get(GroupDataEnum.department.getValue());
+//         noSelectCourseStdsDto.setFaculties(deptIds);
 
          PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
 

@@ -395,4 +395,7 @@ public interface ElcCourseTakeDao
 
     /**重修汇总名单实现新逻辑（从成绩表里取值）*/
     Page<StudentVo> ListRebuildCourseNumber(RebuildCourseDto dto);
+
+    /**获取该轮次下所有的课程信息*/
+    List<String> listTeachingCourse(Long roundId);
 }

@@ -83,8 +83,8 @@ public class TeacherLessonTableController
             classTeacher =
                 lessonTableService.findTeacherTimeTableByRole(condition);
         }else{
-            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-            classCodeToTeacher.setFaculties(deptIds);
+//            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+//            classCodeToTeacher.setFaculties(deptIds);
             classTeacher =
                     lessonTableService.findTeacherTimeTableByRole(condition);
         }
