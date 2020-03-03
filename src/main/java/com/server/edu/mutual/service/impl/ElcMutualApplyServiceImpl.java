@@ -430,9 +430,10 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		LOG.info("--------------projectIds--------------"+JSONArray.toJSONString(projectIds));
 		//移动分页位置
 		//由于对纯sql分页结果集做二次加减操作导致自动分页失效，故取消自动分页，采取手动分页。
-//		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        //PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+		//本研互选课程列表数据查询
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
-//		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<ElcMutualApplyVo>(list);
+        //PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<ElcMutualApplyVo>(list);
 		List<String> courseCode = list.stream()
 				.filter(v->!v.getCourseCode().isEmpty()).map(ElcMutualApplyVo::getCourseCode)
 				.collect(Collectors.toList());
