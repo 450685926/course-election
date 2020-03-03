@@ -137,17 +137,20 @@
 	<!--通过学院查询学生id-->
 	<select id="queryStudentIdByFacuty" parameterType="java.lang.String" resultType="string">
 		SELECT
-			st.STUDENT_CODE_
-		  FROM
-			student_t st
-		  WHERE 1 = 1
-			<!-- 学院条件-->
-			<if test="facultyCondition != null and facultyCondition.length>0 ">
-				AND st.FACULTY_ IN
-				<foreach collection="facultyCondition.split(',')" item="facultyCondition"
-						 index="index" open="(" close=")" separator=",">
-					#{facultyCondition}
-				</foreach>
-			</if>
+		distinct(t1.STUDENT_ID_)
+		FROM
+		elc_cross_stds_t t1
+		JOIN
+		student_t st
+		ON t1.`STUDENT_ID_` = st.`STUDENT_CODE_`
+		WHERE 1 = 1
+		<!-- 学院条件-->
+		<if test="facultyCondition != null and facultyCondition.length>0 ">
+			AND st.FACULTY_ IN
+			<foreach collection="facultyCondition.split(',')" item="facultyCondition"
+					 index="index" open="(" close=")" separator=",">
+				#{facultyCondition}
+			</foreach>
+		</if>
 	</select>
 </mapper>
