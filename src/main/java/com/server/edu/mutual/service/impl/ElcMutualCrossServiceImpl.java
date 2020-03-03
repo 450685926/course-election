@@ -376,9 +376,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	}
 
 	@Override
-	@Transient
+	@Transactional
 	public int deleteAll(Long calendarId, Integer mode) {
 		int result = Constants.ZERO;
+		Boolean isBkCross = Constants.BK_CROSS.equals(mode);
 		//获取管理学院和所属学院
 		Session session = SessionUtils.getCurrentSession();
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(),String.valueOf(Constants.ONE))
@@ -403,61 +404,76 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 			}else{
 				facultyCondition = faculty;
 			}
-		}
-		//通过学院查询学生id
-		List<String> studentList=elcCrossStdsDao.queryStudentIdByFacuty(facultyCondition);
-		//修改为以对象形式接收前端参数，因为前端使用json格式上传
+            //通过学院查询学生id
+            List<String> studentList=elcCrossStdsDao.queryStudentIdByFacuty(facultyCondition);
+            //修改为以对象形式接收前端参数，因为前端使用json格式上传
 //		Long calendarId = dto.getCalendarId();
 //		Integer mode = dto.getMode();
-		LOG.info("----------the parapes of delete is calendarId:{},facultyCondition:{}",calendarId,facultyCondition);
-		if(Constants.BK_CROSS.equals(mode)) {
-			Example example = new Example(ElcCrossStds.class);
-			Example.Criteria criteria = example.createCriteria();
-			criteria.andEqualTo("calendarId", calendarId);
-			//result = elcCrossStdsDao.deleteByExample(example);
+            LOG.info("----------the parapes of delete is calendarId:{},facultyCondition:{}",calendarId,facultyCondition);
+            if(isBkCross) {
+//                Example example = new Example(ElcCrossStds.class);
+//                Example.Criteria criteria = example.createCriteria();
+//                criteria.andEqualTo("calendarId", calendarId);
+                //result = elcCrossStdsDao.deleteByExample(example);
 			/*ElcCrossStdVo elcCrossStdVo=new ElcCrossStdVo();
 			elcCrossStdVo.setCalendarId(calendarId);
 			elcCrossStdVo.setFaculty(facultyCondition);*/
-			if (studentList!=null && studentList.size()>0){
-				List<String> strList=new ArrayList<>();
-				for(String str:studentList) {
-					strList.add(str);
-					if(strList.size()>500){
-						result = elcCrossStdsDao.deleteCrossByParames(calendarId, strList);
-						strList = new ArrayList<>();
-					}
-				}
-				//整除500条移除后的余条数
-				if(strList.size()>0){
-					result = elcCrossStdsDao.deleteCrossByParames(calendarId, strList);
-				}
-		    }
-		}else {
-			Example example = new Example(ElcMutualStds.class);
-			Example.Criteria criteria =example.createCriteria();
-			criteria.andEqualTo("calendarId", calendarId);
-			//result = elcMutualStdsDao.deleteByExample(example);
+                if (studentList!=null && studentList.size()>0){
+                    List<String> strList=new ArrayList<>();
+                    for(String str:studentList) {
+                        strList.add(str);
+                        if(strList.size()>500){
+                            result = elcCrossStdsDao.deleteCrossByParames(calendarId, strList);
+                            strList = new ArrayList<>();
+                        }
+                    }
+                    //整除500条移除后的余条数
+                    if(strList.size()>0){
+                        result = elcCrossStdsDao.deleteCrossByParames(calendarId, strList);
+                    }
+                }
+            }else {
+//                Example example = new Example(ElcMutualStds.class);
+//                Example.Criteria criteria =example.createCriteria();
+//                criteria.andEqualTo("calendarId", calendarId);
+                //result = elcMutualStdsDao.deleteByExample(example);
 			/*ElcMutualStdVo elcMutualStdVo=new ElcMutualStdVo();
 			elcMutualStdVo.setCalendarId(calendarId);
 			elcMutualStdVo.setFaculty(facultyCondition);*/
 			/*if (studentList!=null && studentList.size()>0){
 				result=elcMutualStdsDao.deleteMutualByParames(calendarId,studentList);
 			}*/
-			if (studentList!=null && studentList.size()>0){
-				List<String> currentList=new ArrayList<>();
-				for(String str:studentList) {
-					currentList.add(str);
-					if(currentList.size()>500){
-						result=elcMutualStdsDao.deleteMutualByParames(calendarId,currentList);
-						currentList = new ArrayList<>();
-					}
-				}
-				//整除500条移除后的余条数
-				if(currentList.size()>0){
-					result=elcMutualStdsDao.deleteMutualByParames(calendarId,currentList);
-				}
-			}
-		}
+                if (studentList!=null && studentList.size()>0){
+                    List<String> currentList=new ArrayList<>();
+                    for(String str:studentList) {
+                        currentList.add(str);
+                        if(currentList.size()>500){
+                            result=elcMutualStdsDao.deleteMutualByParames(calendarId,currentList);
+                            currentList = new ArrayList<>();
+                        }
+                    }
+                    //整除500条移除后的余条数
+                    if(currentList.size()>0){
+                        result=elcMutualStdsDao.deleteMutualByParames(calendarId,currentList);
+                    }
+                }
+            }
+        } else {
+            //管理员权限直接删除：该接口只开放给教务员和管理员
+            if (isBkCross) {
+                Example example = new Example(ElcCrossStds.class);
+                Example.Criteria criteria = example.createCriteria();
+                criteria.andEqualTo("calendarId", calendarId);
+                result = elcCrossStdsDao.deleteByExample(example);
+            } else {
+                Example example = new Example(ElcMutualStds.class);
+                Example.Criteria criteria = example.createCriteria();
+                criteria.andEqualTo("calendarId", calendarId);
+                result = elcMutualStdsDao.deleteByExample(example);
+            }
+        }
+
+
 		return result;
 	}
 
