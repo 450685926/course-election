@@ -147,6 +147,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         dto.setStudentId(studentId);
         List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
 
+        //能够展示的已修课程
+        List<String> openCourse = listOpenCourse(request,list);
+
         // 加载成绩已完成和未通过的课程
         //loadScore(context, studentInfo, studentId, stu);
         loadScoreTemp(context, studentInfo, studentId, stu,list);
@@ -178,6 +181,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         elecApplyCourses.addAll(electionApplys);
         //6. 保存学生替代课程
         context.getReplaceCourses().addAll(list);
+        //保存已修可展示课程
+        context.getOpenCourses().addAll(openCourse);
     }
 
     /**
@@ -323,6 +328,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     	dto.setStudentId(studentId);
 //    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getAllStudentScoreList(dto);
+
+
+
         BeanUtils.copyProperties(stu, studentInfo);
         String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
         if(StringUtils.isEmpty(campus)){
@@ -782,5 +790,22 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             }
         }
         return sb.toString();
+    }
+
+    private List<String> listOpenCourse(ElecRequest request,List<ElcCouSubsVo> list){
+        //加载当前轮次有教学班的课程，已修课程不展示没有教学班的数据
+        Long roundId = request.getRoundId();
+        List<String> openCourse = elcCourseTakeDao.listTeachingCourse(roundId);
+
+        if(CollectionUtil.isNotEmpty(list) && CollectionUtil.isNotEmpty(openCourse)){
+            for (ElcCouSubsVo elcCouSubsVo : list) {
+                //如果包含替代课程，那么原始课程是不需要过滤掉的
+                if(openCourse.contains(elcCouSubsVo.getSubCourseCode())){
+                    openCourse.add(elcCouSubsVo.getOrigsCourseCode());
+                }
+            }
+        }
+
+       return openCourse;
     }
 }

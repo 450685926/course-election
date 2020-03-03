@@ -2761,4 +2761,12 @@
         GROUP BY t1.STUDENT_NUM_
     </select>
 
+    <select id="listTeachingCourse" resultType="java.lang.String">
+        select DISTINCT t4.COURSE_CODE_
+        from election_rounds_cour_t t1
+        join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
+        join teaching_task_t t3 on t2.TASK_ID_ = t3.ID_
+        join course_open_t t4 on t3.COURSE_OPEN_ID_ = t4.ID_
+        where t1.ROUNDS_ID_ = #{roundId}
+    </select>
 </mapper>
