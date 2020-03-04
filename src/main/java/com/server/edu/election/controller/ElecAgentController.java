@@ -258,6 +258,14 @@ public class ElecAgentController
         return RestResult.success();
     }
     
+    @ApiOperation(value = "初始化学生当前学期下学期选课缓存数据")
+    @PostMapping("/outInitNowNextElcStuCache")
+    public RestResult<?> outInitNowNextElcStuCache(@RequestParam("studentId") @NotBlank String studentId)
+    {
+        ElecContextUtil.initCurrentAndNextCalendarStu(studentId);
+        return RestResult.success();
+    }
+    
     
     @ApiOperation(value = "清除选课所有缓存数据")
     @PostMapping("/clearElecCache")

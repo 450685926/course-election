@@ -8,9 +8,11 @@ import java.util.stream.Collectors;
 import com.github.pagehelper.Page;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,9 @@ import com.server.edu.election.dto.ElcCouSubsDto;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCouSubs;
 import com.server.edu.election.service.ElcCouSubsService;
+import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -40,6 +44,9 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
     
     @Autowired
     private CourseDao courseDao;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
     
     @Override
     public PageResult<ElcCouSubsVo> page(
@@ -103,6 +110,7 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
             elcCouSubsDao.selectElcNoGradCouSubs(dto);
         ElecContextUtil.setReplaceCourses(elcCouSubs.getStudentId(),
             list);
+        ElecContextUtil.initCurrentAndNextCalendarStu(elcCouSubs.getStudentId());
         return result;
     }
     
@@ -155,6 +163,7 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
             elcCouSubsDao.selectElcNoGradCouSubs(dto);
         ElecContextUtil.setReplaceCourses(elcCouSubs.getStudentId(),
             list);
+        ElecContextUtil.initCurrentAndNextCalendarStu(elcCouSubs.getStudentId());
         return result;
     }
     
@@ -194,6 +203,7 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
                     .filter(c -> studentId.equals(c.getStudentId()))
                     .collect(Collectors.toList());
                 ElecContextUtil.setReplaceCourses(studentId, stuCous);
+                ElecContextUtil.initCurrentAndNextCalendarStu(studentId);
             }
         }
         return result;
