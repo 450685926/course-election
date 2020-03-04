@@ -147,9 +147,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         dto.setStudentId(studentId);
         List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
 
-        //能够展示的已修课程
-        List<String> openCourse = listOpenCourse(request,list);
-
         // 加载成绩已完成和未通过的课程
         //loadScore(context, studentInfo, studentId, stu);
         loadScoreTemp(context, studentInfo, studentId, stu,list);
@@ -181,8 +178,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         elecApplyCourses.addAll(electionApplys);
         //6. 保存学生替代课程
         context.getReplaceCourses().addAll(list);
-        //保存已修可展示课程
-        context.getOpenCourses().addAll(openCourse);
     }
 
     /**
@@ -329,7 +324,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
 //    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getAllStudentScoreList(dto);
 
+        //能够展示的已修课程
+        List<String> openCourse = listOpenCourse(request,list);
 
+        if(CollectionUtil.isNotEmpty(stuScore) && CollectionUtil.isNotEmpty(openCourse)){
+            stuScore = stuScore.stream().filter(vo -> openCourse.contains(vo.getCourseCode())).collect(Collectors.toList());
+        }
 
         BeanUtils.copyProperties(stu, studentInfo);
         String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
