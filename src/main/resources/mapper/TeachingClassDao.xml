@@ -629,6 +629,10 @@
         left join teaching_class_teacher_t t4 on t4.TEACHING_CLASS_ID_ = t1.ID_
         <where>
             t1.DELETE_STATUS_ = 0
+
+            <!-- 手工排课状态，现不止123，取大于0 -->
+            and t1.MAN_ARRANGE_FLAG_ &gt; 0
+
             and t3.CALENDAR_ID_ = #{calendarId}
             and t3.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
