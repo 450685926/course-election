@@ -160,7 +160,7 @@ public class TeachingClass extends BaseEntity implements Serializable
     private Integer preArrangeFlag;
     
     /**
-     * 手工排课标识(0未排,1已排)
+     * 手工排课标识(0未排,1已排,2教室待定,3学院通知(暂不排课),大于4（调课中）)
      */
     @Column(name = "MAN_ARRANGE_FLAG_")
     private Integer manArrangeFlag;
