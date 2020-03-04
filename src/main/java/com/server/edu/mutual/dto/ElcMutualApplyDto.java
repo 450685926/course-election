@@ -88,6 +88,9 @@ public class ElcMutualApplyDto extends ElcMutualApply {
      */
     private List<Integer> statusArray;
     
+    /**
+     * 申请课程门数上限校验标志
+     */
     private Integer noStatus;
 
     //可管理的学院（当前学院+管理的学院）
