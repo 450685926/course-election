@@ -16,6 +16,7 @@ import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.controller.ElecAgentYjsController;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.CourseOpen;
+import com.server.edu.election.entity.ElcCouSubs;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang3.StringUtils;
@@ -544,10 +545,10 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     
     
     /**
-     * 加载本学期已选课课程数据
+     * 加载本学期选课申请课程数据
      * 
      * @param studentId
-     * @param selectedCourses
+     * @param elecApplyCourses
      * @param calendarId
      * @see [类、类#方法、类#成员]
      */
@@ -562,6 +563,25 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             electionApplyDao.selectByExample(aExample);
         if(CollectionUtil.isNotEmpty(electionApplys)) {
         	elecApplyCourses = new HashSet<>(elecApplyCourses);
+        }
+    }
+    
+    /**
+     * 加载本学期替代课课程数据
+     * 
+     * @param studentId
+     * @param set
+     * @see [类、类#方法、类#成员]
+     */
+    public void loadElcCouSubsCourse(String studentId,
+    		Set<ElcCouSubsVo> set)
+    {
+    	ElcCouSubsDto dto = new ElcCouSubsDto();
+    	dto.setStudentId(studentId);
+        List<ElcCouSubsVo> elcCouSubsList =
+        		elcCouSubsDao.selectElcNoGradCouSubs(dto);
+        if(CollectionUtil.isNotEmpty(elcCouSubsList)) {
+        	set = new HashSet<>(elcCouSubsList);
         }
     }
     

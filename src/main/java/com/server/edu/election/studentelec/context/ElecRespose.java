@@ -33,15 +33,18 @@ public class ElecRespose
 
     private Integer isLimit;
 
+    /**只允许选重修课*/
     private Integer onlyRetakeFilter;
 
+    /**不允许选重修课*/
     private Integer noRetakeRule;
 
     private Integer semester;
 
-    private  Integer turn;
-
-    private  Integer isDetainedStudent;
+    private Integer turn;
+    
+    /**是否留降转*/
+    private Integer isDetainedStudent;
     
     /**
      * 是否留学生 0：否  1：是

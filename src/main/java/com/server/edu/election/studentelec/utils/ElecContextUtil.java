@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.entity.ElectionApply;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
@@ -482,5 +483,19 @@ public class ElecContextUtil
 		ElecContextUtil u = new ElecContextUtil(calendarId, studentId);
 		u.updateMem(ElecContextBk.SELECTED_COURSES, selectedCourses);
     }
+    
+    public static void initCurrentAndNextCalendarStu(String studentId) {
+        Long nowCalendarId = BaseresServiceInvoker.getCurrentCalendar();
+        Long num = 1L;
+        Long nextCalendarId = nowCalendarId + num;
+        ElecContextUtil.setElecStatus(nowCalendarId,
+        		studentId,
+            ElecStatus.Init);
+        ElecContextUtil.setElecStatus(nextCalendarId,
+        		studentId,
+            ElecStatus.Init);
+    }
+    
+    
     
 }

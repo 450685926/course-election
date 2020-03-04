@@ -32,7 +32,10 @@ import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.service.ElectionApplyService;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.studentelec.utils.ElecStatus;
+import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElectionApplyVo;
@@ -310,13 +313,24 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         Example courseExample  = new Example(CourseOpen.class);
         courseExample.createCriteria().andEqualTo("calendarId", calendarId).andIn("faculty", facultyList);
 		List<CourseOpen> engLishPECourses= courseOpenDao.selectByExample(courseExample);
+		ElecContextBk context =
+	            new ElecContextBk(studentId, calendarId);
+		//判断是否重修
+		boolean isRetake = RetakeCourseUtil
+        .isRetakeCourseBk(context,courseCode);
 		if(CollectionUtil.isNotEmpty(engLishPECourses)) {
 			List<String> PECourses = engLishPECourses.stream().filter(c->"000293".equals(c.getFaculty())).map(c->c.getCourseCode()).collect(Collectors.toList());
 			List<String> engLishCourseCodes = engLishPECourses.stream().filter(c->"000268".equals(c.getFaculty())).map(c->c.getCourseCode()).collect(Collectors.toList());
 			if(CollectionUtil.isNotEmpty(engLishCourseCodes) && engLishCourseCodes.contains(courseCode)) {
 				List<String> engLishTakeCourse = list.stream().filter(c->c!=null).filter(c->engLishCourseCodes.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
-				if(CollectionUtil.isNotEmpty(engLishTakeCourse)) {
-					throw new ParameterValidateException("已选一门英语课,不能再申请!");
+				if(isRetake) {
+					if(engLishTakeCourse.size()>=Constants.TOW) {
+						throw new ParameterValidateException("已选两门英语课,不能再申请!");
+					}
+				}else {
+					if(CollectionUtil.isNotEmpty(engLishTakeCourse)) {
+						throw new ParameterValidateException("已选一门英语课,不能再申请!");
+					}
 				}
 			}
 			if(CollectionUtil.isNotEmpty(PECourses) && PECourses.contains(courseCode)) {
@@ -337,8 +351,14 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 				throw new ParameterValidateException("已申请一门体育课,不能再申请!");
 			}
         	List<ElectionApply> engLishElectionApplys = electionApplys.stream().filter(c->Constants.ENGLISH_MODEL.equals(c.getMode())).collect(Collectors.toList());
-    		if(CollectionUtil.isNotEmpty(engLishElectionApplys)) {
-				throw new ParameterValidateException("已申请一门英语课,不能再申请!");
+        	if(isRetake) {
+				if(engLishElectionApplys.size()>=Constants.TOW) {
+					throw new ParameterValidateException("已申请两门英语课,不能再申请!");
+				}
+			}else {
+	    		if(CollectionUtil.isNotEmpty(engLishElectionApplys)) {
+					throw new ParameterValidateException("已申请一门英语课,不能再申请!");
+				}
 			}
 		}
         Example wExample = new Example(ElectionApply.class);
@@ -454,6 +474,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             electionApplyDao.selectByExample(aExample);
         ElecContextUtil
             .setElecApplyCourse(studentId, electionApplys);
+        ElecContextUtil.setElecStatus(calendarId,
+        		studentId,
+            ElecStatus.Init);
     }
 
 }
