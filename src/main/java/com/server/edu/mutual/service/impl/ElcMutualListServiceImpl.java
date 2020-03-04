@@ -177,10 +177,14 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         // 教务员查看本学院申请了本研互选选课的学生和申请了本学院开设课程的学生
         boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
         if (isAcdemicDean) {
+            //教务员分权 11469
+            List<String> colleges = elcMutualCommonService.getCollegeList(session);
             if (dto.getProjectIds().contains(projectId)) {
-                dto.setCollege(faculty);  // 学生行政学院
+//                dto.setCollege(faculty);  // 学生行政学院
+                dto.setColleges(colleges);
             } else {
-                dto.setOpenCollege(faculty);  // 开课学院
+//                dto.setOpenCollege(faculty);  // 开课学院
+                dto.setOpenColleges(colleges);
             }
         }
 
