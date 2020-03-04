@@ -48,12 +48,12 @@ public class ElcCouSubsController
     */
     @ApiOperation(value = "替代课程列表")
     @PostMapping("/page")
-    public RestResult<PageInfo<ElcCouSubsVo>> page(
+    public RestResult<PageResult<ElcCouSubsVo>> page(
         @RequestBody PageCondition<ElcCouSubsDto> condition)
         throws Exception
     {
         LOG.info("page.start");
-        PageInfo<ElcCouSubsVo> list =
+        PageResult<ElcCouSubsVo> list =
             elcNoGradCouSubsService.page(condition);
         return RestResult.successData(list);
     }

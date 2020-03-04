@@ -11,6 +11,6 @@ import com.server.edu.election.vo.ElcCouSubsVo;
 import tk.mybatis.mapper.common.Mapper;
 
 public interface ElcCouSubsDao extends Mapper<ElcCouSubs> {
-	List<ElcCouSubsVo> selectElcNoGradCouSubs(ElcCouSubsDto elcNoGradCouSubs);
+	Page<ElcCouSubsVo> selectElcNoGradCouSubs(ElcCouSubsDto elcNoGradCouSubs);
 	Page<Student> findStuInfoList(ElcCouSubsDto elcNoGradCouSubs);
 }
