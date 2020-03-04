@@ -102,6 +102,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 //			PageInfo<ElcMutualApplyVo> coursesForStu = getElcMutualCoursesForStu(condition);
 			PageInfo<ElcMutualApplyVo> coursesForStu = getElcMutualCoursesForStuNotLimit(condition);
 			List<ElcMutualApplyVo> coursesForStuList = coursesForStu.getList();
+			//复制一份数据，做处理
+			List<ElcMutualApplyVo> copyList = new ArrayList<ElcMutualApplyVo>();
+			copyList.addAll(coursesForStuList);
 
 			if (CollectionUtil.isNotEmpty(coursesForStuList)) {
 				//如果是研究生在审核俩表中有数据，排除培养中相同的数据
@@ -119,17 +122,15 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 							}
 						}
 					}
+
 					//去除相同的数据
-					for (int n = 0; n < coursesForStuList.size(); n++) {
-						ElcMutualApplyVo elcVo = coursesForStuList.get(n);
-						for (int m = 0; m < indexList.size(); m++) {
-							if(elcVo.getId() == indexList.get(m)){
-								coursesForStuList.remove(elcVo);
-							}
+					for (ElcMutualApplyVo elcVo : coursesForStuList) {
+						if(indexList.contains(elcVo.getId())){
+							copyList.remove(elcVo);
 						}
 					}
 				}
-				list.addAll(coursesForStuList);
+				list.addAll(copyList);
 			}
 		}
 		
