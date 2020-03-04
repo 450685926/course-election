@@ -13,13 +13,13 @@ public class ElcCouSubsVo extends ElcCouSubs
     
     private String origsCourseName;
     
-    private Integer origsCredits;
+    private Double origsCredits;
     
     private String subCourseName;
     
     private String subCourseCode;
     
-    private Integer subCredits;
+    private Double subCredits;
     
     private Integer grade;
     
@@ -86,17 +86,15 @@ public class ElcCouSubsVo extends ElcCouSubs
     {
         this.origsCourseName = origsCourseName;
     }
-    
-    public Integer getOrigsCredits()
-    {
+
+    public Double getOrigsCredits() {
         return origsCredits;
     }
-    
-    public void setOrigsCredits(Integer origsCredits)
-    {
+
+    public void setOrigsCredits(Double origsCredits) {
         this.origsCredits = origsCredits;
     }
-    
+
     public String getSubCourseName()
     {
         return subCourseName;
@@ -106,17 +104,15 @@ public class ElcCouSubsVo extends ElcCouSubs
     {
         this.subCourseName = subCourseName;
     }
-    
-    public Integer getSubCredits()
-    {
+
+    public Double getSubCredits() {
         return subCredits;
     }
-    
-    public void setSubCredits(Integer subCredits)
-    {
+
+    public void setSubCredits(Double subCredits) {
         this.subCredits = subCredits;
     }
-    
+
     public String getOrigsCourseInfo()
     {
         return origsCourseInfo;

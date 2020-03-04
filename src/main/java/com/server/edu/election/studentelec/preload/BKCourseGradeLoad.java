@@ -324,11 +324,22 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
 //    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getAllStudentScoreList(dto);
 
-        //能够展示的已修课程
-        List<String> openCourse = listOpenCourse(request,list);
+        //能够展示的该轮次开课课程
+        List<String> openCourse = listOpenCourse(request);
+        List<String> openAndSubCourse = new ArrayList<>();
+        openAndSubCourse.addAll(openCourse);
+
+        if(CollectionUtil.isNotEmpty(list) && CollectionUtil.isNotEmpty(openAndSubCourse)){
+            for (ElcCouSubsVo elcCouSubsVo : list) {
+                //如果包含替代课程，那么原始课程是不需要过滤掉的
+                if(openAndSubCourse.contains(elcCouSubsVo.getSubCourseCode())){
+                    openAndSubCourse.add(elcCouSubsVo.getOrigsCourseCode());
+                }
+            }
+        }
 
         if(CollectionUtil.isNotEmpty(stuScore) && CollectionUtil.isNotEmpty(openCourse)){
-            stuScore = stuScore.stream().filter(vo -> openCourse.contains(vo.getCourseCode())).collect(Collectors.toList());
+            stuScore = stuScore.stream().filter(vo -> openAndSubCourse.contains(vo.getCourseCode())).collect(Collectors.toList());
         }
 
         BeanUtils.copyProperties(stu, studentInfo);
@@ -393,6 +404,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 if(elcCouSubsVo!=null) {
                 	lesson.setReplaceCourse(elcCouSubsVo.getSubCourseCode());
                     lesson.setReplaceCourseName(elcCouSubsVo.getSubCourseName());
+                    lesson.setReplaceCredits(elcCouSubsVo.getSubCredits());
+                }
+                if(openCourse.contains(courseCode)){
+                    lesson.setIsOldCourse("1");
+                }else{
+                    lesson.setIsOldCourse("0");
                 }
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setCalendarId(calendarId);
@@ -792,20 +809,10 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         return sb.toString();
     }
 
-    private List<String> listOpenCourse(ElecRequest request,List<ElcCouSubsVo> list){
+    private List<String> listOpenCourse(ElecRequest request){
         //加载当前轮次有教学班的课程，已修课程不展示没有教学班的数据
         Long roundId = request.getRoundId();
         List<String> openCourse = elcCourseTakeDao.listTeachingCourse(roundId);
-
-        if(CollectionUtil.isNotEmpty(list) && CollectionUtil.isNotEmpty(openCourse)){
-            for (ElcCouSubsVo elcCouSubsVo : list) {
-                //如果包含替代课程，那么原始课程是不需要过滤掉的
-                if(openCourse.contains(elcCouSubsVo.getSubCourseCode())){
-                    openCourse.add(elcCouSubsVo.getOrigsCourseCode());
-                }
-            }
-        }
-
        return openCourse;
     }
 }

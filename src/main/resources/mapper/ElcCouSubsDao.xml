@@ -17,9 +17,9 @@
   
   <resultMap id="subsMap" type="com.server.edu.election.vo.ElcCouSubsVo" extends="com.server.edu.election.dao.ElcCouSubsDao.BaseResultMap">
     <result column="origsCourseName" jdbcType="VARCHAR" property="origsCourseName" />
-    <result column="origsCredits" jdbcType="INTEGER" property="origsCredits" />
+    <result column="origsCredits" jdbcType="DOUBLE" property="origsCredits" />
     <result column="subCourseName" jdbcType="VARCHAR" property="subCourseName" />
-    <result column="subCredits" jdbcType="INTEGER" property="subCredits" />
+    <result column="subCredits" jdbcType="DOUBLE" property="subCredits" />
     <result column="NAME_" jdbcType="VARCHAR" property="studentName" />
     <result column="GRADE_" jdbcType="INTEGER" property="grade" />
     <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
