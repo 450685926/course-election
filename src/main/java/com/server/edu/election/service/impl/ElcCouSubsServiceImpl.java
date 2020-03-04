@@ -42,24 +42,24 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
     private CourseDao courseDao;
     
     @Override
-    public PageInfo<ElcCouSubsVo> page(
+    public PageResult<ElcCouSubsVo> page(
         PageCondition<ElcCouSubsDto> condition)
     {
         ElcCouSubsDto dto = condition.getCondition();
         dto.setProjectId(dto.getProjectId());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        List<ElcCouSubsVo> list =
+        Page<ElcCouSubsVo> page =
             elcCouSubsDao.selectElcNoGradCouSubs(dto);
-        if (CollectionUtil.isNotEmpty(list))
+        if (CollectionUtil.isNotEmpty(page))
         {
-            for (ElcCouSubsVo vo : list)
+
+            for (ElcCouSubsVo vo : page.getResult())
             {
                 vo.setOrigsCourseInfo(vo.getOrigsCourseCode() + "(" + vo.getOrigsCourseName() + ")");
                 vo.setSubCourseInfo(vo.getSubCourseCode() + "(" + vo.getSubCourseName() + ")");
             }
         }
-        PageInfo<ElcCouSubsVo> pageInfo = new PageInfo<>(list);
-        return pageInfo;
+        return new PageResult<>(page);
     }
     
     @Override

@@ -57,9 +57,15 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ = #{studentId}
 		    </if>
-		    <if test="mode !=null and mode ==2">
-		        and t4.TRAINING_METHODS_ = #{mode} and TIMESTAMPDIFF(SECOND,TIMESTAMP(DATE_ADD(NOW(), INTERVAL -2 YEAR)),t4.ACTUAL_GRADUATION_DATE_)  &gt; 0
+		    <if test="mode == 1 ">
+		        and t4.LEAVE_SCHOOL_ = 1
 		    </if>
+			<if test="mode == 3">
+				and EXISTS (select XH tj_ungraduate where t4.STUDENT_CODE_ = XH)
+			</if>
+			<if test="mode == 4 ">
+				and EXISTS (select XH tj_ungraduate_foreign where t4.STUDENT_CODE_ = XH)
+			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t4.GRADE_ = #{grade}
 		    </if>

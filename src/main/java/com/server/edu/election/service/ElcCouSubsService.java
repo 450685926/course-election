@@ -12,7 +12,7 @@ import com.server.edu.election.vo.ElcCouSubsVo;
 
 public interface ElcCouSubsService
 {
-    PageInfo<ElcCouSubsVo> page(
+    PageResult<ElcCouSubsVo> page(
         PageCondition<ElcCouSubsDto> condition);
     
     int add(ElcCouSubs elcCouSubs);
