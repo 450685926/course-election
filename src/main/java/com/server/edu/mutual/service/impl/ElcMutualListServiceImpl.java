@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -51,6 +52,9 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
     
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private ElcMutualCommonService elcMutualCommonService;
     
     /**
      * 文件存储路径
@@ -139,7 +143,8 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         LOG.info("=======getMutualCourseList dto.getMode==========" + dto.getMode());
         boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
         if (isAcdemicDean) {
-            dto.setOpenCollege(faculty);
+//            dto.setOpenCollege(faculty);
+            dto.setOpenColleges(elcMutualCommonService.getCollegeList(session));
         }
 
         List<ElcMutualListVo> list = elcMutualListDao.getMutualCourseList(dto);
