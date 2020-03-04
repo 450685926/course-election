@@ -102,7 +102,31 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 //			PageInfo<ElcMutualApplyVo> coursesForStu = getElcMutualCoursesForStu(condition);
 			PageInfo<ElcMutualApplyVo> coursesForStu = getElcMutualCoursesForStuNotLimit(condition);
 			List<ElcMutualApplyVo> coursesForStuList = coursesForStu.getList();
+
 			if (CollectionUtil.isNotEmpty(coursesForStuList)) {
+				//如果是研究生在审核俩表中有数据，排除培养中相同的数据
+				if(Constants.SECOND.equals(dto.getMode())){
+					List<Long> indexList = new ArrayList<>();
+					for (int i = 0; i < list.size(); i++) {
+						ElcMutualApplyVo listApply = list.get(i);
+						for (ElcMutualApplyVo courseApply : coursesForStuList) {
+							if(listApply.getCourseCode().equals(courseApply.getCourseCode())
+								&& String.valueOf(listApply.getMutualCourseId()).equals(courseApply.getCourseId())
+							    && listApply.getOpenCollege().equals(courseApply.getOpenCollege())){
+								indexList.add(listApply.getId());
+							}
+						}
+					}
+					for (int n = 0; n < list.size(); n++) {
+						ElcMutualApplyVo elcVo = list.get(n);
+						for (int m = 0; m < indexList.size(); m++) {
+							if(elcVo.getId() == indexList.get(m)){
+								list.remove(elcVo);
+							}
+						}
+					}
+				}
+
 				list.addAll(coursesForStuList);
 			}
 		}
@@ -368,8 +392,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	private List<ElcMutualApplyVo> getElcMutualCoursesForStudent(PageCondition<ElcMutualApplyDto> condition){
 		//		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
-		Session session = SessionUtils.getCurrentSession();
-		String projectId = session.getCurrentManageDptId();
+		//Session session = SessionUtils.getCurrentSession();
+		String projectId = "2";
+		//String projectId = session.getCurrentManageDptId();
 		//本地调试部门id
 		String studentId = dto.getStudentId();
 
