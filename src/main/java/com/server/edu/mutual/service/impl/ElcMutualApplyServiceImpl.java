@@ -110,7 +110,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 					for (int i = 0; i < list.size(); i++) {
 						ElcMutualApplyVo listApply = list.get(i);
 						for(int j = 0; j< coursesForStuList.size();j++){
-							ElcMutualApplyVo courseApply = coursesForStuList.get(i);
+							ElcMutualApplyVo courseApply = coursesForStuList.get(j);
 							if(listApply.getCourseCode().equals(courseApply.getCourseCode())
 									&& String.valueOf(listApply.getMutualCourseId()).equals(courseApply.getCourseId())
 									&& listApply.getOpenCollege().equals(courseApply.getOpenCollege())){
@@ -396,7 +396,6 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
 		String projectId = session.getCurrentManageDptId();
-
 		//本地调试部门id
 		String studentId = dto.getStudentId();
 
