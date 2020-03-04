@@ -124,4 +124,22 @@ public class ProjectUtil {
 		}
 		return c.toString();
 	}
+
+	/**
+	 * 功能描述: 本研互选mode切换
+	 *
+	 * @params: [mode]
+	 * @return: java.lang.Integer
+	 * @author: zhaoerhu
+	 * @date: 2020/3/4 17:52
+	 */
+	public static Integer convertMode(Integer mode) {
+		if (Constants.BK_MUTUAL.equals(mode)) {
+			return Constants.GRADUATE_MUTUAL;
+		}
+		if (Constants.GRADUATE_MUTUAL.equals(mode)) {
+			return Constants.BK_MUTUAL;
+		}
+		return mode;
+	}
 }
