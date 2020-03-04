@@ -84,6 +84,28 @@ public class TeachingClassCache extends ElecCourse implements Serializable
     
     private String studentId;
 
+    /**替代课程原课程是否有教学班 1 有 0 否*/
+    private String isOldCourse;
+
+    /**替代课程学分*/
+    private Double replaceCredits;
+
+    public Double getReplaceCredits() {
+        return replaceCredits;
+    }
+
+    public void setReplaceCredits(Double replaceCredits) {
+        this.replaceCredits = replaceCredits;
+    }
+
+    public String getIsOldCourse() {
+        return isOldCourse;
+    }
+
+    public void setIsOldCourse(String isOldCourse) {
+        this.isOldCourse = isOldCourse;
+    }
+
     public String getReplaceCourse() {
 		return replaceCourse;
 	}
