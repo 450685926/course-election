@@ -31,8 +31,12 @@ public class RetakeCourseUtil {
 	 */
 	public static boolean isRetakeCourse(ElecContext context, String courseCode) {
 	    List<CompletedCourse> list = new ArrayList<>();
-	    list.addAll(context.getCompletedCourses());
-	    list.addAll(context.getFailedCourse());
+        if (CollectionUtil.isNotEmpty(context.getCompletedCourses())) {
+        	list.addAll(context.getCompletedCourses());
+		}
+        if (CollectionUtil.isNotEmpty(context.getFailedCourse())) {
+        	list.addAll(context.getFailedCourse());
+        }
 		/** 培养计划课程 */
 		Set<PlanCourse> planCourses = context.getPlanCourses();
 		long count = 0L;
@@ -70,8 +74,13 @@ public class RetakeCourseUtil {
      */
     public static boolean isRetakeCourseBk(ElecContextBk context, String courseCode) {
         List<com.server.edu.election.studentelec.context.bk.CompletedCourse> list = new ArrayList<>();
-        list.addAll(context.getCompletedCourses());
-        list.addAll(context.getFailedCourse());
+        
+        if (CollectionUtil.isNotEmpty(context.getCompletedCourses())) {
+        	list.addAll(context.getCompletedCourses());
+		}
+        if (CollectionUtil.isNotEmpty(context.getFailedCourse())) {
+        	list.addAll(context.getFailedCourse());
+        }
         
         long count = 0L;
         if (CollectionUtil.isNotEmpty(list)) {
