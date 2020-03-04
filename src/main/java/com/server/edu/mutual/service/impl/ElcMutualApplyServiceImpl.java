@@ -109,26 +109,26 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 					List<Long> indexList = new ArrayList<>();
 					for (int i = 0; i < list.size(); i++) {
 						ElcMutualApplyVo listApply = list.get(i);
-						for (ElcMutualApplyVo courseApply : coursesForStuList) {
+						for(int j = 0; j< coursesForStuList.size();j++){
+							ElcMutualApplyVo courseApply = coursesForStuList.get(i);
 							if(listApply.getCourseCode().equals(courseApply.getCourseCode())
-								&& String.valueOf(listApply.getMutualCourseId()).equals(courseApply.getCourseId())
-							    && listApply.getOpenCollege().equals(courseApply.getOpenCollege())){
+									&& String.valueOf(listApply.getMutualCourseId()).equals(courseApply.getCourseId())
+									&& listApply.getOpenCollege().equals(courseApply.getOpenCollege())){
 								//将相同数据的主键放到list中
-								indexList.add(listApply.getId());
+								indexList.add(courseApply.getId());
 							}
 						}
 					}
 					//去除相同的数据
-					for (int n = 0; n < list.size(); n++) {
-						ElcMutualApplyVo elcVo = list.get(n);
+					for (int n = 0; n < coursesForStuList.size(); n++) {
+						ElcMutualApplyVo elcVo = coursesForStuList.get(n);
 						for (int m = 0; m < indexList.size(); m++) {
 							if(elcVo.getId() == indexList.get(m)){
-								list.remove(elcVo);
+								coursesForStuList.remove(elcVo);
 							}
 						}
 					}
 				}
-
 				list.addAll(coursesForStuList);
 			}
 		}
