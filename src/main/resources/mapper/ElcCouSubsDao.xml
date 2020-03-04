@@ -57,14 +57,14 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ = #{studentId}
 		    </if>
-		    <if test="mode == 1 ">
+		    <if test=" mode == 1 ">
 		        and t4.LEAVE_SCHOOL_ = 1
 		    </if>
-			<if test="mode == 3">
-				and EXISTS (select XH tj_ungraduate where t4.STUDENT_CODE_ = XH)
+			<if test=" mode == 3 ">
+				and EXISTS (select XH  from tj_ungraduate where t4.STUDENT_CODE_ = XH)
 			</if>
-			<if test="mode == 4 ">
-				and EXISTS (select XH tj_ungraduate_foreign where t4.STUDENT_CODE_ = XH)
+			<if test=" mode == 4 ">
+				and EXISTS (select XH from tj_ungraduate_foreign where t4.STUDENT_CODE_ = XH)
 			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t4.GRADE_ = #{grade}
@@ -98,14 +98,14 @@
 		select STUDENT_CODE_ studentCode,NAME_ name,TRAINING_LEVEL_ trainingLevel,FACULTY_ faculty,PROFESSION_ profession
 		from student_t
 		<where>
-			<if test="mode == 1 ">
+			<if test=" mode == 1 ">
 				and LEAVE_SCHOOL_ = 1
 			</if>
-			<if test="mode == 3">
-				and EXISTS (select XH tj_ungraduate where STUDENT_CODE_ = XH)
+			<if test=" mode == 3 ">
+				and EXISTS (select XH from tj_ungraduate where STUDENT_CODE_ = XH)
 			</if>
-			<if test="mode == 4 ">
-				and EXISTS (select XH tj_ungraduate_foreign where STUDENT_CODE_ = XH)
+			<if test=" mode == 4 ">
+				and EXISTS (select XH from tj_ungraduate_foreign where STUDENT_CODE_ = XH)
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
 				and ( STUDENT_CODE_ like concat ('%', #{keyword},'%') or NAME_ like concat ('%', #{keyword},'%'))
