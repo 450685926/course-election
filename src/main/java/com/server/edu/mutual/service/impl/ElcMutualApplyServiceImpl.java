@@ -160,7 +160,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 			if(dto.getIdSign() !=0){
 				elcMutualApply.setId(Long.parseLong(String.valueOf(dto.getIdSign())));
 				//利用通用mapper做删除
-				elcMutualApplyDao.deleteByPrimaryKey(elcMutualApply);
+				elcMutualApplyDao.deleteByPrimaryKey(Long.parseLong(String.valueOf(dto.getIdSign())));
 			}
 		}
 
