@@ -87,6 +87,8 @@ public class ElcMutualApplyDto extends ElcMutualApply {
      * 审核状态集合
      */
     private List<Integer> statusArray;
+    
+    private Integer noStatus;
 
     //可管理的学院（当前学院+管理的学院）
     private List<String> collegeList;
@@ -270,6 +272,16 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 	public void setIdSign(int idSign) {
 		this.idSign = idSign;
 	}
+	
+	
+
+	public Integer getNoStatus() {
+		return noStatus;
+	}
+
+	public void setNoStatus(Integer noStatus) {
+		this.noStatus = noStatus;
+	}
 
 	public ElcMutualApplyDto() {
 	}
@@ -302,6 +314,8 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 		this.statusArray = statusArray;
 		this.collegeList = collegeList;
 	}
+	
+	
 
 	@Override
 	public String toString() {

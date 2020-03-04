@@ -96,6 +96,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(status)">
 		        and t1.STATUS_  = #{status}
 		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStatus)">
+		        and t1.STATUS_  not in (2,4)
+		    </if>
 		 </where>
   </select>
   

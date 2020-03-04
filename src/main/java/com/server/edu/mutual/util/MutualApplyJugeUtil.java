@@ -227,6 +227,7 @@ public class MutualApplyJugeUtil {
 
 				List<String> projectIds = ProjectUtil.getProjectIds(projectId);
 				dto.setProjectIds(projectIds);
+				dto.setNoStatus(2);
 
 				List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualApplyList(dto);
 
