@@ -141,11 +141,6 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 			ElcMutualApply elcMutualApply = new ElcMutualApply();
 			
 			BeanUtils.copyProperties(dto, elcMutualApply);
-			//如果主键不为空赋值主键
-			if(dto.getIdSign() !=0){
-				elcMutualApply.setId(Long.parseLong(String.valueOf(dto.getIdSign())));
-			}
-			
 			elcMutualApply.setMutualCourseId(mutualCourseId);
 			elcMutualApply.setStatus(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.UN_AUDITED.status())));
 			elcMutualApply.setStudentId(studentId);
@@ -160,9 +155,16 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 			LOG.info("elcMutualApplycount: "+count);
 			LOG.info("elcMutualApplygetCourseTakeType: "+elcMutualApply.getCourseTakeType());
 			elcMutualApplys.add(elcMutualApply);
+
+			//如果主键不为空赋值主键
+			if(dto.getIdSign() !=0){
+				elcMutualApply.setId(Long.parseLong(String.valueOf(dto.getIdSign())));
+				//利用通用mapper做删除
+				elcMutualApplyDao.deleteByPrimaryKey(elcMutualApply);
+			}
 		}
+
 		result = elcMutualApplyDao.insertList(elcMutualApplys);
-		
 		return result;
 	}
 
