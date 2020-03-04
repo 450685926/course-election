@@ -113,10 +113,12 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 							if(listApply.getCourseCode().equals(courseApply.getCourseCode())
 								&& String.valueOf(listApply.getMutualCourseId()).equals(courseApply.getCourseId())
 							    && listApply.getOpenCollege().equals(courseApply.getOpenCollege())){
+								//将相同数据的主键放到list中
 								indexList.add(listApply.getId());
 							}
 						}
 					}
+					//去除相同的数据
 					for (int n = 0; n < list.size(); n++) {
 						ElcMutualApplyVo elcVo = list.get(n);
 						for (int m = 0; m < indexList.size(); m++) {
@@ -392,9 +394,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	private List<ElcMutualApplyVo> getElcMutualCoursesForStudent(PageCondition<ElcMutualApplyDto> condition){
 		//		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
-		//Session session = SessionUtils.getCurrentSession();
-		String projectId = "2";
-		//String projectId = session.getCurrentManageDptId();
+		Session session = SessionUtils.getCurrentSession();
+		String projectId = session.getCurrentManageDptId();
+
 		//本地调试部门id
 		String studentId = dto.getStudentId();
 
