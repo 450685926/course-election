@@ -222,6 +222,7 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         elcCouSubsDto.setMode(mode);
         elcCouSubsDto.setProjectId(dptId);
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<Student> studentPage =  elcCouSubsDao.findStuInfoList(elcCouSubsDto);
         return new PageResult<>(studentPage);
     }

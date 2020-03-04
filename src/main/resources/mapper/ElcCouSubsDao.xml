@@ -108,7 +108,7 @@
 				and EXISTS (select XH tj_ungraduate_foreign where STUDENT_CODE_ = XH)
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-				and ( STUDENT_CODE_ like concat ('%', #{keyword},'%') or t4.NAME_ like concat ('%', #{keyword},'%'))
+				and ( STUDENT_CODE_ like concat ('%', #{keyword},'%') or NAME_ like concat ('%', #{keyword},'%'))
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 				and PROJ_ID_ = #{projectId}
