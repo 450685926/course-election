@@ -78,22 +78,11 @@ public class ElecContextBk implements IElecContext
     /** 留学生课程 */
     private Set<ForeignCourse> foreignStuCourses;
 
-    /**当前轮次开课课程（包括替代课程）*/
-    private Set<String> openCourses;
-
     private ElecRequest request;
     
     private ElecRespose respose;
     
     private ElecContextUtil contextUtil;
-
-    public Set<String> getOpenCourses() {
-        return openCourses;
-    }
-
-    public void setOpenCourses(Set<String> openCourses) {
-        this.openCourses = openCourses;
-    }
 
     public ElecContextBk(String studentId, Long calendarId,
                          ElecRequest elecRequest)
@@ -134,7 +123,6 @@ public class ElecContextBk implements IElecContext
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
         onlyCourses = this.contextUtil.getSet("OnlyCourses", PlanCourse.class);
         foreignStuCourses = this.contextUtil.getSet("ForeignStuCourses", ForeignCourse.class);
-        openCourses = this.contextUtil.getSet("openCourses", String.class);
     }
 
     /**
@@ -164,7 +152,6 @@ public class ElecContextBk implements IElecContext
         this.contextUtil.updateMem(REPLACE_COURSES, this.replaceCourses);
         this.contextUtil.updateMem("OnlyCourses", this.onlyCourses);
         this.contextUtil.updateMem("ForeignStuCourses", this.foreignStuCourses);
-        this.contextUtil.updateMem("openCourses", this.openCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -202,7 +189,6 @@ public class ElecContextBk implements IElecContext
         this.getOnlyCourses().clear();
         this.getForeignStuCourses().clear();
         this.getForeignStuCourses().clear();
-        this.getOpenCourses().clear();
 
     }
     
