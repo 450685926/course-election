@@ -58,14 +58,17 @@ public class MutualStudentElecPreloadingServiceImpl
                 IElecContext context = null;
                 try
                 {
-                    if (Constants.PROJ_UNGRADUATE.equals(projectId))
-                    {
-                        context = new ElecContextMutualBk(studentId, calendarId);
-                    }
-                    else
-                    {
-                        context = new ElecContext(studentId, calendarId);
-                    }
+                	context = new ElecContextMutualBk(studentId, calendarId);
+
+//                	if (Constants.PROJ_UNGRADUATE.equals(projectId))
+//                    {
+//                        context = new ElecContextMutualBk(studentId, calendarId);
+//                    }
+//                    else
+//                    {
+//                        context = new ElecContext(studentId, calendarId);
+//                    }
+                	
                     context.setRequest(preloadRequest);
                     
                     Map<String, MutualDataProLoad> beansOfType =
