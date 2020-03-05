@@ -358,6 +358,10 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		criteria.andEqualTo("calendarId", dto.getCalendarId());
 		criteria.andEqualTo("studentId", dto.getStudentId());
 		criteria.andEqualTo("mutualCourseId", dto.getMutualCourseId());
+		List<Integer> status = new ArrayList<>();
+		status.add(MutualApplyAuditStatus.DEPART_AUDITED_UN_APPROVED.status());
+		status.add(MutualApplyAuditStatus.AUDITED_UN_APPROVED.status());
+		criteria.andNotIn("status", status);
 		ElcMutualApply elcMutualApply = elcMutualApplyDao.selectOneByExample(example);
 		if(elcMutualApply!=null) {
     		throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("election.elcMutualApply"))); 
