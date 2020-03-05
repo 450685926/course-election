@@ -45,7 +45,7 @@
 	         t4.FACULTY_ college,
 	         t4.PROFESSION_,
 	         t4.STUDENT_CATEGORY_ ,
-		 	 if(t1.COURSE_TAKE_TYPE_ is not null,NULL,t1.COURSE_TAKE_TYPE_) courseTakeType,
+		 	 t1.COURSE_TAKE_TYPE_ courseTakeType,
 		  	 t4.TRAINING_LEVEL_  stuTrainingLevel,
 			 t4.TRAINING_CATEGORY_,
 			 t4.DEGREE_TYPE_, 
