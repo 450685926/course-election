@@ -59,7 +59,7 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 
 	@Override
 	public String getProjectIds() {
-		return "1";
+		return "1,2,4";
 	}
 	
 	private Logger LOG = LoggerFactory.getLogger(BKMutualCourseLoad.class);
