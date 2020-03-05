@@ -244,6 +244,7 @@
 		        and t4.TRAINING_LEVEL_  = #{stuTrainingLevel}
 		    </if>
 		 </where>
+	  		ORDER BY t1.`STUDENT_ID_`
   </select>
   <select id="collegeApplyStuList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
 		SELECT 
@@ -305,7 +306,7 @@
 				 </foreach>
 			 </if>
 		 </where>
-		GROUP BY t1.`STUDENT_ID_`
+		GROUP BY t1.`STUDENT_ID_` ORDER BY t1.`STUDENT_ID_`
   </select>
   
    <select id="openCollegeApplyCourseList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
@@ -382,7 +383,7 @@
 				 </foreach>
 			 </if>
 		 </where>
-		 GROUP BY t4.COURSE_CODE_
+		 GROUP BY t4.COURSE_CODE_ ORDER BY t4.COURSE_CODE_
   </select>
    <select id="openCollegeApplyStuList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
 		SELECT 
@@ -461,6 +462,7 @@
 		        and t1.STATUS_ = #{status} 
 		    </if>				    			    		    		    
 		 </where>
+	   ORDER BY t5.COURSE_CODE_
  	</select>
   	
   	<select id="getOpenCollegeAuditList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">

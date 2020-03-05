@@ -54,7 +54,7 @@ public class BKMutualCoursePlanLoad extends MutualDataProLoad<ElecContextMutualB
     @Override
     public String getProjectIds()
     {
-        return "1";
+    	return "1,2,4";
     }
 
     @Override

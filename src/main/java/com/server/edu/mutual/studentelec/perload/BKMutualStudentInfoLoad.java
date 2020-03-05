@@ -36,7 +36,7 @@ public class BKMutualStudentInfoLoad extends MutualDataProLoad<ElecContextMutual
     @Override
     public String getProjectIds()
     {
-        return "1";
+    	return "1,2,4";
     }
     
     @Autowired
