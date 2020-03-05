@@ -118,7 +118,7 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
     @Override
     public String getProjectIds()
     {
-        return "1";
+        return "1,2,4";
     }
 
 
