@@ -248,6 +248,8 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             	result.setMsg(I18nUtil.getMsg("mutualAgent.mutualCourse"));
             	return result;
 			}
+        } else {
+            result = RestResult.fail("studentNumberNotExist");
         }
         return result;
 	}     
