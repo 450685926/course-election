@@ -27,7 +27,18 @@ public class ClassTimeUnit implements Serializable
     private List<Integer> weeks;
     
     private String value;
-    
+
+    //用于显示 tip信息 格式:  节次 教师 地点
+    private String popover;
+
+    public String getPopover() {
+        return popover;
+    }
+
+    public void setPopover(String popover) {
+        this.popover = popover;
+    }
+
     @Code2Text(translator = TeacherTranslator.class, dataType = DataType.SPLIT)
     private String teacherCode;
 
