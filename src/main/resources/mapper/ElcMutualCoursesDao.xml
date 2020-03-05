@@ -75,6 +75,7 @@
 				 </foreach>
 			 </if>
 		 </where>
+	  	ORDER BY t2.`COURSE_CODE_`
   </select>
   
     <select id="getElcMutualCourseCount" parameterType="com.server.edu.mutual.dto.ElcMutualCoursesDto" resultType="java.lang.Integer">

@@ -133,6 +133,7 @@
 		        and (t1.STUDENT_ID_ like concat ('%', #{keyWords},'%') or t4.NAME_ like concat ('%', #{keyWords},'%'))
 		    </if>	
 		 </where>
+		 ORDER BY t1.STUDENT_ID_
  	</select>
  	
  	<select id="getMutualCourseList" parameterType="com.server.edu.mutual.dto.ElcMutualListDto" resultMap="MutualApplyMap">
@@ -189,7 +190,7 @@
 		        and t4.COURSE_NAME_ like concat ('%', #{courseName},'%')
 		    </if>
 		 </where>
-		 GROUP BY t4.COURSE_CODE_
+		 GROUP BY t4.COURSE_CODE_ ORDER BY t4.COURSE_CODE_
   	</select>
   	<select id="countElectionCourse" resultType="int">
   	SELECT
