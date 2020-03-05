@@ -405,12 +405,12 @@ public class ElecBkServiceImpl implements ElecBkService
                 }
             }
         }
-        // 判断学生是否要重修缴费
-        String studentId = context.getStudentInfo().getStudentId();
-        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId)&&chargeService.hasRetakeCourseNoPay(round.getCalendarId(),studentId))
-        {
-            context.getRespose().getData().put("retakePay", "true");
-        }
+        // 判断学生是否要重修缴费（暂时注掉，逻辑有点问题）
+//        String studentId = context.getStudentInfo().getStudentId();
+//        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId)&&chargeService.hasRetakeCourseNoPay(round.getCalendarId(),studentId))
+//        {
+//            context.getRespose().getData().put("retakePay", "true");
+//        }
     }
     
     /**退课*/
