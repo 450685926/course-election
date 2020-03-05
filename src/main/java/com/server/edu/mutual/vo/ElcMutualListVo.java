@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
-
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
@@ -121,8 +121,10 @@ public class ElcMutualListVo extends ElcMutualApply{
     /**
      * 修读类别(1正常修读,2重修,3免修不免考,4免修)
      */
-    @Code2Text(transformer="X_XDLX")
     private Integer courseTakeType;
+
+	@Code2Text(transformer="X_XDLX")
+    private String courseTakeTypeName;
     
     /**
      * 申请人数
@@ -249,6 +251,9 @@ public class ElcMutualListVo extends ElcMutualApply{
 
 	public void setCourseTakeType(Integer courseTakeType) {
 		this.courseTakeType = courseTakeType;
+		if(StringUtils.isEmpty(this.courseTakeTypeName)){
+			this.courseTakeTypeName = courseTakeType !=null? String.valueOf(courseTakeType) :"";
+		}
 	}
 
 	public String getCollege() {
@@ -290,5 +295,12 @@ public class ElcMutualListVo extends ElcMutualApply{
 	public void setStuNumber(Integer stuNumber) {
 		this.stuNumber = stuNumber;
 	}
-    
+
+	public String getCourseTakeTypeName() {
+		return courseTakeTypeName;
+	}
+
+	public void setCourseTakeTypeName(String courseTakeTypeName) {
+		this.courseTakeTypeName = courseTakeTypeName;
+	}
 }
