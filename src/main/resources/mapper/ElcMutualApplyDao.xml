@@ -330,6 +330,9 @@
 		  JOIN course_t t3 ON t3.CODE_ = t4.COURSE_CODE_
 		 <where>
 		    t1.CALENDAR_ID_  = #{calendarId}
+			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+				 and t1.MODE_ = #{mode}
+			 </if>
              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
                  and t4.FACULTY_ = #{openCollege}
              </if>

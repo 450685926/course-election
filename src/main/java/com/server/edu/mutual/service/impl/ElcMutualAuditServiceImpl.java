@@ -185,7 +185,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 						MutualApplyAuditStatus.AUDITED_APPROVED.status(), MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
 			}
 		}
-		
+
+		dto.setMode(ProjectUtil.convertMode(dto.getMode()));
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.openCollegeApplyCourseList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
