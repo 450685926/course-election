@@ -523,7 +523,6 @@
         co.IS_ELECTIVE_ nature,
         co.CREDITS_ credits,
         te.COURSE_LABEL_ID_ label,
-        el.PAID_ paid,
         el.BILL_ID_ billId,
         te.WEEK_HOUR_ weekHour,
         el.COURSE_TAKE_TYPE_ courseTakeType,
@@ -536,7 +535,13 @@
         te.ID_ teachingClassId,
         te.CODE_ teachingClassCode,
         st.TRAINING_LEVEL_ trainingLevel,
-        CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr
+        CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr,
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
+            if(tt.STUDENT_ID_ is NULL ,el.PAID_,2) paid
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isEmpty(noStuPay)">
+            el.PAID_ paid
+        </if>
         FROM elc_course_takes_t el
         JOIN course_t co on el.COURSE_CODE_=co.CODE_
         JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
@@ -546,6 +551,36 @@
             left JOIN student.student_abnormal_apply_t sa
             on el.STUDENT_ID_ = sa.STUDENT_ID_ and sa.STATUS_ = 3 and sa.CLASS_ID_ = '300015'
             and #{endTime} &gt;= sa.EFFECTIVE_TIME_ &gt;= #{beginTime}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
+            left join
+            (select DISTINCT t8.STUDENT_ID_  from elc_course_takes_t t8
+            left join student_t t10 on t8.STUDENT_ID_ = t10.STUDENT_CODE_
+            left join student_abnormal_apply_v t9 on t8.STUDENT_ID_ = t9.STUDENT_ID_ and t9.STATUS_ = 3
+            where  t8.CALENDAR_ID_ = #{calendarId} and t8.COURSE_TAKE_TYPE_ = 2 and t10.MANAGER_DEPT_ID_ = #{deptId} and
+            <foreach collection="noStuPay" item="item" separator="or" open="(" close=")">
+                (
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingLevel)">
+                    t10.TRAINING_LEVEL_ = #{item.trainingLevel}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingCategory)">
+                    and t10.TRAINING_CATEGORY_ = #{item.trainingCategory}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.enrolMethods)">
+                    and t10.ENROL_METHODS_ = #{item.enrolMethods}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.spcialPlan)">
+                    and t10.SPCIAL_PLAN_ = #{item.spcialPlan}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.isOverseas)">
+                    and t10.IS_OVERSEAS_ = #{item.isOverseas}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
+                    and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime}
+                </if>
+                )
+            </foreach>
+            ) tt on tt.STUDENT_ID_ = el.STUDENT_ID_
         </if>
         <where>
             <if test="true">
@@ -603,36 +638,7 @@
             <if test="hasChangeGrade == 0">
                 and sa.ID_ is null
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
-                and not EXISTS
-                (select t8.STUDENT_ID_ from elc_course_takes_t t8
-                left join student_t t10 on t8.STUDENT_ID_ = t10.STUDENT_CODE_
-                left join student_abnormal_apply_v t9 on t8.STUDENT_ID_ = t9.STUDENT_ID_ and t9.STATUS_ = 3
-                where el.STUDENT_ID_ = t8.STUDENT_ID_ and t8.CALENDAR_ID_ = #{calendarId} and t8.COURSE_TAKE_TYPE_ = 2 and t10.MANAGER_DEPT_ID_ = #{deptId} and
-                <foreach collection="noStuPay" item="item" separator="or" open="(" close=")">
-                    (
-                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingLevel)">
-                        t10.TRAINING_LEVEL_ = #{item.trainingLevel}
-                    </if>
-                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingCategory)">
-                        and t10.TRAINING_CATEGORY_ = #{item.trainingCategory}
-                    </if>
-                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.enrolMethods)">
-                        and t10.ENROL_METHODS_ = #{item.enrolMethods}
-                    </if>
-                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.spcialPlan)">
-                        and t10.SPCIAL_PLAN_ = #{item.spcialPlan}
-                    </if>
-                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.isOverseas)">
-                        and t10.IS_OVERSEAS_ = #{item.isOverseas}
-                    </if>
-                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
-                        and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime}
-                    </if>
-                    )
-                </foreach>
-                )
-            </if>
+
         </where>
     </select>
 
