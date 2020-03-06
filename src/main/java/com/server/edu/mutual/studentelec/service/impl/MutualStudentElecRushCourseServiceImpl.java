@@ -48,14 +48,15 @@ public class MutualStudentElecRushCourseServiceImpl extends AbstractMutualElecQu
             Assert.notNull(projectId, "projectId must be not null");
             Assert.notNull(calendarId, "calendarId must be not null");
             
-            if (Constants.PROJ_UNGRADUATE.equals(projectId))
-            {
-                context = mutualElecBkService.doELec(request);
-            }
+//            if (Constants.PROJ_UNGRADUATE.equals(projectId))
+//            {
+//                context = mutualElecBkService.doELec(request);
+//            }
 //            else
 //            {
 //                context = mutualElecYjsService.doELec(request);
 //            }
+            context = mutualElecBkService.doELec(request);
         }
         catch (Exception e)
         {
