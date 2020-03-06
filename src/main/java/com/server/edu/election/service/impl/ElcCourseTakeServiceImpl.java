@@ -1559,14 +1559,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		if (StringUtils.isNotEmpty(condition.getCondition().getIncludeCourseCode())) {
 			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
 		}
-		condition.getCondition().setProjectId(currentSession.getCurrentManageDptId());
+//		condition.getCondition().setProjectId(currentSession.getCurrentManageDptId());
 
 //		PageResult<ElcCourseTakeVo> list = listPage(condition);
-		PageResult<ElcCourseTakeVo> list = courseTakeNameList(condition);
-		
-		List<ElcCourseTakeVo> list2 = list.getList();
-		if (CollectionUtil.isNotEmpty(list2)) {
-            for (ElcCourseTakeVo elcCourseTakeVo:list2) {
+//        PageResult<ElcCourseTakeVo> list = courseTakeNameList(condition);
+
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.courseTakeNameList(condition.getCondition());
+
+		if (CollectionUtil.isNotEmpty(listPage)) {
+            for (ElcCourseTakeVo elcCourseTakeVo:listPage) {
                 if (elcCourseTakeVo.getChooseObj().intValue() == 1) {
                     elcCourseTakeVo.setElectionMode(1);
                 }else{
@@ -1593,7 +1595,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 //		list2.sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));
 		
 		List<ElcCourseTakeNameListVo> nameList = new ArrayList<>();
-    	for (ElcCourseTakeVo elcCourseTakeVo : list2) {
+    	for (ElcCourseTakeVo elcCourseTakeVo : listPage) {
     		ElcCourseTakeNameListVo elcCourseTakeNameListVo = new ElcCourseTakeNameListVo();
     		elcCourseTakeNameListVo.setElcCourseTakeVo(elcCourseTakeVo);
     		Student stu = studentDao.findStudentByCode(elcCourseTakeVo.getStudentId());
@@ -1602,9 +1604,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		}
     	PageResult<ElcCourseTakeNameListVo> result = new PageResult<>();
     	result.setList(nameList);
-    	result.setPageNum_(list.getPageNum_());
-    	result.setPageSize_(list.getPageSize_());
-    	result.setTotal_(list.getTotal_());
+    	result.setPageNum_(listPage.getPageNum());
+    	result.setPageSize_(listPage.getPageSize());
+    	result.setTotal_(listPage.getTotal());
 		return result;
 	}
 	

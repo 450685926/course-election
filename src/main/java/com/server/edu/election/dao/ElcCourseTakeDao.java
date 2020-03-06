@@ -56,6 +56,8 @@ public interface ElcCourseTakeDao
     
     Page<ElcCourseTakeVo> courseTakeNameList(@Param("query") ElcCourseTakeQuery take);
 
+    Page<ElcCourseTakeVo> courseTakeNames(@Param("query") ElcCourseTakeQuery take);
+
     /**研究生课程维护模块分页查询选课记录*/
     Page<ElcCourseTakeVo> graduatePage(@Param("query") ElcCourseTakeQuery take);
 
