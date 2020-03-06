@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.ElcNumberSetDto;
+import com.server.edu.election.dto.StudentChangeDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.dto.TimeTableMessage;
@@ -213,6 +214,8 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     Integer getStudentAbnormalCount(@Param("studentId")String studentId,@Param("beginDay")Long beginDay, @Param("endDay")Long endDay);
 
     Integer getStudentAbnormalCountNew(@Param("studentId")String studentId, @Param("year")Integer year,@Param("term") Integer term);
+    
+    List<StudentChangeDto> getStudentChangeInfo(StudentChangeDto dto);
 
     Page<TeachingClassVo> listPage4limit(ElcResultQuery condition);
 
