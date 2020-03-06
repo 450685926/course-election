@@ -965,7 +965,7 @@
         and v.xnd=#{year}
         and v.xq = #{term}
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(xjydTypes)">
-		    v.xjbdlx in 
+		 and v.xjbdlx in 
 			<foreach item="item" collection="xjydTypes" separator="," open="(" close=")" >
 	            #{item}
 	        </foreach>
