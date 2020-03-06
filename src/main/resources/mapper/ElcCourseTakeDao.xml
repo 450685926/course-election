@@ -134,7 +134,12 @@
                 and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
-                and t1.MODE_ = #{query.mode}
+                <if test=" query.mode == 1 ">
+                    and t1.MODE_ in (#{query.mode},5 )
+                </if>
+                <if test=" query.mode != 1 ">
+                    and t1.MODE_ = #{query.mode}
+                </if>
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.electionMode)">
                 <if test="query.electionMode == 1">
