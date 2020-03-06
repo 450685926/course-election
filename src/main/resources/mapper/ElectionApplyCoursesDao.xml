@@ -31,6 +31,9 @@
 		  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
 		        and t1.CALENDAR_ID_ = #{calendarId}
 		   </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+				and t1.MODE_ = #{mode}
+			</if>
 		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
 		        and t2.CODE_ = #{code}
 		   </if>
