@@ -91,7 +91,7 @@
 		        and t4.TRAINING_LEVEL_ = #{stuTrainingLevel}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
-		        and t4.TRAINING__CATEGORY_ = #{trainingCategory}
+		        and t4.TRAINING_CATEGORY_ = #{trainingCategory}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
 		        and t4.STUDENT_CATEGORY_ = #{studentCategory}

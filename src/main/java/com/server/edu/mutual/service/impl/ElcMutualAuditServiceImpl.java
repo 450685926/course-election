@@ -2,6 +2,7 @@ package com.server.edu.mutual.service.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -9,7 +10,9 @@ import java.util.List;
 
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
+import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.mutual.entity.ElcMutualApplyCopyVo;
 import com.server.edu.mutual.rpc.BaseresServiceExamInvoker;
@@ -74,6 +77,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 	@Autowired
 	private StudentDao studentDao;
+
+	@Autowired
+	private ElcCourseTakeDao elcCourseTakeDao;
 
 	@Override
 	public PageInfo<ElcMutualApplyVo> collegeApplyCourseList(PageCondition<ElcMutualApplyDto> condition) {
@@ -400,16 +406,50 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 	@Override
 	public List<ElcMutualApplyAuditLogsVo> queryAuditLogList(ElcMutualApplyAuditLogsVo vo) throws IllegalAccessException, InvocationTargetException {
-		ElcMutualApplyAuditLogsVo elcMutualApplyAuditLogsVo = new ElcMutualApplyAuditLogsVo();
-		//ElcMutualApply elcMutualApply = elcMutualApplyService.getElcMutualApplyById(vo.getMuApplyId());
-		//查询学生本研互选申请记录
-		ElcMutualApplyCopyVo elcMutualApply = elcMutualApplyAuditLogsDao.getElcMutualApplyById(vo.getMuApplyId());
-		BeanUtil.copyProperties(elcMutualApplyAuditLogsVo, elcMutualApply);
 
-		//List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogList(vo);
-		//查询本研互选审核记录
-		List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogLists(vo);
-		list.add(0, elcMutualApplyAuditLogsVo);
+		ElcMutualApplyAuditLogsVo elcMutualApplyAuditLogsVo = new ElcMutualApplyAuditLogsVo();
+//		ElcMutualApply elcMutualApply = elcMutualApplyService.getElcMutualApplyById(vo.getMuApplyId());
+		//查询学生本研互选申请记录 备注：打点，第一个点，将申请记录放置到第一个点，说明该学生申请了该门课程。
+		ElcMutualApplyCopyVo elcMutualApply = elcMutualApplyAuditLogsDao.getElcMutualApplyById(vo.getMuApplyId());
+		List<ElcMutualApplyAuditLogsVo> list = new ArrayList<>();
+		if (elcMutualApply != null) {
+			BeanUtil.copyProperties(elcMutualApplyAuditLogsVo, elcMutualApply);
+			//打点。第2-3个点，将本科生/研究生中行政学院审核和开课学院审核放置到2,3个点
+			//备注：sql中已根据projId进行本研身份判断，本科生申请有行政学院审核，研究生申请无行政学院审核。即本科生点数为4，研究生点数为3。
+			list = elcMutualApplyAuditLogsDao.queryAuditLogList(vo);
+			//查询本研互选审核记录
+//		List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogLists(vo);
+			if(list != null && list.size() > 0){
+				//打点。最后一个点，即选课节点。（对本科生而言是第4个点，对研究生而言是第3个点）
+				String studentId = vo.getStudentId();
+				String courseCode = vo.getCourseCode();
+				Long calendarId = vo.getCalendarId();
+				Example example = new Example(ElcCourseTake.class);
+				Example.Criteria criteria = example.createCriteria();
+				criteria.andEqualTo("studentId", studentId);
+				criteria.andEqualTo("courseCode", courseCode);
+				criteria.andEqualTo("calendarId", calendarId);
+				ElcCourseTake take = elcCourseTakeDao.selectOneByExample(example);
+				if (take != null) {
+					//如果该学生该学期已经选择该门课，则放入集合（随便构造一个空对象放入即可，把点打进去）
+					//下述封装无实质作用，只是让该对象看起来丰富一点。
+					ElcMutualApplyAuditLogsVo takeVo = new ElcMutualApplyAuditLogsVo();
+					takeVo.setStatus(elcMutualApplyAuditLogsVo.getStatus());
+					takeVo.setStudentId(studentId);
+					takeVo.setCalendarId(calendarId);
+					takeVo.setCourseCode(courseCode);
+					takeVo.setProjectId(vo.getProjectId());
+					takeVo.setMuApplyId(vo.getMuApplyId());
+					takeVo.setId(take.getId());
+					takeVo.setReason("选课节点");
+					takeVo.setApplyAt(new Timestamp(take.getCreatedAt().getTime()));
+					list.add(takeVo);
+				}
+			}
+			list.add(0, elcMutualApplyAuditLogsVo);
+
+		}
+
 		return list;
 	}
 

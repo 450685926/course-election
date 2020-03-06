@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.exception.ParameterValidateException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
@@ -161,6 +162,12 @@ public class ElcMutualAuditController {
         throws Exception
     {
         LOG.info("queryAuditLogList.start");
+        String studentId = vo.getStudentId();
+        String courseCode = vo.getCourseCode();
+        Long calendarId = vo.getCalendarId();
+        if (org.apache.commons.lang.StringUtils.isBlank(studentId) || org.apache.commons.lang.StringUtils.isBlank(courseCode) || null == calendarId) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
+        }
         List<ElcMutualApplyAuditLogsVo> list = new ArrayList<ElcMutualApplyAuditLogsVo>();
         try {
         	list =elcMutualAuditService.queryAuditLogList(vo);
