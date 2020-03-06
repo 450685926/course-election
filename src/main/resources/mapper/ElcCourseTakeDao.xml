@@ -774,7 +774,7 @@
         join teaching_class_arrange_time_t ti on (te.ID_=ti.TEACHING_CLASS_ID_ and ti.TYPE_ =2)
         JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
-        te.DEPLOY_FLAG_ &gt; 0 and co.DELETE_STATUS_ = 0 and
+        co.DELETE_STATUS_ = 0 and
         te.ID_ in
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
