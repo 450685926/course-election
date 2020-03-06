@@ -22,6 +22,7 @@ import com.server.edu.election.rpc.CultureSerivceInvoker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -99,6 +100,9 @@ public class ElecBkServiceImpl implements ElecBkService
     
 	@Autowired
 	private ElcNumberSetService elcNumberSetService;
+	
+	@Autowired
+	private RebuildCourseRecycleDao rebuildCourseRecycleDao;
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -431,6 +435,7 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRequest request = context.getRequest();
         Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
+        boolean hasRetakeCourse = false;
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
@@ -503,6 +508,12 @@ public class ElecBkServiceImpl implements ElecBkService
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
+                // 判断是否有重修课
+                if (!hasRetakeCourse && RetakeCourseUtil
+                    .isRetakeCourseBk(context, teachClass.getCourse().getCourseCode()))
+                {
+                    hasRetakeCourse = true;
+                }
                 StudentInfoCache studentInfo = context.getStudentInfo();
                 int index = TableIndexUtil.getIndex(request.getCalendarId());
                 List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), round.getCalendarId(),index, teachClass.getCourse().getCourseCode());
@@ -512,7 +523,7 @@ public class ElecBkServiceImpl implements ElecBkService
                 }else{
                     this.saveElc(context,
                             teachClass.getCourse(),
-                            ElectRuleType.WITHDRAW,false);
+                            ElectRuleType.WITHDRAW,hasRetakeCourse);
                 }
 
                 // 删除缓存中的数据
@@ -611,8 +622,9 @@ public class ElecBkServiceImpl implements ElecBkService
         }
         else
         {
-            List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentId, round.getCalendarId(),TableIndexUtil.getIndex(round.getCalendarId()), teachClass.getCourseCode());
-            turn = elcCourseTakeVo.get(0).getTurn();
+            List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.findElcCourse(studentId, round.getCalendarId(),TableIndexUtil.getIndex(round.getCalendarId()), teachClass.getCourseCode());
+            ElcCourseTakeVo elcCourseTakeVo = elcCourseTakeVos.get(0);
+            turn = elcCourseTakeVo.getTurn();
             logType = ElcLogVo.TYPE_2;
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(round.getCalendarId());
@@ -664,6 +676,23 @@ public class ElecBkServiceImpl implements ElecBkService
                      return;
                  }
                  dataProvider.incrementDrawNumber(teachClassId);
+            }
+            //如果是重修退课退课数据进入选课回收站
+            if(hasRetakeCourse) {
+            	RebuildCourseRecycle rebuildCourseRecycle = new RebuildCourseRecycle();
+            	rebuildCourseRecycle.setCalendarId(round.getCalendarId());
+            	rebuildCourseRecycle.setStudentCode(courseCode);
+            	rebuildCourseRecycle.setCourseCode(courseCode);
+            	rebuildCourseRecycle.setTeachingClassId(teachClassId);
+            	rebuildCourseRecycle.setCourseTakeType(courseTakeType);
+            	rebuildCourseRecycle.setChooseObj(request.getChooseObj());
+            	rebuildCourseRecycle.setTurn(turn);
+            	rebuildCourseRecycle.setMode(ChooseObj.STU.type() == request.getChooseObj() ? ElcLogVo.MODE_1
+                        : ElcLogVo.MODE_2);
+            	rebuildCourseRecycle.setPaid(elcCourseTakeVo.getPaid());
+            	rebuildCourseRecycle.setType(Constants.FIRST);
+            	rebuildCourseRecycle.setScreenLabel(null);
+            	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
             }
         }
         // 添加选课日志
