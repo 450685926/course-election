@@ -683,7 +683,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                         sb.append(String
                                 .format("%s %s %s", teacherNames, weekStr, roomName))
                                 .append(" ");
-                        tip.append(String.format("[%s-%s节] %s %s %s",
+                        tip.append(String.format("[%s-%s节] %s;%s %s",
                             un.getTimeStart(),un.getTimeEnd(),weekStr,teacherNames,roomName)).append(" ");
                     }
                     Collections.sort(weeks);
@@ -725,6 +725,19 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                     c.getCourseName(),
                     c.getTeachClassCode(),
                     ctu.getValue()));
+                if(StringUtils.isNoneEmpty(ctu.getPopover())) {
+                    String[] strings = ctu.getPopover().split(";");
+                    if(strings.length == 2) {
+                        StringBuffer sb = new StringBuffer();
+                        sb.append(String.format("%s %s(%s) %s",
+                            strings[0],
+                            c.getCourseName(),
+                            c.getCourseCode(),
+                            strings[1]));
+                        ctu.setPopover(sb.toString());
+                    }
+                }
+
             }
 
             teacherName = this.getTeacherName(times);
