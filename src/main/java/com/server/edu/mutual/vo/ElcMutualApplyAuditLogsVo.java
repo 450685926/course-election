@@ -25,6 +25,12 @@ public class ElcMutualApplyAuditLogsVo extends ElcMutualApplyAuditLogs{
 	
 	private String projectId;
 
+	//课程号
+	private String courseCode;
+
+	//学期
+	private Long calendarId;
+
 	public Timestamp getApplyAt() {
 		return applyAt;
 	}
@@ -61,6 +67,22 @@ public class ElcMutualApplyAuditLogsVo extends ElcMutualApplyAuditLogs{
 		this.projectId = projectId;
 	}
 
+	public String getCourseCode() {
+		return courseCode;
+	}
+
+	public void setCourseCode(String courseCode) {
+		this.courseCode = courseCode;
+	}
+
+	public Long getCalendarId() {
+		return calendarId;
+	}
+
+	public void setCalendarId(Long calendarId) {
+		this.calendarId = calendarId;
+	}
+
 	@Override
 	public String toString() {
 		return "ElcMutualApplyAuditLogsVo{" +
@@ -68,6 +90,8 @@ public class ElcMutualApplyAuditLogsVo extends ElcMutualApplyAuditLogs{
 				", applyAt=" + applyAt +
 				", status=" + status +
 				", projectId='" + projectId + '\'' +
+				", courseCode='" + courseCode + '\'' +
+				", calendarId='" + calendarId + '\'' +
 				'}';
 	}
 }
