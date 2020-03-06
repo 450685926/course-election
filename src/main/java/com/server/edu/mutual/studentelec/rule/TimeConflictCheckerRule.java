@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
+
+import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -28,7 +30,13 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
     public boolean checkRule(ElecContextMutualBk context,
         TeachingClassCache courseClass)
     {
-        Long teachClassId = courseClass.getTeachClassId();//通过teachingClassId查询时间
+    	return checkRule(context, courseClass, context.getSelectedMutualCourses());
+    }
+    
+    public boolean checkRule(ElecContextMutualBk context,
+            TeachingClassCache courseClass, Set<SelectedCourse> selectedCourses)
+    {
+    	Long teachClassId = courseClass.getTeachClassId();//通过teachingClassId查询时间
         if (teachClassId != null)
         {
             /*List<ClassTimeUnit> teachingClassTime =
@@ -36,8 +44,8 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
             List<ClassTimeUnit> teachingClassTime = courseClass.getTimes();
             if (CollectionUtil.isNotEmpty(teachingClassTime))
             {
-                Set<SelectedCourse> selectedCourses =
-                    context.getSelectedMutualCourses();//已经选择的课程，时间班级
+//                Set<SelectedCourse> selectedCourses =
+//                    context.getSelectedMutualCourses();// 已经选择的课程，时间班级
                 if (CollectionUtil.isNotEmpty(selectedCourses))
                 {
                     for (SelectedCourse selectedCours : selectedCourses)
