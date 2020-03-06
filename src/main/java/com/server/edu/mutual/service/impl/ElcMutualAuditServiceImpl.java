@@ -419,30 +419,32 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			list = elcMutualApplyAuditLogsDao.queryAuditLogList(vo);
 			//查询本研互选审核记录
 //		List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogLists(vo);
-			//打点。最后一个点，即选课节点。（对本科生而言是第4个点，对研究生而言是第3个点）
-			String studentId = vo.getStudentId();
-			String courseCode = vo.getCourseCode();
-			Long calendarId = vo.getCalendarId();
-			Example example = new Example(ElcCourseTake.class);
-			Example.Criteria criteria = example.createCriteria();
-			criteria.andEqualTo("studentId", studentId);
-			criteria.andEqualTo("courseCode", courseCode);
-			criteria.andEqualTo("calendarId", calendarId);
-			ElcCourseTake take = elcCourseTakeDao.selectOneByExample(example);
-			if (take != null) {
-				//如果该学生该学期已经选择该门课，则放入集合（随便构造一个空对象放入即可，把点打进去）
-				//下述封装无实质作用，只是让该对象看起来丰富一点。
-				ElcMutualApplyAuditLogsVo takeVo = new ElcMutualApplyAuditLogsVo();
-				takeVo.setStatus(elcMutualApplyAuditLogsVo.getStatus());
-				takeVo.setStudentId(studentId);
-				takeVo.setCalendarId(calendarId);
-				takeVo.setCourseCode(courseCode);
-				takeVo.setProjectId(vo.getProjectId());
-				takeVo.setMuApplyId(vo.getMuApplyId());
-				takeVo.setId(take.getId());
-				takeVo.setReason("选课节点");
-				takeVo.setApplyAt(new Timestamp(take.getCreatedAt().getTime()));
-				list.add(takeVo);
+			if(list != null && list.size() > 0){
+				//打点。最后一个点，即选课节点。（对本科生而言是第4个点，对研究生而言是第3个点）
+				String studentId = vo.getStudentId();
+				String courseCode = vo.getCourseCode();
+				Long calendarId = vo.getCalendarId();
+				Example example = new Example(ElcCourseTake.class);
+				Example.Criteria criteria = example.createCriteria();
+				criteria.andEqualTo("studentId", studentId);
+				criteria.andEqualTo("courseCode", courseCode);
+				criteria.andEqualTo("calendarId", calendarId);
+				ElcCourseTake take = elcCourseTakeDao.selectOneByExample(example);
+				if (take != null) {
+					//如果该学生该学期已经选择该门课，则放入集合（随便构造一个空对象放入即可，把点打进去）
+					//下述封装无实质作用，只是让该对象看起来丰富一点。
+					ElcMutualApplyAuditLogsVo takeVo = new ElcMutualApplyAuditLogsVo();
+					takeVo.setStatus(elcMutualApplyAuditLogsVo.getStatus());
+					takeVo.setStudentId(studentId);
+					takeVo.setCalendarId(calendarId);
+					takeVo.setCourseCode(courseCode);
+					takeVo.setProjectId(vo.getProjectId());
+					takeVo.setMuApplyId(vo.getMuApplyId());
+					takeVo.setId(take.getId());
+					takeVo.setReason("选课节点");
+					takeVo.setApplyAt(new Timestamp(take.getCreatedAt().getTime()));
+					list.add(takeVo);
+				}
 			}
 			list.add(0, elcMutualApplyAuditLogsVo);
 
