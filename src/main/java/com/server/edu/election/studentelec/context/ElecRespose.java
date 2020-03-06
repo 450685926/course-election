@@ -43,15 +43,27 @@ public class ElecRespose
 
     private Integer turn;
     
-    /**是否留降转*/
+    /**是否编级转专业*/
     private Integer isDetainedStudent;
+    
+    /**是否编级*/
+    private Integer isEditLevelStudent;
     
     /**
      * 是否留学生 0：否  1：是
      */
     private String isOverseas;
     
-    public String getIsOverseas() {
+    
+    public Integer getIsEditLevelStudent() {
+		return isEditLevelStudent;
+	}
+
+	public void setIsEditLevelStudent(Integer isEditLevelStudent) {
+		this.isEditLevelStudent = isEditLevelStudent;
+	}
+
+	public String getIsOverseas() {
 		return isOverseas;
 	}
 

@@ -10,6 +10,7 @@ import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.StudentChangeDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.query.PublicCourseQuery;
 import com.server.edu.election.query.PublicCourseTag;
@@ -403,8 +404,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 }
             }
         }
-        //查询学生是否留降转学生
+        //查询学生是否编级、降转学生
         Integer isDetainedStudent = 0;
+        //查询学生是否编级学生
+        Integer isEditLevelStudent = 0;
         //获取选课学期是否为当前学期
         Long nowCalendarId = BaseresServiceInvoker.getCurrentCalendar();
         //判断学生学籍变动范围
@@ -419,14 +422,33 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Integer year2 = calendarVo2.getYear();
         Integer term2 = calendarVo2.getTerm();
         //查看学生是否有学籍异动信息
-
-        Integer count1 = tClassDao.getStudentAbnormalCountNew(studentId, year1, term1);
-
-        Integer count2 = tClassDao.getStudentAbnormalCountNew(studentId,year2,term2);
-        if (count1.intValue() > 0 || count2.intValue() > 0){
+        Integer xjydType = 0;
+        List<Integer> xjydTypes = Arrays.asList(1,5);
+        StudentChangeDto dto = new StudentChangeDto();
+        dto.setStudentId(studentId);
+        dto.setYear(year1);
+        dto.setTerm(term1);
+        dto.setXjydTypes(xjydTypes);
+        List<StudentChangeDto> studentChangeList1 = tClassDao.getStudentChangeInfo(dto);
+        dto.setYear(year2);
+        dto.setTerm(term2);
+        List<StudentChangeDto> studentChangeList2 = tClassDao.getStudentChangeInfo(dto);
+        if (studentChangeList1.size() > 0 || studentChangeList2.size() > 0){
             isDetainedStudent = 1;
         }
-
+        if(CollectionUtil.isNotEmpty(studentChangeList1)) {
+        	List<StudentChangeDto> studentChanges1 = studentChangeList1.stream().filter(c->Constants.FIFTH.equals(c.getXjydType())).collect(Collectors.toList());
+        	if(studentChanges1.size()>0) {
+        		isEditLevelStudent = 1;
+        	}
+        }
+        if(CollectionUtil.isNotEmpty(studentChangeList2)) {
+        	List<StudentChangeDto> studentChanges2 = studentChangeList2.stream().filter(c->Constants.FIFTH.equals(c.getXjydType())).collect(Collectors.toList());
+        	if(studentChanges2.size()>0) {
+        		isEditLevelStudent = 1;
+        	}
+        }
+        
         ElecRespose respose = context.getRespose();
         respose.setTurn(round.getTurn());
         respose.setIsPlan(isPlan);
@@ -436,6 +458,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         respose.setOnlyRetakeFilter(onlyRetakeRule);
         respose.setNoRetakeRule(noRetakeRule);
         respose.setIsOverseas(student.getIsOverseas());
+        respose.setIsEditLevelStudent(isEditLevelStudent);
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
             for(int i=0;i<loginExceutors.size();i++) {

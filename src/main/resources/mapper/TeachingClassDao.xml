@@ -950,7 +950,28 @@
         and v.xq = #{term}
         and v.xjbdlx in('1','5')
         and v.xh=#{studentId}
-
+    </select>
+    
+     <select id="getStudentChangeInfo" parameterType="com.server.edu.election.dto.StudentChangeDto" resultType="com.server.edu.election.dto.StudentChangeDto">
+        select 
+        XH studentId,
+        XND year,
+        XQ  term,
+        XJBDLX xjydType
+        from v_student_change_t v
+        <where>
+        v.flag='1'
+        and v.xnj>ynj
+        and v.xnd=#{year}
+        and v.xq = #{term}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(xjydTypes)">
+		    v.xjydType in 
+			<foreach item="item" collection="xjydTypes" separator="," open="(" close=")" >
+	            #{item}
+	        </foreach>
+		</if>
+        and v.xh=#{studentId}
+        </where> 
     </select>
 
     <select id="getTeachingClass" resultType="com.server.edu.election.vo.TeachingClassVo">
