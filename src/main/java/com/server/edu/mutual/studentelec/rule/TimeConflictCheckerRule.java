@@ -50,11 +50,8 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
                                 {
                                     ElecRespose respose = context.getRespose();
                                     respose.getFailedReasons()
-                                        .put(
-                                            courseClass
-                                                .getCourseCodeAndClassCode(),
-                                            I18nUtil.getMsg(
-                                                "ruleCheck.timeConflict"));
+                                        .put(courseClass.getCourseCodeAndClassCode(),
+                                        		I18nUtil.getMsg(("ruleCheck.timeConflict"),courseClass.getCourseCodeAndClassCode()));
                                     return false;
                                 }
                             }
