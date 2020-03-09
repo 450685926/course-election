@@ -208,6 +208,26 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                         limitNumber = numberFemale;
 
                     }
+
+                    //不区分男女班
+                    if(StringUtils.isBlank(isDivsex) || isDivsex.equals(IS_NOT_OVERSEAS_)){
+                        if((numberMale == 0 && numberFemale == 0)
+                                || (numberMale == 0 && numberFemale == null)
+                        || (numberMale == null && numberFemale == 0)
+                                || (numberMale == null && numberFemale == null)){
+                            limitNumber = null;
+                        }
+                    }else if(isDivsex.equals(MALE)){
+                        if(numberMale == 0){
+                            limitNumber = null;
+                        }
+                    }else{
+                        if(numberFemale == 0){
+                            limitNumber = null;
+                        }
+                    }
+
+
                     if (limitNumber == null || (limitNumber != null && (currentNum + 1) <= limitNumber))
                     {
                         resultFlag = true;
