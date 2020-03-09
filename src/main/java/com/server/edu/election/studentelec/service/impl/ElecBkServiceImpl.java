@@ -681,14 +681,15 @@ public class ElecBkServiceImpl implements ElecBkService
             if(hasRetakeCourse) {
             	RebuildCourseRecycle rebuildCourseRecycle = new RebuildCourseRecycle();
             	rebuildCourseRecycle.setCalendarId(round.getCalendarId());
-            	rebuildCourseRecycle.setStudentCode(courseCode);
+            	rebuildCourseRecycle.setStudentCode(studentId);
             	rebuildCourseRecycle.setCourseCode(courseCode);
             	rebuildCourseRecycle.setTeachingClassId(teachClassId);
             	rebuildCourseRecycle.setCourseTakeType(courseTakeType);
-            	rebuildCourseRecycle.setChooseObj(request.getChooseObj());
+            	//取选课对象（不是退课对象）
+            	rebuildCourseRecycle.setChooseObj(elcCourseTakeVo.getChooseObj());
             	rebuildCourseRecycle.setTurn(turn);
-            	rebuildCourseRecycle.setMode(ChooseObj.STU.type() == request.getChooseObj() ? ElcLogVo.MODE_1
-                        : ElcLogVo.MODE_2);
+            	//取选课模式
+            	rebuildCourseRecycle.setMode(elcCourseTakeVo.getMode());
             	rebuildCourseRecycle.setPaid(elcCourseTakeVo.getPaid());
             	rebuildCourseRecycle.setType(Constants.FIRST);
             	rebuildCourseRecycle.setScreenLabel(null);
