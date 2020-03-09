@@ -3,7 +3,6 @@ package com.server.edu.mutual.studentelec.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,6 @@ import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 import com.server.edu.mutual.studentelec.rule.AbstractMutualElecRuleExceutor;
 import com.server.edu.mutual.studentelec.rule.AbstractMutualWithdrwRuleExceutor;
 import com.server.edu.mutual.studentelec.rule.LimitCountCheckerRule;
-import com.server.edu.mutual.studentelec.rule.TimeConflictCheckerRule;
 import com.server.edu.mutual.studentelec.service.MutualElecBkService;
 import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.util.BeanUtil;
@@ -187,15 +185,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
                     break;
                 }
             }
-            
-            // 本研互选课程与选课课程时间冲突校验（默认校验）
-        	Set<SelectedCourse> selectedAllCourses = context.getSelectedCourses();   // 选课课程 + 本研互选课程
-        	
-        	Set<SelectedCourse> selectedBaseCourses = new HashSet<SelectedCourse>(); // 选课课程
-        	selectedBaseCourses.addAll(selectedAllCourses);
-        	selectedBaseCourses.removeAll(context.getSelectedMutualCourses());
-        	
-        	allSuccess = new TimeConflictCheckerRule().checkRule(context, teachClass, selectedBaseCourses);
         	
             // 对校验成功的课程进行入库保存
             if (allSuccess)
