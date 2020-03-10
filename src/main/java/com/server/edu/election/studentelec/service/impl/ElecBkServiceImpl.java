@@ -348,6 +348,7 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
         boolean hasRetakeCourse = false;
+        
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
@@ -864,31 +865,43 @@ public class ElecBkServiceImpl implements ElecBkService
         }
         //判断是否是重修课
         boolean isRetake = RetakeCourseUtil.isRetakeCourseBk(context, teachClass.getCourseCode());
-
+        
+        if (CollectionUtil.isEmpty(selectedCourses)){
+            return true;
+        }
+        //本学期已选公共外语课
+        Set<SelectedCourse> engLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c.getCourse())).collect(Collectors.toSet());
+        if(CollectionUtil.isEmpty(engLishselectedcourse)) {
+        	return true;
+        }
         if (isRetake) {
 
             //为了数据准确性，会对这个学期已经选取的课程进行查库操作
-            ElecRequest request = context.getRequest();
-            StudentInfoCache studentInfo = context.getStudentInfo();
-            ElectionRounds round = dataProvider.getRound(request.getRoundId());
-            Long calendarId = round.getCalendarId();
-            List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
-            if(CollectionUtil.isEmpty(courseTakes)){
-                return true;
-            }
+//            ElecRequest request = context.getRequest();
+//            StudentInfoCache studentInfo = context.getStudentInfo();
+//            ElectionRounds round = dataProvider.getRound(request.getRoundId());
+//            Long calendarId = round.getCalendarId();
+//            if (CollectionUtil.isEmpty(selectedCourses)){
+//                return true;
+//            }
+//            List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+//            if(CollectionUtil.isEmpty(courseTakes)){
+//                return true;
+//            }
 
-            List<ElcCourseTakeVo> collect = courseTakes.stream().filter(vo -> vo.getCourseTakeType().intValue() == 2).collect(Collectors.toList());
+//            List<ElcCourseTakeVo> collect = courseTakes.stream().filter(vo -> vo.getCourseTakeType().intValue() == 2).collect(Collectors.toList());
 
-            Set<ElcCourseTakeVo> selectedcourse1 = new HashSet<>();
-
-            for (ElcCourseTakeVo course:collect){
-                for (String string:asList){
-                    if(StringUtils.equalsIgnoreCase(course.getCourseCode(),string)){
-                        selectedcourse1.add(course);
-                    }
-                }
-            }
-
+//            Set<ElcCourseTakeVo> selectedcourse1 = new HashSet<>();
+//
+//            for (ElcCourseTakeVo course:collect){
+//                for (String string:asList){
+//                    if(StringUtils.equalsIgnoreCase(course.getCourseCode(),string)){
+//                        selectedcourse1.add(course);
+//                    }
+//                }
+//            }
+            
+        	Set<SelectedCourse> selectedcourse1 = engLishselectedcourse.stream().filter(c->Constants.SECOND.equals(c.getCourseTakeType())).collect(Collectors.toSet());
             if (selectedcourse1.size() < 2) {
                 return true;
             }else{
@@ -898,40 +911,43 @@ public class ElecBkServiceImpl implements ElecBkService
                 return false;
             }
         } else {
-            if (CollectionUtil.isEmpty(selectedCourses)){
-                return true;
-            }
+//            if (CollectionUtil.isEmpty(selectedCourses)){
+//                return true;
+//            }
             //本学期已选公共外语课
-            Set<SelectedCourse> selectedcourse1 = new HashSet<>();
-            for (SelectedCourse course:selectedCourses){
-                for (String string:asList){
-                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
-                        selectedcourse1.add(course);
-                    }
-                }
-            }
-            if (CollectionUtil.isEmpty(selectedcourse1)) {
-                return true;
-            }
+//            selectedcourse1 = selectedCourses.stream().filter(c->asList.contains(c.getCourse())).collect(Collectors.toSet());
+//            for (SelectedCourse course:selectedCourses){
+//                for (String string:asList){
+//                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
+//                        selectedcourse1.add(course);
+//                    }
+//                }
+//            }
+            
+            
+//            if (CollectionUtil.isEmpty(selectedcourse1)) {
+//                return true;
+//            }
             //为了数据准确性，会对这个学期已经选取的课程进行查库操作
-            ElecRequest request = context.getRequest();
-            StudentInfoCache studentInfo = context.getStudentInfo();
-            ElectionRounds round = dataProvider.getRound(request.getRoundId());
-            Long calendarId = round.getCalendarId();
-            List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
-            List<String> collect = courseTakes.stream().map(ElcCourseTakeVo::getCourseCode).collect(Collectors.toList());
-            Set<String> selectedcourse2 = new HashSet<>();
-            for (String course:collect){
-                for (String string:asList) {
-                    if (StringUtils.equalsIgnoreCase(course, string)) {
-                        selectedcourse2.add(course);
-                    }
-                }
-
-            }
-            if (CollectionUtil.isEmpty(selectedcourse2)) {
-                return true;
-            }
+//            ElecRequest request = context.getRequest();
+//            StudentInfoCache studentInfo = context.getStudentInfo();
+//            ElectionRounds round = dataProvider.getRound(request.getRoundId());
+//            Long calendarId = round.getCalendarId();
+//            List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+//            List<String> collect = courseTakes.stream().map(ElcCourseTakeVo::getCourseCode).collect(Collectors.toList());
+//            Set<String> selectedcourse2 = new HashSet<>();
+//            for (String course:collect){
+//                for (String string:asList) {
+//                    if (StringUtils.equalsIgnoreCase(course, string)) {
+//                        selectedcourse2.add(course);
+//                    }
+//                }
+//
+//            }
+            
+//            if (CollectionUtil.isEmpty(selectedcourse2)) {
+//                return true;
+//            }
             failedReasons.put(String.format("%s[%s]",
                     teachClass.getTeachClassCode(),
                     teachClass.getCourseName()), "只能选一门公共英语课");
