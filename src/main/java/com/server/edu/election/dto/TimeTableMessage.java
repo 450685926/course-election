@@ -36,6 +36,17 @@ public class TimeTableMessage {
     private List<Integer> weeks;
     private Long timeId; //教学班排课时间ID
 
+    //用于显示 tip信息 格式:  节次 课程 教师 地点
+    private String popover;
+
+    public String getPopover() {
+        return popover;
+    }
+
+    public void setPopover(String popover) {
+        this.popover = popover;
+    }
+
     public String getCampus() {
         return campus;
     }
