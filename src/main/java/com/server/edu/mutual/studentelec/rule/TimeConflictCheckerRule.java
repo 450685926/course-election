@@ -51,25 +51,30 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
                     for (SelectedCourse selectedCours : selectedCourses)
                     {
                         TeachingClassCache course = selectedCours.getCourse();
-                        if (StringUtils.equalsIgnoreCase(course.getCourseCode(),courseClass.getCourseCode())){
-                            continue;
-                        }
-                        List<ClassTimeUnit> times = course.getTimes();
-                        for (ClassTimeUnit v0 : teachingClassTime)
-                        {
-                            for (ClassTimeUnit v1 : times)
-                            {
-                                if (conflict(v0, v1))
-                                {
-                                    ElecRespose respose = context.getRespose();
-                                    respose.getFailedReasons()
-                                        .put(courseClass.getCourseCodeAndClassCode(),
-                                        		I18nUtil.getMsg("ruleCheck.timeConflict",
-                                        				String.format("%s(%s)",course.getCourseName(),course.getCourseCode())));
-                                    return false;
-                                }
-                            }
-                        }
+                        if (course != null) {
+                        	if (StringUtils.equalsIgnoreCase(course.getCourseCode(),courseClass.getCourseCode())){
+                        		continue;
+                        	}
+
+                        	List<ClassTimeUnit> times = course.getTimes();
+                        	if (CollectionUtil.isNotEmpty(times)) {
+                        		for (ClassTimeUnit v0 : teachingClassTime)
+                        		{
+                        			for (ClassTimeUnit v1 : times)
+                        			{
+                        				if (conflict(v0, v1))
+                        				{
+                        					ElecRespose respose = context.getRespose();
+                        					respose.getFailedReasons()
+                        					.put(courseClass.getCourseCodeAndClassCode(),
+                        							I18nUtil.getMsg("ruleCheck.timeConflict",
+                        									String.format("%s(%s)",course.getCourseName(),course.getCourseCode())));
+                        					return false;
+                        				}
+                        			}
+                        		}
+                        	}
+						}
                     }
                     
                 }
