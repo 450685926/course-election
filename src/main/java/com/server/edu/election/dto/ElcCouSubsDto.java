@@ -42,7 +42,17 @@ public class ElcCouSubsDto extends ElcCouSubs
     private String subCourseInfo;
     
     private String keyword;
-    
+
+    private List<String> facultys;
+
+    public List<String> getFacultys() {
+        return facultys;
+    }
+
+    public void setFacultys(List<String> facultys) {
+        this.facultys = facultys;
+    }
+
     public String getOrigsCourseCode()
     {
         return origsCourseCode;

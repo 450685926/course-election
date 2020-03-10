@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.pagehelper.Page;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -229,12 +231,36 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
             throw new ParameterValidateException(
                     I18nUtil.getMsg("baseresservice.parameterError"));
         }
-        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        Session session = SessionUtils.getCurrentSession();
+        String dptId = session.getCurrentManageDptId();
+        List<String> list = session.getGroupData().get(GroupDataEnum.department.getValue());
         elcCouSubsDto.setMode(mode);
         elcCouSubsDto.setProjectId(dptId);
+        elcCouSubsDto.setFacultys(list);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<Student> studentPage =  elcCouSubsDao.findStuInfoList(elcCouSubsDto);
         return new PageResult<>(studentPage);
+    }
+
+    @Override
+    public PageResult<Course> findOriginCourse(PageCondition<ElcCouSubsDto> condition) {
+        ElcCouSubsDto elcCouSubsDto = condition.getCondition();
+        if(StringUtils.isEmpty(elcCouSubsDto.getStudentId())){
+            return null;
+        }
+
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<Course> pageCourse = elcCouSubsDao.findOriginCourse(elcCouSubsDto);
+        return new PageResult<>(pageCourse);
+
+    }
+
+    @Override
+    public PageResult<Course> findNewCourse(PageCondition<ElcCouSubsDto> condition) {
+        ElcCouSubsDto elcCouSubsDto = condition.getCondition();
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<Course> pageCourse = elcCouSubsDao.findNewCourse(elcCouSubsDto);
+        return new PageResult<>(pageCourse);
     }
 
 }
