@@ -137,4 +137,16 @@ public class ElcCouSubsController
         return RestResult.successData(list);
     }
 
+    @ApiOperation(value = "替代课程新课程查询")
+    @PostMapping("/findNewCourse")
+    public RestResult<PageResult<Course>> findNewCourse(
+            @RequestBody PageCondition<ElcCouSubsDto> condition)
+
+    {
+
+        PageResult<Course> list = elcNoGradCouSubsService.findNewCourse(condition);
+
+        return RestResult.successData(list);
+    }
+
 }

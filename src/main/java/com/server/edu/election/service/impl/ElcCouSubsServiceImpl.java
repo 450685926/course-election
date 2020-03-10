@@ -255,4 +255,12 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
 
     }
 
+    @Override
+    public PageResult<Course> findNewCourse(PageCondition<ElcCouSubsDto> condition) {
+        ElcCouSubsDto elcCouSubsDto = condition.getCondition();
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<Course> pageCourse = elcCouSubsDao.findNewCourse(elcCouSubsDto);
+        return new PageResult<>(pageCourse);
+    }
+
 }

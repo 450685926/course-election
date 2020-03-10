@@ -138,4 +138,15 @@
 
 		</where>
 	</select>
+
+	<select id="findNewCourse" parameterType="com.server.edu.election.dto.ElcCouSubsDto" resultType="com.server.edu.election.entity.Course">
+		select DISTINCT t2.CODE_ code,t2.ID_ id,t2.NAME_ name,t2.ENABLED_ enabled,t2.CREDITS_ credits,t2.NAME_EN_ nameEn,
+		t2.PERIOD_ period,t2.COLLEGE_ college
+		from course_t t2
+		<where>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+				and ( t2.CODE_ like concat ('%', #{keyword},'%') or t2.NAME_ like concat ('%', #{keyword},'%'))
+			</if>
+		</where>
+	</select>
 </mapper>

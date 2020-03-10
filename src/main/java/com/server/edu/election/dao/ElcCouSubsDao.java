@@ -16,4 +16,7 @@ public interface ElcCouSubsDao extends Mapper<ElcCouSubs> {
 	Page<Student> findStuInfoList(ElcCouSubsDto elcNoGradCouSubs);
 
     Page<Course> findOriginCourse(ElcCouSubsDto elcCouSubsDto);
+
+    Page<Course> findNewCourse(ElcCouSubsDto elcCouSubsDto);
+
 }

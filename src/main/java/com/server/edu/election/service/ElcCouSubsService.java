@@ -28,4 +28,7 @@ public interface ElcCouSubsService
 
     //查找替代课程中的原课程信息
     PageResult<Course> findOriginCourse(PageCondition<ElcCouSubsDto> condition);
+
+    //查找替代课程中的新课程信息
+    PageResult<Course> findNewCourse(PageCondition<ElcCouSubsDto> condition);
 }
