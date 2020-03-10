@@ -20,7 +20,7 @@ public class CampusRule extends AbstractMutualElecRuleExceutor
     @Override
     public int getOrder()
     {
-        return RulePriority.SECOND.ordinal();
+        return RulePriority.FIRST.ordinal();
     }
     
     @Override
