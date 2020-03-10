@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -186,6 +185,7 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
                     break;
                 }
             }
+        	
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {

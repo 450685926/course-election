@@ -49,10 +49,16 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	public PageInfo<ElectionApplyCoursesVo> applyCourseList(PageCondition<ElectionApplyCoursesDto> condition){
 		ElectionApplyCoursesDto dto = condition.getCondition();
 		Integer mode = dto.getMode();
-		if (Constants.ENGLISH_MODEL.equals(mode)) {
-			dto.setCollege("000268");
-		} else if (Constants.PE_MODEL.equals(mode)) {
-			dto.setCollege("000293");
+		//添加课程是处理好体育和英语课，这里不需要特殊判断
+
+//		if (Constants.ENGLISH_MODEL.equals(mode)) {
+//			dto.setCollege("000268");
+//		} else if (Constants.PE_MODEL.equals(mode)) {
+//			dto.setCollege("000293");
+//		}
+		//模式1 查所有
+		if(Constants.NORMAL_MODEL.equals(mode)){
+			dto.setMode(null);
 		}
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElectionApplyCoursesVo> list = electionApplyCoursesDao.selectApplyCourse(dto);
@@ -155,13 +161,27 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		if(CollectionUtil.isEmpty(courses)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
+		//分别过滤英语课和体育课 （英语课mode 3  体育课 2 ）
+		List<String> enlishCourse = courses.stream().filter(vo -> vo.getCollege().equals("000268")).map(Course::getCode).collect(Collectors.toList());
+		List<String> peCourse = courses.stream().filter(vo -> vo.getCollege().equals("000293")).map(Course::getCode).collect(Collectors.toList());
+
 		List<ElectionApplyCourses> list = new ArrayList<>();
 //		List<String> courseCodes = new ArrayList<>();
 		Long calendarId = dto.getCalendarId();
 		Integer mode = dto.getMode();
 		for(String course: courseCodes) {
 			ElectionApplyCourses electionApplyCourses = new ElectionApplyCourses();
-			electionApplyCourses.setMode(mode);
+			if(Constants.NORMAL_MODEL.equals(mode)){
+				if(CollectionUtil.isNotEmpty(enlishCourse) && enlishCourse.contains(course)){
+					electionApplyCourses.setMode(Constants.ENGLISH_MODEL);
+				}else if(CollectionUtil.isNotEmpty(peCourse) && peCourse.contains(course)){
+					electionApplyCourses.setMode(Constants.PE_MODEL);
+				}else{
+					electionApplyCourses.setMode(mode);
+				}
+			}else{
+				electionApplyCourses.setMode(mode);
+			}
 			electionApplyCourses.setCourseCode(course);
 			electionApplyCourses.setCalendarId(calendarId);
             list.add(electionApplyCourses);
@@ -171,7 +191,7 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andIn("courseCode",courseCodes);
 		criteria.andEqualTo("calendarId", calendarId);
-		criteria.andEqualTo("mode", mode);
+		//criteria.andEqualTo("mode", mode);
 		List<ElectionApplyCourses> electionApplyCourses = electionApplyCoursesDao.selectByExample(example);
 		if (CollectionUtil.isNotEmpty(electionApplyCourses)) {
 			Set<String> collect = electionApplyCourses.stream().map(ElectionApplyCourses::getCourseCode).collect(Collectors.toSet());

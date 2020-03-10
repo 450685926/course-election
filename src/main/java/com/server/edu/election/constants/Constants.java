@@ -181,5 +181,7 @@ public interface Constants
     public static final Integer THREE_MODE=3;
     public static final Integer FOUR_MODE=4;
     
+    public static final Integer FIFTH=5;
+    
 
 }

@@ -63,6 +63,9 @@
 		  JOIN `student_t` t4 ON t4.`STUDENT_CODE_` = t1.`STUDENT_ID_`
 		<where>
 		    t1.CALENDAR_ID_  = #{calendarId}
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+				and t1.MODE_  = #{mode}
+			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t4.GRADE_  = #{grade}
 		    </if>
@@ -91,7 +94,7 @@
 		        and t4.TRAINING_LEVEL_ = #{stuTrainingLevel}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
-		        and t4.TRAINING__CATEGORY_ = #{trainingCategory}
+		        and t4.TRAINING_CATEGORY_ = #{trainingCategory}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
 		        and t4.STUDENT_CATEGORY_ = #{studentCategory}
