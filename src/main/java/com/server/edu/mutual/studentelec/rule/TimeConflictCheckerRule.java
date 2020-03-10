@@ -3,6 +3,8 @@ package com.server.edu.mutual.studentelec.rule;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -41,8 +43,11 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
                 {
                     for (SelectedCourse selectedCours : selectedCourses)
                     {
-                    	TeachingClassCache courseVo = selectedCours.getCourse();
-                        List<ClassTimeUnit> times = courseVo.getTimes();
+                        TeachingClassCache course = selectedCours.getCourse();
+                        if (StringUtils.equalsIgnoreCase(course.getCourseCode(),courseClass.getCourseCode())){
+                            continue;
+                        }
+                        List<ClassTimeUnit> times = course.getTimes();
                         for (ClassTimeUnit v0 : teachingClassTime)
                         {
                             for (ClassTimeUnit v1 : times)
@@ -53,7 +58,7 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
                                     respose.getFailedReasons()
                                         .put(courseClass.getCourseCodeAndClassCode(),
                                         		I18nUtil.getMsg("ruleCheck.timeConflict",
-                                        				String.format("%s(%s)",courseVo.getCourseName(),courseVo.getCourseCode())));
+                                        				String.format("%s(%s)",course.getCourseName(),course.getCourseCode())));
                                     return false;
                                 }
                             }
@@ -109,7 +114,9 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
                 int binarySearch = Collections.binarySearch(a.getWeeks(), w);
                 if (binarySearch >= 0)
                 {
-                    return true;
+                	if(StringUtils.isNotBlank(a.getTeacherCode()) && StringUtils.isNotBlank(b.getTeacherCode()) && a.getTeacherCode().equals(b.getTeacherCode())) {
+                		return true;
+                	}
                 }
             }
         }
