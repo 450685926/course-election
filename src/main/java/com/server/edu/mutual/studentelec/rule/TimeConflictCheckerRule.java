@@ -1,5 +1,6 @@
 package com.server.edu.mutual.studentelec.rule;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -94,46 +95,48 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
      */
     public static boolean conflict(ClassTimeUnit a, ClassTimeUnit b)
     {
-        // 星期几不相同肯定不会冲突
+    	// 0.周次判空
+    	if (CollectionUtil.isEmpty(a.getWeeks()) || CollectionUtil.isEmpty(b.getWeeks())) {
+    		return false;
+    	}
+    	
+        // 1.星期几不相同肯定不会冲突
         if (a.getDayOfWeek() != b.getDayOfWeek())
         {
             return false;
         }
-        // 星期相同时比较上课节次是否有重合
-        int aTimeStart = a.getTimeStart();
-        int aTimeEnd = a.getTimeEnd();
-        int bTimeStart = b.getTimeStart();
-        int bTimeEnd = b.getTimeEnd();
+        
+        // 2.两次操作课程一样
+        if (StringUtils.equals(String.valueOf(a.getTeachClassId()), String.valueOf(b.getTeachClassId()))) {
+        	return true;
+		}
+        
+        // 3.周是否冲突
         boolean sameTime = false;
-        // b 是否在 a 内  a=[2,6], b=[3,5]
-        if ((aTimeStart <= bTimeStart && aTimeEnd >= bTimeStart)
-            || (aTimeStart <= bTimeEnd && aTimeEnd >= bTimeEnd))
+    	for (Integer w : b.getWeeks())
         {
-        	sameTime = true;
-        }
-        // a 是否在 b 内 a=[3,5], b=[2,6]
-        if ((bTimeStart <= aTimeStart && bTimeEnd >= aTimeStart)
-            || (bTimeStart <= aTimeEnd && bTimeEnd >= aTimeEnd))
-        {
-        	sameTime = true;
-        }
-        // 节次有冲突时还要判断上课周是否有重合，a[1,2] 1-8; b[1,2] 9-10 是可以选的
-        if (sameTime && CollectionUtil.isNotEmpty(a.getWeeks())
-            && CollectionUtil.isNotEmpty(b.getWeeks()))
-        {
-            for (Integer w : b.getWeeks())
+            int binarySearch = Collections.binarySearch(a.getWeeks(), w);
+            if (binarySearch >= 0)
             {
-                int binarySearch = Collections.binarySearch(a.getWeeks(), w);
-                if (binarySearch >= 0)
-                {
-                	if(StringUtils.isNotBlank(a.getTeacherCode()) && StringUtils.isNotBlank(b.getTeacherCode()) && a.getTeacherCode().equals(b.getTeacherCode())) {
-                		return true;
-                	}
-                }
+            	 sameTime = true;
             }
         }
-        
+    	
+    	if (sameTime)
+        {
+    		// 4.判断节次是否冲突
+    		List<Integer> aTime = new ArrayList<Integer>();
+            for(int i = a.getTimeStart(); i <= a.getTimeEnd(); i++) {
+            	aTime.add(i);
+            }
+            
+            for(int i = b.getTimeStart(); i <= b.getTimeEnd(); i++) {
+            	if(aTime.contains(i)) {
+            		return true;
+            	}
+            }
+        }
+		
         return false;
-    }
-    
+    }    
 }
