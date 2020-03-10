@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.Student;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -122,4 +123,18 @@ public class ElcCouSubsController
 
         return RestResult.successData(list);
     }
+
+
+    @ApiOperation(value = "替代课程原课程查询")
+    @PostMapping("/findOriginCourse")
+    public RestResult<PageResult<Course>> findOriginCourse(
+            @RequestBody PageCondition<ElcCouSubsDto> condition)
+
+    {
+
+        PageResult<Course> list = elcNoGradCouSubsService.findOriginCourse(condition);
+
+        return RestResult.successData(list);
+    }
+
 }

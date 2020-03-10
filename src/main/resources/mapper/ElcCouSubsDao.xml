@@ -113,6 +113,29 @@
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 				and PROJ_ID_ = #{projectId}
 			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(facultys)">
+				and FACULTY_ in
+				<foreach collection="facultys" item="faculty" open="(" separator="," close=")">
+					#{faculty}
+				</foreach>
+			</if>
+		</where>
+	</select>
+
+	<select id="findOriginCourse" parameterType="com.server.edu.election.dto.ElcCouSubsDto" resultType="com.server.edu.election.entity.Course">
+		select DISTINCT t2.CODE_ code,t2.ID_ id,t2.NAME_ name,t2.ENABLED_ enabled,t2.CREDITS_ credits,t2.NAME_EN_ nameEn,
+		t2.PERIOD_ period,t2.COLLEGE_ college
+		from student_undergraduate_score_info_t t1
+		left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
+		<where>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+               and t1.STUDENT_NUM_ = #{studentId}
+			</if>
+
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+				and ( t2.CODE_ like concat ('%', #{keyword},'%') or t2.NAME_ like concat ('%', #{keyword},'%'))
+			</if>
+
 		</where>
 	</select>
 </mapper>
