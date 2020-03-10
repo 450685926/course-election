@@ -11,6 +11,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.util.CollectionUtil;
@@ -26,6 +27,12 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
     public static final Boolean CHECK_CONFLICT = true;
     
     public static final Boolean CHECK_UN_CONFLICT = false;
+    
+    @Override
+    public int getOrder()
+    {
+        return RulePriority.THIRD.ordinal();
+    }
     
     @Override
     public boolean checkRule(ElecContextMutualBk context,TeachingClassCache courseClass)

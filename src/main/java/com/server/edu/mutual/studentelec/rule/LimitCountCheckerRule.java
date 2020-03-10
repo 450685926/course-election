@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 
@@ -22,7 +23,7 @@ public class LimitCountCheckerRule extends AbstractMutualElecRuleExceutor
     @Override
     public int getOrder()
     {
-        return Integer.MAX_VALUE;
+        return RulePriority.SECOND.ordinal();
     }
     
     @Override
