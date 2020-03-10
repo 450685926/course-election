@@ -967,11 +967,16 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 .collect(Collectors.toList());
             List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentCode);
             Map<String, String> compulsoryMap = new HashMap<>();
+            Map<String, String> assessmentModeMap = new HashMap<>();
             if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
                 for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
                     String compulsory = elcCourseTakeVo.getCompulsory();
+                    String assessmentMode = elcCourseTakeVo.getAssessmentMode();
                     if (StringUtils.isNotBlank(compulsory)) {
                         compulsoryMap.put(elcCourseTakeVo.getCourseCode(), compulsory);
+                    }
+                    if(StringUtils.isNotBlank(assessmentMode)){
+                        assessmentModeMap.put(elcCourseTakeVo.getCourseCode(),assessmentMode);
                     }
                 }
             }
@@ -979,6 +984,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
             {
                 String courseCode = studnetTimeTable.getCourseCode();
                 String compulsory = compulsoryMap.get(courseCode);
+                String assessmentMode = assessmentModeMap.get(courseCode);
+                studnetTimeTable.setAssessmentMode(assessmentMode);
                 studnetTimeTable.setCompulsory(compulsory);
                 List<TimeTableMessage> tableMessages = teacherLessonTableServiceServiceImpl.getTimeById(ids);
                 if (CollectionUtil.isNotEmpty(tableMessages))
