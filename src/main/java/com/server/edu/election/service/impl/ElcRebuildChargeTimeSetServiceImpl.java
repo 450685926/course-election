@@ -68,7 +68,7 @@ public class ElcRebuildChargeTimeSetServiceImpl implements ElcRebuildChargeTimeS
 				.andGreaterThanOrEqualTo("endtime",date);
 		List<ElcRebuildChargeTimeSet> elcRebuildChargeTimeSets = elcRebuildChargeTimeSetDao.selectByExample(example);
 		if (CollectionUtil.isEmpty(elcRebuildChargeTimeSets)){
-			throw new ParameterValidateException("超过了规定的缴费时间，请在规定时间内缴费！");
+			throw new ParameterValidateException("当前不在缴费时间，请在规定时间内缴费！");
 		}
 	}
 
