@@ -972,8 +972,17 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
         //已选课程
-        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+//        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        
+        //为了数据准确性，会对这个学期已经选取的课程进行查库操作
         //重修英语课不能超过三门（当前学期已经选择重修英语课最多只能两门，新修一门）
+        StudentInfoCache studentInfo = context.getStudentInfo();
+        Long calendarId = round.getCalendarId();
+        List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+        List<String> selectedCourses = new ArrayList<String>();
+        if(CollectionUtil.isNotEmpty(courseTakes)) {
+        	selectedCourses = courseTakes.stream().map(ElcCourseTakeVo::getCourseCode).collect(Collectors.toList());
+        }
         List<String> asList =
                 courseDao.getAllCoursesLevelCourse();
         int isEngLishCount = 0;
@@ -998,7 +1007,7 @@ public class ElecBkServiceImpl implements ElecBkService
                 boolean isRetake = RetakeCourseUtil.isRetakeCourseBk(context, teachClass.getCourseCode());
                 if (CollectionUtil.isNotEmpty(selectedCourses)){
                 	//本学期已选公共外语课
-                    Set<SelectedCourse> engLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c.getCourse())).collect(Collectors.toSet());
+                    Set<String> engLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c)).collect(Collectors.toSet());
                     isEngLishCount = engLishselectedcourse.size()+isEngLishCount;
                 }
                 if(isRetake) {
