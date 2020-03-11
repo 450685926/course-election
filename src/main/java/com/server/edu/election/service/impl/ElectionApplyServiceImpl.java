@@ -20,6 +20,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.controller.ElecYjsController;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ElectionApplyDao;
@@ -40,6 +41,7 @@ import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElectionApplyVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.mutual.service.ElcMutualAuditService;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -74,6 +76,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
     
     @Autowired
     private CourseOpenDao courseOpenDao;
+	
+	@Autowired
+	private ElcMutualAuditService elcMutualAuditService;
     
     @Override
     public PageInfo<ElectionApplyVo> applyList(
@@ -477,6 +482,10 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         ElecContextUtil.setElecStatus(calendarId,
         		studentId,
             ElecStatus.Init);
+		
+		// 修改本研互选的缓存课程信息
+		ElecYjsController yjsController = new ElecYjsController();
+		yjsController.deleteRedisSelectedStatus(studentId);
     }
 
 }

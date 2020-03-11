@@ -45,6 +45,7 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.controller.ElecYjsController;
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
@@ -2006,6 +2007,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             applicationContext.publishEvent(new ElectLoadEvent(
             		entry.getCalendarId(),entry.getStudentId()));
         }
+        
+        // 更新本研互选缓存中的课程信息
+        ElecYjsController yjsController = new ElecYjsController();
+        yjsController.deleteRedisSelectedStatus(studentId);
+        
         return delSize;
     }
 
