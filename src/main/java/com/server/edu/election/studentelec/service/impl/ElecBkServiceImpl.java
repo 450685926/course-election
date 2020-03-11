@@ -614,7 +614,7 @@ public class ElecBkServiceImpl implements ElecBkService
             Integer paid = elcCourseTakeVo.getPaid();
             if(hasRetakeCourse){
                 String electionObj = round.getElectionObj();
-                if(Constants.NORMAL_MODEL.equals(paid) && !Constants.DEPART_ADMIN.equals(electionObj)){
+                if(Constants.NORMAL_MODEL.equals(paid) && !Constants.MANAGER_ADMIN.equals(electionObj)){
                     respose.getFailedReasons()
                             .put(teachClassCode + courseName,
                                     "该课程已经缴费,如要退课请联系管理员退课");
