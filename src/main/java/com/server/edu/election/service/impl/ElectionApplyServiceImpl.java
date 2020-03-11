@@ -36,12 +36,15 @@ import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.service.cache.RoundCacheService;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElectionApplyVo;
+import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.mutual.service.ElcMutualAuditService;
 import com.server.edu.session.util.SessionUtils;
@@ -84,6 +87,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	
 	@Autowired
     private StringRedisTemplate strTemplate;
+    
+    @Autowired
+    private RoundDataProvider dataProvider;
     
     @Override
     public PageInfo<ElectionApplyVo> applyList(
@@ -301,6 +307,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             throw new ParameterValidateException(
                 I18nUtil.getMsg("baseresservice.parameterError"));
         }
+        
         Example example = new Example(ElectionApply.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("studentId", studentId);
@@ -323,6 +330,14 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         if(electionApplyCourses==null) {
         	throw new ParameterValidateException("选课申请课程不存在");
         }
+        Integer isHavePERule = 0;
+        List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+        if(CollectionUtil.isNotEmpty(rules)) {
+        	ElectionRuleVo electionRuleVo = rules.stream().filter(c->"OnePeCourseCheckerRule".equals(c.getServiceName())).findFirst().orElse(null);
+        	if(electionRuleVo !=null) {
+        		isHavePERule =1;
+        	}
+        }
         //查询学生的已选课程
         Integer index = TableIndexUtil.getIndex(calendarId);
         List<ElcCourseTakeVo> list = courseTakeDao.findBkSelectedCourses(studentId, calendarId, index);
@@ -337,6 +352,11 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 		boolean isRetake = RetakeCourseUtil
         .isRetakeCourseBk(context,courseCode);
 		if(CollectionUtil.isNotEmpty(engLishPECourses)) {
+			//查询申请的体育、英语课
+			List<Integer> modeList = Arrays.asList(2,3);
+	        Example egPeExample = new Example(ElectionApply.class);
+	        egPeExample.createCriteria().andEqualTo("studentId", studentId).andEqualTo("calendarId", calendarId).andIn("mode", modeList);
+	        List<ElectionApply> electionApplys= electionApplyDao.selectByExample(egPeExample);
 			List<String> PECourses = engLishPECourses.stream().filter(c->"000293".equals(c.getFaculty())).map(c->c.getCourseCode()).collect(Collectors.toList());
 			List<String> engLishCourseCodes = engLishPECourses.stream().filter(c->"000268".equals(c.getFaculty())).map(c->c.getCourseCode()).collect(Collectors.toList());
 			if(CollectionUtil.isNotEmpty(engLishCourseCodes) && engLishCourseCodes.contains(courseCode)) {
@@ -350,32 +370,29 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 						throw new ParameterValidateException("已选一门英语课,不能再申请!");
 					}
 				}
+				if(CollectionUtil.isNotEmpty(electionApplys)) {
+		        	List<ElectionApply> engLishElectionApplys = electionApplys.stream().filter(c->Constants.ENGLISH_MODEL.equals(c.getMode())).collect(Collectors.toList());
+		        	if(isRetake) {
+						if(engLishElectionApplys.size()>=Constants.TOW) {
+							throw new ParameterValidateException("已申请两门英语课,不能再申请!");
+						}
+					}else {
+			    		if(CollectionUtil.isNotEmpty(engLishElectionApplys)) {
+							throw new ParameterValidateException("已申请一门英语课,不能再申请!");
+						}
+					}
+				}
 			}
 			if(CollectionUtil.isNotEmpty(PECourses) && PECourses.contains(courseCode)) {
 				List<String> peTakeCourse = list.stream().filter(c->c!=null).filter(c->PECourses.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
-				if(CollectionUtil.isNotEmpty(peTakeCourse)) {
+				if(isHavePERule.equals(Constants.FIRST)&&CollectionUtil.isNotEmpty(peTakeCourse)) {
 					throw new ParameterValidateException("已选一门体育课,不能再申请!");
 				}
-			}
-		}
-		//查询申请的体育、英语课
-		List<Integer> modeList = Arrays.asList(2,3);
-        Example egPeExample = new Example(ElectionApply.class);
-        egPeExample.createCriteria().andEqualTo("studentId", studentId).andEqualTo("calendarId", calendarId).andIn("mode", modeList);
-        List<ElectionApply> electionApplys= electionApplyDao.selectByExample(egPeExample);
-        if(CollectionUtil.isNotEmpty(electionApplys)) {
-        	List<ElectionApply> peElectionApplys = electionApplys.stream().filter(c->Constants.PE_MODEL.equals(c.getMode())).collect(Collectors.toList());
-			if(CollectionUtil.isNotEmpty(peElectionApplys)) {
-				throw new ParameterValidateException("已申请一门体育课,不能再申请!");
-			}
-        	List<ElectionApply> engLishElectionApplys = electionApplys.stream().filter(c->Constants.ENGLISH_MODEL.equals(c.getMode())).collect(Collectors.toList());
-        	if(isRetake) {
-				if(engLishElectionApplys.size()>=Constants.TOW) {
-					throw new ParameterValidateException("已申请两门英语课,不能再申请!");
-				}
-			}else {
-	    		if(CollectionUtil.isNotEmpty(engLishElectionApplys)) {
-					throw new ParameterValidateException("已申请一门英语课,不能再申请!");
+		        if(CollectionUtil.isNotEmpty(electionApplys)) {
+		        	List<ElectionApply> peElectionApplys = electionApplys.stream().filter(c->Constants.PE_MODEL.equals(c.getMode())).collect(Collectors.toList());
+					if(isHavePERule.equals(Constants.FIRST)&&CollectionUtil.isNotEmpty(peElectionApplys)) {
+						throw new ParameterValidateException("已申请一门体育课,不能再申请!");
+					}
 				}
 			}
 		}
