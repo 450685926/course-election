@@ -396,11 +396,12 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		//		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
-		String projectId = session.getCurrentManageDptId();
-		//本地调试部门id
-		String studentId = dto.getStudentId();
+//		String projectId = session.getCurrentManageDptId();
+        String projectId = "1";
 
 		ElcMutualCrossStuDto stuDto = new ElcMutualCrossStuDto();
+        dtoPotting(dto,stuDto);
+        String studentId = dto.getStudentId();
 		stuDto.setCalendarId(dto.getCalendarId());
 		stuDto.setStudentId(studentId);
 		//返回单个po对象在切换学期时代码报错（切换未上送学生id所以返回多条记录），故统一使用list接收
@@ -648,5 +649,17 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		pageInfo.setPages(totalPages);
 		pageInfo.setNavigateLastPage(totalPages > number ? number + 1 : totalPages);
 	}
+
+	private void dtoPotting(ElcMutualApplyDto dto,ElcMutualCrossStuDto stuDto){
+
+        //增加批量学生 11685
+        List<String> studentIdList = dto.getStudentIdList();
+        if(studentIdList != null  && studentIdList.size() > 0){
+            //studentIdList列表是标志，如果前端上送了studentIdList，则原来的studentId被设置为null
+            dto.setStudentId(null);
+            //增加批量学生 11685
+            stuDto.setStudentIdList(studentIdList);
+        }
+    }
 
 }

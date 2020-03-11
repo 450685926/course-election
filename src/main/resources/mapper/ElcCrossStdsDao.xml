@@ -75,6 +75,12 @@
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 				and STUDENT_ID_ = #{studentId}
 			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentIdList)">
+				AND STUDENT_ID_ in
+				<foreach item="studentId" collection="studentIdList" open="(" close=")" separator=",">
+					#{studentId}
+				</foreach>
+			</if>
 		</where>
 	</select>
 	<select id="findFaculty"  parameterType = "java.lang.String" resultType="com.server.edu.common.entity.Department" >

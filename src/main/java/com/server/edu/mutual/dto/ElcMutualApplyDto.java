@@ -108,6 +108,8 @@ public class ElcMutualApplyDto extends ElcMutualApply {
     //学期差值
     private  Long semester;
 
+    private List<String> studentIdList;
+
 	public String getCourseSelectionMark() {
 		return courseSelectionMark;
 	}
@@ -315,6 +317,14 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 
 	public void setNoStatus(Integer noStatus) {
 		this.noStatus = noStatus;
+	}
+
+	public List<String> getStudentIdList() {
+		return studentIdList;
+	}
+
+	public void setStudentIdList(List<String> studentIdList) {
+		this.studentIdList = studentIdList;
 	}
 
 	public ElcMutualApplyDto() {

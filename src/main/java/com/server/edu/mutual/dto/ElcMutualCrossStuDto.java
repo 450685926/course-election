@@ -72,6 +72,9 @@ public class ElcMutualCrossStuDto extends ElcCrossStds{
      */
     private String leaveSchool;
 
+    //学号集合
+	private List<String> studentIdList;
+
 	public String getDegreeType() {
 		return degreeType;
 	}
@@ -199,6 +202,14 @@ public class ElcMutualCrossStuDto extends ElcCrossStds{
 
 	public void setKeyWords(String keyWords) {
 		this.keyWords = keyWords;
+	}
+
+	public List<String> getStudentIdList() {
+		return studentIdList;
+	}
+
+	public void setStudentIdList(List<String> studentIdList) {
+		this.studentIdList = studentIdList;
 	}
 
 	public ElcMutualCrossStuDto() {
