@@ -131,27 +131,28 @@ public class EmailSend {
 	 * @param calendarName
 	 * @throws Exception
 	 */
-	public void sendEmail(PaidMail bean, String calendarName)
-			throws Exception {
-
-		// 生成发送邮件的内容
-		String content = bean.getStudentName() + "(" +
-				bean.getStudentId() + "),您好：\r\n" + "       "
-				+ calendarName + " 重修课程：" + bean.getCourseCode()
-				+ bean.getCourseName() + "\r\n未缴费";
-
-
+	public void sendEmail(List<PaidMail> list, String calendarName)
+	{
 		List<EmailEntity> emailEntityList = new ArrayList<>();
 
-		// 构建发送邮件的实体
-		EmailEntity emailEntity = new EmailEntity();
-		// 邮件实体类
-		emailEntity.setSubject("重修缴费邮件通知");
-		emailEntity.setText(content);
-		List<String> emailList = new ArrayList<>(1);
-		emailList.add(bean.getMail());
-		emailEntity.setTos(emailList);
-		emailEntityList.add(emailEntity);
+		for (PaidMail bean : list) {
+			// 生成发送邮件的内容
+			String content = bean.getStudentName() + "(" +
+					bean.getStudentId() + "),您好：\r\n" + "       "
+					+ calendarName + " 重修课程：" + bean.getCourseCode()
+					+ bean.getCourseName() + "\r\n未缴费";
+
+
+			// 构建发送邮件的实体
+			EmailEntity emailEntity = new EmailEntity();
+			// 邮件实体类
+			emailEntity.setSubject("重修缴费邮件通知");
+			emailEntity.setText(content);
+			List<String> emailList = new ArrayList<>(1);
+			emailList.add(bean.getMail());
+			emailEntity.setTos(emailList);
+			emailEntityList.add(emailEntity);
+		}
 
 		try {
 			// 调用邮件发送服务发送邮件

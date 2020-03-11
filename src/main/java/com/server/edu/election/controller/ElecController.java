@@ -266,4 +266,12 @@ public class ElecController
         return RestResult.successData(publicCourse);
     }
 
+    @ApiOperation(value = "重修缴费邮件发送")
+    @PostMapping("/sendEmail")
+    public RestResult<?> sendEmail()
+    {
+        logger.info("send Email !!!");
+        elecService.sendEmail();
+        return RestResult.success();
+    }
 }

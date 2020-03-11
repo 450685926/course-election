@@ -3,6 +3,7 @@ package com.server.edu.election.dao;
 import java.util.List;
 import java.util.Set;
 
+import com.server.edu.election.dto.PaidMail;
 import com.server.edu.election.vo.*;
 import org.apache.ibatis.annotations.Param;
 
@@ -400,4 +401,6 @@ public interface ElcCourseTakeDao
 
     /**获取该轮次下所有的课程信息*/
     List<String> listTeachingCourse(Long roundId);
+
+    List<PaidMail> findStudent(int index, Long currentCalendar);
 }

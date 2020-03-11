@@ -2844,4 +2844,16 @@
         join course_open_t t4 on t3.COURSE_OPEN_ID_ = t4.ID_
         where t1.ROUNDS_ID_ = #{roundId}
     </select>
+
+    <select id="findStudent" resultType="com.server.edu.election.dto.PaidMail">
+        select t1.STUDENT_ID_ studentId, t1.COURSE_CODE_ courseCode,
+        st.NAME_ studentName,st.EMAIL_ mail,
+        co.NAME_ courseName
+        from elc_course_takes_t_${index} t1
+        join student_t st on t1.STUDENT_ID_ = st.STUDENT_CODE_
+        join course_t co on t1.COURSE_CODE_ = co.CODE_
+        where t1.CALENDAR_ID_ = #{calendarId}
+        and t1.PAID_ = 0
+        and st.MANAGER_DEPT_ID_ = 1
+    </select>
 </mapper>
