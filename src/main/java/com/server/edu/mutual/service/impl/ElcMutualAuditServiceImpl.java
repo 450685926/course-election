@@ -18,6 +18,7 @@ import com.server.edu.mutual.entity.ElcMutualApplyCopyVo;
 import com.server.edu.mutual.rpc.BaseresServiceExamInvoker;
 import com.server.edu.mutual.rpc.CultureSerivceInvokerToMutual;
 import com.server.edu.mutual.service.ElcMutualCommonService;
+import io.swagger.models.auth.In;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -456,6 +457,32 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	@Override
 	public List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto) {
 		return elcMutualApplyDao.getOpenCollegeAuditList(dto);
+	}
+
+	/**
+	 * 批量审核
+	 * */
+	@Override
+	public Integer batchAduit(ElcMutualApplyDto dto) {
+		//表示是否操作成功 0未成功 1成功
+		Integer successSign = 0;
+		if(null != dto.getIds() && dto.getIds().length>0 &&
+			null != dto.getStudentIds() && dto.getStudentIds().length>0 &&
+			null != dto.getCourseCodes() && dto.getCourseCodes().length>0){
+			for (int i = 0; i < dto.getIds().length; i++) {
+				//设置id
+				dto.setId(Long.parseLong(String.valueOf(dto.getIds()[i])));
+				//设置学号
+				dto.setStudentId(dto.getStudentIds()[i]);
+				//设置课程code
+				dto.setCourseCode(dto.getCourseCodes()[i]);
+				int aduit = aduit(dto);
+				if(aduit>0){
+					successSign = 1;
+				}
+			}
+		}
+		return successSign;
 	}
 
 	/**

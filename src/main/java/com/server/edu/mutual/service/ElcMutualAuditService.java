@@ -56,5 +56,7 @@ public interface ElcMutualAuditService {
 	 * @return
 	 */
 	List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto);
+
+	Integer batchAduit(ElcMutualApplyDto dto);
 	
 }

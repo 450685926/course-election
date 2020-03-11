@@ -96,6 +96,15 @@ public class ElcMutualApplyDto extends ElcMutualApply {
     //可管理的学院（当前学院+管理的学院）
     private List<String> collegeList;
 
+    //主键集合
+	private Integer[] ids;
+
+	//学生集合
+	private String[] studentIds;
+
+	//课程集合
+	private String[] courseCodes;
+
     //学期差值
     private  Long semester;
 
@@ -275,8 +284,30 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 	public void setIdSign(int idSign) {
 		this.idSign = idSign;
 	}
-	
-	
+
+	public Integer[] getIds() {
+		return ids;
+	}
+
+	public void setIds(Integer[] ids) {
+		this.ids = ids;
+	}
+
+	public String[] getStudentIds() {
+		return studentIds;
+	}
+
+	public void setStudentIds(String[] studentIds) {
+		this.studentIds = studentIds;
+	}
+
+	public String[] getCourseCodes() {
+		return courseCodes;
+	}
+
+	public void setCourseCodes(String[] courseCodes) {
+		this.courseCodes = courseCodes;
+	}
 
 	public Integer getNoStatus() {
 		return noStatus;
