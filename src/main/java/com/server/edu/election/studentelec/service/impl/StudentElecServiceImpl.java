@@ -10,6 +10,7 @@ import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.PaidMail;
 import com.server.edu.election.dto.StudentChangeDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.query.PublicCourseQuery;
@@ -22,6 +23,7 @@ import com.server.edu.election.studentelec.context.bk.*;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.utils.*;
+import com.server.edu.election.util.EmailSend;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -893,5 +895,20 @@ public class StudentElecServiceImpl extends AbstractCacheService
             list.add(publicCourseTag);
         }
         return list;
+    }
+
+    @Override
+    public void sendEmail() {
+        Long currentCalendar =
+                BaseresServiceInvoker.getCurrentCalendar();
+        SchoolCalendarVo schoolCalendar =
+                BaseresServiceInvoker.getSchoolCalendarById(currentCalendar);
+        String fullName = schoolCalendar.getFullName();
+
+        int index = TableIndexUtil.getIndex(currentCalendar);
+        List<PaidMail> list = takeDao.findStudent(index, currentCalendar);
+        EmailSend emailSend = new EmailSend();
+        emailSend.sendEmail(list, fullName);
+
     }
 }

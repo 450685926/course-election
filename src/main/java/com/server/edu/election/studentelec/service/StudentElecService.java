@@ -69,4 +69,6 @@ public interface StudentElecService
     AsyncResult asyncLoad();
 
     List<PublicCourseTag> getPublicCourse(PublicCourseQuery query);
+
+    void sendEmail();
 }
