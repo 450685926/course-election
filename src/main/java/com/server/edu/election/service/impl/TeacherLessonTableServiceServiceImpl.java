@@ -1220,7 +1220,7 @@ public class TeacherLessonTableServiceServiceImpl
                 time.setClassName(classTeacherDto.getClassName());
                 time.setTeachingClassId(classTeacherDto.getTeachingClassId());
                 time.setPopover( new StringBuilder().append(String.format("[%s-%s节] %s %s(%s) %s(%s) %s",
-                    timeStart,timeEnd,weekNumStr,classTeacherDto.getCourseCode(),classTeacherDto.getCourseName(),teacherName,teacherCode,ClassroomCacheUtil.getRoomName(roomID))).append(" ").toString());
+                    timeStart,timeEnd,weekNumStr,classTeacherDto.getCourseName(),classTeacherDto.getCourseCode(),teacherName,teacherCode,ClassroomCacheUtil.getRoomName(roomID))).append(" ").toString());
                 list.add(time);
             }
         }
