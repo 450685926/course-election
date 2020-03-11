@@ -350,25 +350,21 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
         boolean hasRetakeCourse = false;
-        
-        for (ElecTeachClassDto data : teachClassIds)
+        List<TeachingClassCache> teachingClassCaches = getNotEnglishClass(context, teachClassIds,round);
+        for (TeachingClassCache teachClass : teachingClassCaches)
         {
-            Long teachClassId = data.getTeachClassId();
-            TeachingClassCache teachClass =
-                dataProvider.getTeachClass(round.getId(),
-                    data.getCourseCode(),
-                    teachClassId);
-            if (teachClass == null)
-            {
-                failedReasons.put(String.format("%s[%s]",
-                    data.getCourseCode(),
-                    data.getTeachClassCode()), "教学班不存在无法选课");
-                continue;
-            }
-            boolean checkPublicEnglish = checkPublicEnglish(context, teachClass);
-            if (!checkPublicEnglish){
-                continue;
-            }
+            Long teachClassId = teachClass.getTeachClassId();
+//            if (teachClass == null)
+//            {
+//                failedReasons.put(String.format("%s[%s]",
+//                		teachClass.getCourseCode(),
+//                		teachClass.getTeachClassCode()), "教学班不存在无法选课");
+//                continue;
+//            }
+//            boolean checkPublicEnglish = checkPublicEnglish(context, teachClass);
+//            if (!checkPublicEnglish){
+//                continue;
+//            }
             boolean allSuccess = true;
             for (AbstractElecRuleExceutorBk exceutor : exceutors)
             {
@@ -528,19 +524,6 @@ public class ElecBkServiceImpl implements ElecBkService
                             teachClass.getCourse(),
                             ElectRuleType.WITHDRAW,hasRetakeCourse);
                 }
-
-                // 删除缓存中的数据
-                Iterator<SelectedCourse> iterator = selectedCourses.iterator();
-                while (iterator.hasNext())
-                {
-                    SelectedCourse c = iterator.next();
-                    if (c.getCourse().getTeachClassId().equals(teachClassId))
-                    {
-                        iterator.remove();
-                        break;
-                    }
-                }
-                respose.getSuccessCourses().add(teachClassId);
             }
         }
     }
@@ -771,6 +754,19 @@ public class ElecBkServiceImpl implements ElecBkService
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
+        }else {
+            // 删除缓存中的数据
+            Iterator<SelectedCourse> iterator = context.getSelectedCourses().iterator();
+            while (iterator.hasNext())
+            {
+                SelectedCourse c = iterator.next();
+                if (c.getCourse().getTeachClassId().equals(teachClassId))
+                {
+                    iterator.remove();
+                    break;
+                }
+            }
+            respose.getSuccessCourses().add(teachClassId);
         }
         //更新培养的选课状态
         StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
@@ -967,6 +963,65 @@ public class ElecBkServiceImpl implements ElecBkService
                     teachClass.getCourseName()), "只能选一门公共英语课");
             return false;
         }
+
+    }
+    
+    
+    private List<TeachingClassCache> getNotEnglishClass(ElecContextBk context, List<ElecTeachClassDto> teachClassIds,ElectionRounds round) {
+    	List<TeachingClassCache> teachingClassCaches = new ArrayList<TeachingClassCache>();
+        ElecRespose respose = context.getRespose();
+        Map<String, String> failedReasons = respose.getFailedReasons();
+        //已选课程
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        //重修英语课不能超过三门（当前学期已经选择重修英语课最多只能两门，新修一门）
+        List<String> asList =
+                courseDao.getAllCoursesLevelCourse();
+        int isEngLishCount = 0;
+        for(ElecTeachClassDto data:teachClassIds) {
+        	Long teachClassId = data.getTeachClassId();
+            TeachingClassCache teachClass =
+                dataProvider.getTeachClass(round.getId(),
+                    data.getCourseCode(),
+                    teachClassId);
+            if (teachClass == null)
+            {
+                failedReasons.put(String.format("%s[%s]",
+                    data.getCourseCode(),
+                    data.getTeachClassCode()), "教学班不存在无法选课");
+                continue;
+            }
+            String courseCode = teachClass.getCourseCode();
+            // 查询不到英语课-通过
+            if (CollectionUtil.isNotEmpty(asList) && asList.contains(courseCode)) {
+            	 //判断是否是重修课
+            	isEngLishCount = isEngLishCount +1;
+                boolean isRetake = RetakeCourseUtil.isRetakeCourseBk(context, teachClass.getCourseCode());
+                if (CollectionUtil.isNotEmpty(selectedCourses)){
+                	//本学期已选公共外语课
+                    Set<SelectedCourse> engLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c.getCourse())).collect(Collectors.toSet());
+                    isEngLishCount = engLishselectedcourse.size()+isEngLishCount;
+                }
+                if(isRetake) {
+                	if(isEngLishCount>2) {
+                		failedReasons.put(String.format("%s[%s]",
+                                teachClass.getCourseCode(),
+                                teachClass.getTeachClassCode()), "最多能重修两门公共英语课");
+                		return teachingClassCaches;
+                	}
+                }else {
+                	if(isEngLishCount>1) {
+                		failedReasons.put(String.format("%s[%s]",
+                                teachClass.getCourseCode(),
+                                teachClass.getTeachClassCode()), "只能选一门公共英语课");
+                		return teachingClassCaches;
+                	}
+                }
+            }
+            teachingClassCaches.add(teachClass);
+            
+        }
+        return teachingClassCaches;
+
 
     }
 }
