@@ -270,9 +270,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 		Integer status = elcMutualApply.getStatus();
 		if (MutualApplyAuditType.DEPARTMENT.type() == dto.getAuditType().intValue()) { // 行政学院审核
-			if(!MutualApplyAuditStatus.UN_AUDITED.eq(status.intValue()) && !MutualApplyAuditStatus.DEPART_AUDITED_UN_APPROVED.eq(status.intValue())) {
-				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.auditStatusError")); 
-			}
+//			if(!MutualApplyAuditStatus.UN_AUDITED.eq(status.intValue()) && !MutualApplyAuditStatus.DEPART_AUDITED_UN_APPROVED.eq(status.intValue())) {
+//				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.auditStatusError"));
+//			}
 			
 			if (dto.getAuditFlag() == Constants.ZERO && StringUtils.isBlank(dto.getAuditReason())) {
 				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApplyAudit.auditReson")); 
@@ -290,9 +290,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 //					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.auditStatusError")); 
 				}
 			}else {   // 研究生院审核本科生
-				if(!MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.eq(status.intValue()) && !MutualApplyAuditStatus.AUDITED_UN_APPROVED.eq(status.intValue())) {
-					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.auditStatusError")); 
-				}
+//				if(!MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.eq(status.intValue()) && !MutualApplyAuditStatus.AUDITED_UN_APPROVED.eq(status.intValue())) {
+//					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.auditStatusError"));
+//				}
 			}
 			
 			if (dto.getAuditFlag() == Constants.ZERO && StringUtils.isBlank(dto.getAuditReason())) {
@@ -476,6 +476,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 				dto.setStudentId(dto.getStudentIds()[i]);
 				//设置课程code
 				dto.setCourseCode(dto.getCourseCodes()[i]);
+
+				//调用审批，进行数据审批
 				int aduit = aduit(dto);
 				if(aduit>0){
 					successSign = 1;
