@@ -396,8 +396,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		//		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
-//		String projectId = session.getCurrentManageDptId();
-        String projectId = "1";
+		String projectId = session.getCurrentManageDptId();
 
 		ElcMutualCrossStuDto stuDto = new ElcMutualCrossStuDto();
         dtoPotting(dto,stuDto);
