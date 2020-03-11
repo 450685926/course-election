@@ -979,13 +979,16 @@ public class ElecBkServiceImpl implements ElecBkService
         StudentInfoCache studentInfo = context.getStudentInfo();
         Long calendarId = round.getCalendarId();
         List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
-        List<String> selectedCourses = new ArrayList<String>();
-        if(CollectionUtil.isNotEmpty(courseTakes)) {
-        	selectedCourses = courseTakes.stream().map(ElcCourseTakeVo::getCourseCode).collect(Collectors.toList());
-        }
         List<String> asList =
                 courseDao.getAllCoursesLevelCourse();
         int isEngLishCount = 0;
+        Set<ElcCourseTakeVo> rateEngLishselectedcourse = new HashSet<>();
+        Set<ElcCourseTakeVo> normalEngLishselectedcourse = new HashSet<>();
+        if (CollectionUtil.isNotEmpty(courseTakes)){
+        	//本学期已选公共外语课
+            rateEngLishselectedcourse = courseTakes.stream().filter(c->asList.contains(c)).filter(c->Constants.SECOND.equals(c.getCourseTakeType())).collect(Collectors.toSet());
+            normalEngLishselectedcourse = courseTakes.stream().filter(c->asList.contains(c)).filter(c->Constants.FIRST.equals(c.getCourseTakeType())).collect(Collectors.toSet());
+        }
         for(ElecTeachClassDto data:teachClassIds) {
         	Long teachClassId = data.getTeachClassId();
             TeachingClassCache teachClass =
@@ -1000,29 +1003,27 @@ public class ElecBkServiceImpl implements ElecBkService
                 continue;
             }
             String courseCode = teachClass.getCourseCode();
+            int num = 0;
             // 查询不到英语课-通过
             if (CollectionUtil.isNotEmpty(asList) && asList.contains(courseCode)) {
             	 //判断是否是重修课
             	isEngLishCount = isEngLishCount +1;
                 boolean isRetake = RetakeCourseUtil.isRetakeCourseBk(context, teachClass.getCourseCode());
-                if (CollectionUtil.isNotEmpty(selectedCourses)){
-                	//本学期已选公共外语课
-                    Set<String> engLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c)).collect(Collectors.toSet());
-                    isEngLishCount = engLishselectedcourse.size()+isEngLishCount;
-                }
                 if(isRetake) {
-                	if(isEngLishCount>2) {
+                	num = rateEngLishselectedcourse.size()+isEngLishCount;
+                	if(num>2) {
                 		failedReasons.put(String.format("%s[%s]",
                                 teachClass.getCourseCode(),
                                 teachClass.getTeachClassCode()), "最多能重修两门公共英语课");
-                		return teachingClassCaches;
+                		continue;
                 	}
                 }else {
-                	if(isEngLishCount>1) {
+                	num = normalEngLishselectedcourse.size()+isEngLishCount;
+                	if(num>1) {
                 		failedReasons.put(String.format("%s[%s]",
                                 teachClass.getCourseCode(),
                                 teachClass.getTeachClassCode()), "只能选一门公共英语课");
-                		return teachingClassCaches;
+                		continue;
                 	}
                 }
             }
