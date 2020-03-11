@@ -57,17 +57,15 @@
 		t3.CODE_ teachingClassCode,
 		t3.COURSE_LABEL_ID_,
 		CL.LABEL_ AS COURSE_LABEL_NAME_,
-		GROUP_CONCAT(DISTINCT t5.TEACHER_CODE_) teacherCode
+		GROUP_CONCAT(DISTINCT t6.TEACHER_CODE_) teacherCode
 	FROM
 		course_open_t t1
 	JOIN teaching_task_t t2 ON t2.COURSE_OPEN_ID_ = t1.ID_
 	JOIN teaching_class_t t3 ON t3.TASK_ID_ = t2.ID_
 	JOIN election_rounds_cour_t t4 ON t4.TEACHING_CLASS_ID_ = t3.ID_
 	LEFT JOIN courses_label_t CL ON t3.COURSE_LABEL_ID_ = CL.ID_
-	LEFT JOIN teaching_class_teacher_t t5 ON (
-		t5.TEACHING_CLASS_ID_ = t3.ID_
-		AND t5.TYPE_ = 0
-	)
+	  LEFT JOIN teaching_class_arrange_time_t t5 on t3.ID_ = t5.TEACHING_CLASS_ID_
+	  LEFT JOIN teaching_class_arrange_room_t t6 on t5.ID_ = t6.ARRANGE_TIME_ID_
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId} and t1.DELETE_STATUS_ = 0
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
@@ -120,13 +118,15 @@
 		t4.CODE_ teachingClassCode,
 		t4.COURSE_LABEL_ID_,
 		CL.LABEL_ AS COURSE_LABEL_NAME_,
-		GROUP_CONCAT(distinct t5.TEACHER_CODE_) teacherCode
+		GROUP_CONCAT(distinct t6.TEACHER_CODE_) teacherCode
 		FROM
 			course_open_t t1
 		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
 		JOIN teaching_class_t t4 ON (t4.TASK_ID_ = t3.ID_ and t4.DELETE_STATUS_ =0)
 		LEFT JOIN courses_label_t CL ON t4.COURSE_LABEL_ID_ = CL.ID_
-		LEFT JOIN teaching_class_teacher_t t5  ON (t5.TEACHING_CLASS_ID_  = t4.ID_ AND t5.TYPE_ =0)
+	    LEFT JOIN teaching_class_arrange_time_t t5 on t4.ID_ = t5.TEACHING_CLASS_ID_
+	    LEFT JOIN teaching_class_arrange_room_t t6 on t5.ID_ = t6.ARRANGE_TIME_ID_
+		-- LEFT JOIN teaching_class_teacher_t t5  ON (t5.TEACHING_CLASS_ID_  = t4.ID_ AND t5.TYPE_ =0)
 	  	<where>
 		  	t1.CALENDAR_ID_ = #{query.calendarId}
 		  	and t1.IS_OPEN_ = 1 and t1.DELETE_STATUS_ = 0

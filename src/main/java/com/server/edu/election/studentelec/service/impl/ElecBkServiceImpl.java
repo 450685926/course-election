@@ -16,6 +16,8 @@ import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.EmailSend;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
@@ -625,6 +627,18 @@ public class ElecBkServiceImpl implements ElecBkService
         {
             List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.findElcCourse(studentId, round.getCalendarId(),TableIndexUtil.getIndex(round.getCalendarId()), teachClass.getCourseCode());
             ElcCourseTakeVo elcCourseTakeVo = elcCourseTakeVos.get(0);
+            //如果是重修，退课需要考虑是否缴费。缴过费的只有管理员可以退
+            Integer paid = elcCourseTakeVo.getPaid();
+            if(hasRetakeCourse){
+                String electionObj = round.getElectionObj();
+                if(Constants.NORMAL_MODEL.equals(paid) && !Constants.DEPART_ADMIN.equals(electionObj)){
+                    respose.getFailedReasons()
+                            .put(teachClassCode + courseName,
+                                    "该课程已经缴费,如要退课请联系管理员退课");
+                    return;
+                }
+            }
+
             turn = elcCourseTakeVo.getTurn();
             logType = ElcLogVo.TYPE_2;
             ElcCourseTake take = new ElcCourseTake();
@@ -691,7 +705,7 @@ public class ElecBkServiceImpl implements ElecBkService
             	rebuildCourseRecycle.setTurn(turn);
             	//取选课模式
             	rebuildCourseRecycle.setMode(elcCourseTakeVo.getMode());
-            	rebuildCourseRecycle.setPaid(elcCourseTakeVo.getPaid());
+            	rebuildCourseRecycle.setPaid(paid);
             	rebuildCourseRecycle.setType(Constants.FIRST);
             	rebuildCourseRecycle.setScreenLabel(null);
             	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
