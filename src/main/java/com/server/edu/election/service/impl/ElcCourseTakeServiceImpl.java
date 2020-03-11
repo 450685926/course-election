@@ -1,5 +1,7 @@
 package com.server.edu.election.service.impl;
 
+import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -22,12 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
@@ -46,7 +48,6 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.controller.ElecYjsController;
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
@@ -173,6 +174,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private SqlSessionFactory factory;
+    
+    @Autowired
+    private StringRedisTemplate strTemplate;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -2010,8 +2014,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
         
         // 更新本研互选缓存中的课程信息
-        ElecYjsController yjsController = new ElecYjsController();
-        yjsController.deleteRedisSelectedStatus(JSON.toJSONString(studentId)); 
+        String pattern = String.format(STD_STATUS, calendarId, studentId);
+    	Set<String> keys = strTemplate.keys(pattern);
+    	if (CollectionUtil.isNotEmpty(keys)) {
+    		strTemplate.delete(keys);
+		}
         
         return delSize;
     }

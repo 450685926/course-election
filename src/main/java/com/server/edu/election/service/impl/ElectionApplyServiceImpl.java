@@ -1,16 +1,17 @@
 package com.server.edu.election.service.impl;
 
-import java.util.Arrays;
+import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
+
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -80,6 +81,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	
 	@Autowired
 	private ElcMutualAuditService elcMutualAuditService;
+	
+	@Autowired
+    private StringRedisTemplate strTemplate;
     
     @Override
     public PageInfo<ElectionApplyVo> applyList(
@@ -493,8 +497,12 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             ElecStatus.Init);
 		
 		// 修改本研互选的缓存课程信息
-		ElecYjsController yjsController = new ElecYjsController();
-		yjsController.deleteRedisSelectedStatus(JSON.toJSONString(studentId));
+        String pattern = String.format(STD_STATUS, calendarId, studentId);
+    	Set<String> keys = strTemplate.keys(pattern);
+    	if (CollectionUtil.isNotEmpty(keys)) {
+    		strTemplate.delete(keys);
+		}
+
     }
 
 }
