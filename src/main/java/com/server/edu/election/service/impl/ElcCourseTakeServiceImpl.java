@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
@@ -2010,7 +2011,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         
         // 更新本研互选缓存中的课程信息
         ElecYjsController yjsController = new ElecYjsController();
-        yjsController.deleteRedisSelectedStatus(studentId);
+        yjsController.deleteRedisSelectedStatus(JSON.toJSONString(studentId)); 
         
         return delSize;
     }

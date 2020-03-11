@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -493,7 +494,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 		
 		// 修改本研互选的缓存课程信息
 		ElecYjsController yjsController = new ElecYjsController();
-		yjsController.deleteRedisSelectedStatus(studentId);
+		yjsController.deleteRedisSelectedStatus(JSON.toJSONString(studentId));
     }
 
 }
