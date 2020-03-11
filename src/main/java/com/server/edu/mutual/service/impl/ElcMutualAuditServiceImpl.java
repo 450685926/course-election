@@ -290,9 +290,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 //					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.auditStatusError")); 
 				}
 			}else {   // 研究生院审核本科生
-//				if(!MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.eq(status.intValue()) && !MutualApplyAuditStatus.AUDITED_UN_APPROVED.eq(status.intValue())) {
-//					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.auditStatusError"));
-//				}
+				if(!MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.eq(status.intValue()) && !MutualApplyAuditStatus.AUDITED_UN_APPROVED.eq(status.intValue())) {
+					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.auditStatusError"));
+				}
 			}
 			
 			if (dto.getAuditFlag() == Constants.ZERO && StringUtils.isBlank(dto.getAuditReason())) {
