@@ -1130,6 +1130,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     calendarId,
                     teachingClassId);
             }
+            
+            // 修改本研互选的缓存课程信息
+            String pattern = String.format(STD_STATUS, calendarId, studentId);
+        	Set<String> keys = strTemplate.keys(pattern);
+        	if (CollectionUtil.isNotEmpty(keys)) {
+        		strTemplate.delete(keys);
+    		}
         }
         if (CollectionUtil.isNotEmpty(logList))
         {

@@ -1,7 +1,5 @@
 package com.server.edu.election.service.impl;
 
-import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -496,15 +494,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             .setElecApplyCourse(studentId, electionApplys);
         ElecContextUtil.setElecStatus(calendarId,
         		studentId,
-            ElecStatus.Init);
-		
-		// 修改本研互选的缓存课程信息
-        String pattern = String.format(STD_STATUS, calendarId, studentId);
-    	Set<String> keys = strTemplate.keys(pattern);
-    	if (CollectionUtil.isNotEmpty(keys)) {
-    		strTemplate.delete(keys);
-		}
-
+            ElecStatus.Init);		
     }
 
 }
