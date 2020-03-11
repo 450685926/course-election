@@ -2,6 +2,7 @@ package com.server.edu.election.util;
 
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.EmailEntity;
+import com.server.edu.election.dto.PaidMail;
 import com.server.edu.election.entity.RemindTimeBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +123,44 @@ public class EmailSend {
 			e.printStackTrace();
 		}
 		return day;
+	}
+
+	/**
+	 * 重修缴费提醒发邮件
+	 * @param bean
+	 * @param calendarName
+	 * @throws Exception
+	 */
+	public void sendEmail(PaidMail bean, String calendarName)
+			throws Exception {
+
+		// 生成发送邮件的内容
+		String content = bean.getStudentName() + "(" +
+				bean.getStudentId() + "),您好：\r\n" + "       "
+				+ calendarName + " 重修课程：" + bean.getCourseCode()
+				+ bean.getCourseName() + "\r\n未缴费";
+
+
+		List<EmailEntity> emailEntityList = new ArrayList<>();
+
+		// 构建发送邮件的实体
+		EmailEntity emailEntity = new EmailEntity();
+		// 邮件实体类
+		emailEntity.setSubject("重修缴费邮件通知");
+		emailEntity.setText(content);
+		List<String> emailList = new ArrayList<>(1);
+		emailList.add(bean.getMail());
+		emailEntity.setTos(emailList);
+		emailEntityList.add(emailEntity);
+
+		try {
+			// 调用邮件发送服务发送邮件
+			LOG.info("EmailSend.sendEmail() send email");
+			String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+			LOG.info("sendStatisticsEmail() error mess: {}", e);
+		}
 	}
 
 }
