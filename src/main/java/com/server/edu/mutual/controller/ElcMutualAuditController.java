@@ -123,6 +123,20 @@ public class ElcMutualAuditController {
         int result =elcMutualAuditService.aduit(dto);
         return RestResult.successData(result);
     }
+
+    /**
+     * 批量审核
+     * @param dto
+     * @return
+     * */
+    @ApiOperation(value = "批量审核")
+    @PostMapping("/batchAudit")
+    public RestResult<Integer> batchAduit(@RequestBody ElcMutualApplyDto dto) throws Exception{
+        LOG.info("batchAudit.start");
+        Integer result = elcMutualAuditService.batchAduit(dto);
+        return RestResult.successData(result);
+    }
+
     
     /**
      *互选代理申请
