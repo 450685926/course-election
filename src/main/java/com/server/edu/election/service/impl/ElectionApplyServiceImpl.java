@@ -118,6 +118,10 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	@Override
 	public PageResult<ElectionApplyVo> applyUnList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
+		//正常模式下可以处理所有课程
+        if(Constants.NORMAL_MODEL.equals(dto.getMode())){
+            dto.setMode(null);
+        }
         Session session = SessionUtils.getCurrentSession();
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ElectionApplyVo> applylist = electionApplyDao.applyUnList(dto);
@@ -152,6 +156,10 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	@Override
 	public PageResult<ElectionApplyVo> alreadyApplyList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
+        //正常模式下可以处理所有课程
+        if(Constants.NORMAL_MODEL.equals(dto.getMode())){
+            dto.setMode(null);
+        }
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ElectionApplyVo> applylist = electionApplyDao.alreadyApplyList(dto);
 		Session session = SessionUtils.getCurrentSession();
