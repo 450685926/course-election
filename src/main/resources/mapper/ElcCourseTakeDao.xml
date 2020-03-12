@@ -2895,4 +2895,8 @@
         </foreach>
     </select>
 
+    <select id="findRebuildFee"  resultMap="BaseResultMap">
+      select * from elc_course_takes_t_${index}
+      where CALENDAR_ID_ = #{take.calendarId} and STUDENT_ID_ = #{take.studentId} and TEACHING_CLASS_ID_ =#{take.teachingClassId}
+    </select>
 </mapper>
