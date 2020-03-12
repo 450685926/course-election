@@ -175,4 +175,11 @@ public interface ElcResultService
     List<TeachingClassVo> getTeachingClass(Long calendarId, String classCode);
 
     void bindClass(Long id, Long bindClassId);
+
+	/**
+	 * 查询教学班选课限制
+	 * @param teachingClassId
+	 * @param classVo
+	 */
+    TeachingClassLimitVo elecLimitQuery(Long teachingClassId);
 }

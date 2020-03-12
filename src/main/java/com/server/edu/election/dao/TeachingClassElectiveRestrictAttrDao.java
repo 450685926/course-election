@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.entity.Student;
 import org.apache.ibatis.annotations.Param;
 
 import com.server.edu.election.dto.SuggestProfessionDto;
@@ -54,4 +55,5 @@ public interface TeachingClassElectiveRestrictAttrDao
     		@Param("teachingClassIds") List<Long> teachingClassIds);
 
     void deleteByClassId(Long classId);
+
 }
