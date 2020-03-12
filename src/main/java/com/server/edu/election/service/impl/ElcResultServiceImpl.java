@@ -63,7 +63,6 @@ import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.ElcClassEditAuthority;
-import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcScreeningLabel;
 import com.server.edu.election.entity.ElcTeachingClassBind;
@@ -74,7 +73,6 @@ import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.entity.TeachingClassChange;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
-import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
@@ -2061,7 +2059,7 @@ public class ElcResultServiceImpl implements ElcResultService
 
     @Override
     public TeachingClassLimitVo elecLimitQuery(Long teachingClassId) {
-        List<String> student = classElectiveRestrictAttrDao.selectRestrictStudent(teachingClassId);
+        List<String> studentId = classElectiveRestrictAttrDao.selectRestrictStudent(teachingClassId);
         List<SuggestProfessionDto> professionDtos = classElectiveRestrictAttrDao.selectRestrictProfession(teachingClassId);
         Example example = new Example(TeachingClassElectiveRestrictAttr.class);
         Example.Criteria criteria = example.createCriteria();
@@ -2073,7 +2071,7 @@ public class ElcResultServiceImpl implements ElcResultService
         }else{
             limitVo.setElectiveRestrictAttr(new TeachingClassElectiveRestrictAttr());
         }
-        limitVo.setStudent(student);
+        limitVo.setStudentId(studentId);
         limitVo.setElectiveProf(professionDtos);
         return limitVo;
     }

@@ -2,7 +2,6 @@ package com.server.edu.election.vo;
 
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.dto.SuggestProfessionDto;
-import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
 import com.server.edu.election.entity.TeachingClassSuggestStudent;
@@ -28,16 +27,16 @@ public class TeachingClassLimitVo
 	 */
 	private List<TeachingClassSuggestStudent> lstSuggestStud;
 
-	private List<String> student;
+	private List<String> studentId;
 
 	private List<SuggestProfessionDto> electiveProf;
 
-	public List<String> getStudent() {
-		return student;
+	public List<String> getStudentId() {
+		return studentId;
 	}
 
-	public void setStudent(List<String> student) {
-		this.student = student;
+	public void setStudentId(List<String> studentId) {
+		this.studentId = studentId;
 	}
 
 	public List<SuggestProfessionDto> getElectiveProf() {
