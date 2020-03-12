@@ -36,4 +36,6 @@ public interface CourseOpenDao extends Mapper<CourseOpen> {
 			@Param("projectId")String projectId);
 
 	List<TeachingClassCache> findClassInfo(@Param("teachClassIds") List<Long> teachClassIds);
+	
+	List<String> getEnglishCourses(@Param("calendarId") Long calendarId,@Param("faculty") String faculty);
 }

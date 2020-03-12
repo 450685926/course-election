@@ -186,4 +186,16 @@
 		</foreach>
 		group by t1.ID_
 	</select>
+	
+    <select id="getEnglishCourses" resultType="java.lang.String">
+		SELECT
+		t1.COURSE_CODE_
+		FROM
+		course_open_t t1
+		WHERE
+		    t1.DELETE_STATUS_ = 0
+	    and t1.PROJ_ID_ = 1
+		and t1.CALENDAR_ID_ = #{calendarId}
+		and t1.FACULTY_ = #{faculty}
+	</select>
 </mapper>

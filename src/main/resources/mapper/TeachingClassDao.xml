@@ -996,6 +996,7 @@
         SELECT DISTINCT
         t1.ID_ id,
         t1.CODE_ code,
+        t3.COURSE_CODE_ courseCode,
         t3.COURSE_NAME_ courseName,
         t3.CALENDAR_ID_ calendarId
         FROM
