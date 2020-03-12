@@ -1001,9 +1001,15 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                         elcBill.setFlag(("4".equals(payResultDto.getPaystate())?true:false));
                         elcBillList.add(elcBill);
                     });
-                    courseTakeDao.setPayStatusBatch(payResultDtoList);
+
+                    if(CollectionUtil.isNotEmpty(payResultDtoList)){
+                        courseTakeDao.setPayStatusBatch(payResultDtoList);
+                    }
                     //账单金额已缴金额处理
-                    elcBillDao.updatePayBatch(elcBillList);
+                    if(CollectionUtil.isNotEmpty(elcBillList)){
+
+                        elcBillDao.updatePayBatch(elcBillList);
+                    }
                 }
             }
         }
