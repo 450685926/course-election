@@ -2,9 +2,16 @@ package com.server.edu.mutual.service.impl;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,6 +62,9 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
 
     @Autowired
     private ElcMutualCommonService elcMutualCommonService;
+
+    @Autowired
+    private ReportManagementService managementService;
     
     /**
      * 文件存储路径
@@ -66,11 +76,12 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
     public PageInfo<ElcMutualListVo> getMutualStuList(PageCondition<ElcMutualListDto> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 
-        Session session = SessionUtils.getCurrentSession();
+//        Session session = SessionUtils.getCurrentSession();
 
 //        String faculty = session.getFaculty();
 
-        String projectId = session.getCurrentManageDptId();
+//        String projectId = session.getCurrentManageDptId();
+        String projectId ="1";
 
         ElcMutualListDto dto = condition.getCondition();
 
@@ -81,24 +92,82 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         }
 
         // 教务员查看本学院申请了本研互选选课的学生和申请了本学院开设课程的学生
-        boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
-        if (isAcdemicDean) {
-            List<String> deptIds = SessionUtils.getCurrentSession().
-                    getGroupData().get(GroupDataEnum.department.getValue());
-
-            if (dto.getProjectIds().contains(projectId)) {
-                dto.setColleges(deptIds);  // 学生行政学院
-            } else {
-                dto.setOpenColleges(deptIds);  // 开课学院
-            }
-        }
+//        boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
+        boolean isAcdemicDean = false;
+//        if (isAcdemicDean) {
+//            List<String> deptIds = SessionUtils.getCurrentSession().
+//                    getGroupData().get(GroupDataEnum.department.getValue());
+//
+//            if (dto.getProjectIds().contains(projectId)) {
+//                dto.setColleges(deptIds);  // 学生行政学院
+//            } else {
+//                dto.setOpenColleges(deptIds);  // 开课学院
+//            }
+//        }
         LOG.info("=======修读类型的courseTakeType==========" + dto.getCourseTakeType());
         List<ElcMutualListVo> list = elcMutualListDao.getMutualStuList(dto);
+        //获取学生列表
+        List<String> stuIds = list.stream().map(ElcMutualListVo::getStudentId).collect(Collectors.toList());
+
+        Map<String,List<StudnetTimeTable>>  mapBK = new HashMap<>();
+        Map<String,StudentSchoolTimetabVo>  mapYJS = new HashMap<>();
+        for (String id : stuIds) {
+            if (dto.getProjectIds().contains(Constants.PROJ_UNGRADUATE)) {
+                //本科生教学安排
+                if(null==mapBK.get(id)){
+                    List<StudnetTimeTable> schoolTimetab =
+                            managementService.findStudentTimetab(dto.getCalendarId(), id);
+                    mapBK.put(id, schoolTimetab);
+                }
+            } else {
+                //研究生教学安排
+                if(null==mapYJS.get(id)){
+                    StudentSchoolTimetabVo schoolTimetab =
+                            managementService.findSchoolTimetab2(dto.getCalendarId(), id);
+                    mapYJS.put(id, schoolTimetab);
+                }
+            }
+        }
+
         //获取教学安排
         for(ElcMutualListVo vo:list) {
         	if(org.apache.commons.lang3.StringUtils.isNotEmpty(String.valueOf(dto.getCalendarId()))
         			&& org.apache.commons.lang3.StringUtils.isNotEmpty(vo.getStudentId())
         			&& org.apache.commons.lang3.StringUtils.isNotEmpty(vo.getCourseCode())) {
+        	    if(dto.getProjectIds().contains(Constants.PROJ_UNGRADUATE)){
+        	        //本科生教学安排
+                    List<StudnetTimeTable> newList= new ArrayList<>();
+
+                    List<StudnetTimeTable> schoolTimetab = mapBK.get(vo.getStudentId());
+                    if(CollectionUtils.isNotEmpty(schoolTimetab)){
+
+                        for (StudnetTimeTable st : schoolTimetab) {
+                            if(vo.getCourseCode().equals(st.getCourseCode())){
+                                newList.add(st);
+                            }
+                        }
+                    }
+                    vo.setStudnetTimeTable(newList);
+                } else {
+        	        //研究生教学安排
+                    List<StudentSchoolTimetab> newList= new ArrayList<>();
+
+                    StudentSchoolTimetabVo schoolTimetab = mapYJS.get(vo.getStudentId());
+                    List<StudentSchoolTimetab> listTables = schoolTimetab.getList();
+                    for (StudentSchoolTimetab st : listTables) {
+                        if(vo.getCourseCode().equals(st.getCourseCode())){
+                            newList.add(st);
+                        }
+                    }
+                    vo.setSchoolTimetab(newList);
+                }
+//                List<StudnetTimeTable> schoolTimetab =
+//                        managementService.findStudentTimetab(dto.getCalendarId(), vo.getStudentId());
+//                for (StudnetTimeTable st : schoolTimetab) {
+//                    if(vo.getCourseCode().equals(st.getCourseCode())){
+//                        vo.setSchoolTimetab(schoolTimetab);
+//                    }
+//                }
         		ElcCourseTakeVo elcCourseTake = getElcCourseTake(String.valueOf(dto.getCalendarId()),vo.getStudentId(),vo.getCourseCode());
             	List<TimeAndRoom> timeTableList = new ArrayList<>();
             	if(null != elcCourseTake) {
