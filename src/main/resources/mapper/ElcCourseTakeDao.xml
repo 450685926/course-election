@@ -2857,7 +2857,7 @@
         and t1.COURSE_TAKE_TYPE_ = 2
         and st.MANAGER_DEPT_ID_ = 1
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noPayStudent)">
-        and st.STUDENT_CODE_ not EXISTS
+        and st.STUDENT_CODE_ not in
             <foreach collection="noPayStudent" item="studentId" separator="," open="(" close=")">
                 #{studentId}
             </foreach>
