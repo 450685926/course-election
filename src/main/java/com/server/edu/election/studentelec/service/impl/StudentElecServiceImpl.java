@@ -3,6 +3,8 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
@@ -904,11 +906,19 @@ public class StudentElecServiceImpl extends AbstractCacheService
         SchoolCalendarVo schoolCalendar =
                 BaseresServiceInvoker.getSchoolCalendarById(currentCalendar);
         String fullName = schoolCalendar.getFullName();
-
         int index = TableIndexUtil.getIndex(currentCalendar);
-        List<PaidMail> list = takeDao.findStudent(index, currentCalendar);
-        EmailSend emailSend = new EmailSend();
-        emailSend.sendEmail(list, fullName);
+
+        PageInfo<PaidMail> page = new PageInfo<>();
+        page.setNextPage(1);
+        page.setHasNextPage(true);
+
+        while (page.isHasNextPage()){
+            PageHelper.startPage(page.getNextPage(),1000);
+            List<PaidMail> list = takeDao.findStudent(index, currentCalendar);
+            page = new PageInfo<>(list);
+            EmailSend emailSend = new EmailSend();
+            emailSend.sendEmail(list, fullName);
+        }
 
     }
 }

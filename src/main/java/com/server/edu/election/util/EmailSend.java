@@ -4,6 +4,7 @@ import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.EmailEntity;
 import com.server.edu.election.dto.PaidMail;
 import com.server.edu.election.entity.RemindTimeBean;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +128,7 @@ public class EmailSend {
 
 	/**
 	 * 重修缴费提醒发邮件
-	 * @param bean
+	 * @param list
 	 * @param calendarName
 	 * @throws Exception
 	 */
@@ -136,6 +137,11 @@ public class EmailSend {
 		List<EmailEntity> emailEntityList = new ArrayList<>();
 
 		for (PaidMail bean : list) {
+			String mail = bean.getMail();
+			if (StringUtils.isBlank(mail)) {
+				continue;
+			}
+
 			// 生成发送邮件的内容
 			String content = bean.getStudentName() + "(" +
 					bean.getStudentId() + "),您好：\r\n" + "       "
@@ -149,7 +155,8 @@ public class EmailSend {
 			emailEntity.setSubject("重修缴费邮件通知");
 			emailEntity.setText(content);
 			List<String> emailList = new ArrayList<>(1);
-			emailList.add(bean.getMail());
+//			emailList.add(mail);
+			emailList.add("gmlic@isoftstone.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
 		}
