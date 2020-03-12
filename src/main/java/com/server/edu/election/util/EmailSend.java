@@ -4,6 +4,7 @@ import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.EmailEntity;
 import com.server.edu.election.dto.PaidMail;
 import com.server.edu.election.entity.RemindTimeBean;
+import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +135,7 @@ public class EmailSend {
 	 */
 	public void sendEmail(List<PaidMail> list, String calendarName)
 	{
-		List<EmailEntity> emailEntityList = new ArrayList<>(1000);
+		List<EmailEntity> emailEntityList = new ArrayList<>(100);
 
 		for (PaidMail bean : list) {
 			String mail = bean.getMail();
@@ -164,7 +165,10 @@ public class EmailSend {
 		try {
 			// 调用邮件发送服务发送邮件
 			LOG.info("EmailSend.sendEmail() send email");
-			String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+			if (CollectionUtil.isNotEmpty(emailEntityList)) {
+				String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+			}
+
 		} catch (RestClientException e) {
 			e.printStackTrace();
 			LOG.info("sendStatisticsEmail() error mess: {}", e);
