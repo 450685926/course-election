@@ -339,68 +339,78 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		String projectId = session.getCurrentManageDptId();
 
 		int result = Constants.ZERO;
-		
-		// 校验学生是否可以申请互选课程
-        if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
-            ElcMutualApplyDto dto2 = new ElcMutualApplyDto();
-            dto2.setCalendarId(dto.getCalendarId());
-            dto2.setCategory(dto.getCategory());
-            dto2.setMutualCourseIds(Arrays.asList(dto.getMutualCourseId()));
-            dto2.setMode(dto.getMode());
-            //初始化工具类
-            MutualApplyJugeUtil mutualApplyJugeUtil = new MutualApplyJugeUtil(elcMutualApplySwitchDao,elcMutualApplyDao);
-            //Boolean isApplyMutualCourseFlag = mutualApplyJugeUtil.jugeApplyMutualCourses(dto2, projectId, dto.getStudentId());
-            LOG.info("===========it is current user is or not Academic officer:{}",StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
-                    && !session.isAdmin() && session.isAcdemicDean());
-            //跨学科课程添加申请校验
-            Boolean judgmentAcademicApplyMutualCourses = mutualApplyJugeUtil.judgmentAcademicApplyMutualCourses(dto2, projectId, dto.getStudentId(), session);
-            LOG.info("=========isApplyMutualCourseFlag:"+judgmentAcademicApplyMutualCourses+"=========");
-            if (!judgmentAcademicApplyMutualCourses.booleanValue()) {
-                return result;
-            }
-        }
-		
-		Example example = new Example(ElcMutualApply.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("calendarId", dto.getCalendarId());
-		criteria.andEqualTo("studentId", dto.getStudentId());
-		criteria.andEqualTo("mutualCourseId", dto.getMutualCourseId());
-		List<Integer> status = new ArrayList<>();
-		status.add(MutualApplyAuditStatus.DEPART_AUDITED_UN_APPROVED.status());
-		status.add(MutualApplyAuditStatus.AUDITED_UN_APPROVED.status());
-		criteria.andNotIn("status", status);
-		ElcMutualApply elcMutualApply = elcMutualApplyDao.selectOneByExample(example);
-		if(elcMutualApply!=null) {
-    		throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("election.elcMutualApply"))); 
-		}
-		
-		/** 本科生行政学院教务员代理申请同时审核；研究生行政学院教务员只代理申请不审核  */
-		ElcMutualApply apply = new ElcMutualApply();
-		apply.setCalendarId(dto.getCalendarId());
-		apply.setStudentId(dto.getStudentId());
-		apply.setMutualCourseId(dto.getMutualCourseId());
-		apply.setUserId(session.realUid());
-        apply.setMode(dto.getMode());
-		apply.setApplyAt(new Date());
-		int count = elcMutualListDao.countElectionCourse(String.valueOf(dto.getMutualCourseId()), dto.getStudentId());
-		if(count>0) {
-			apply.setCourseTakeType(CourseTakeType.RETAKE.type());
-		}else {
-			apply.setCourseTakeType(CourseTakeType.NORMAL.type());
-		}
-		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
-			apply.setStatus(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status());
-		}else {
-			apply.setStatus(MutualApplyAuditStatus.UN_AUDITED.status());
-		}
-		result = elcMutualApplyDao.insertSelective(apply);
-		
-		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
-			ElcMutualApplyDto elcMutualApplyDto = new ElcMutualApplyDto();
-			elcMutualApplyDto.setId(apply.getId());
-			elcMutualApplyDto.setAuditType(MutualApplyAuditType.DEPARTMENT.type());
-			elcMutualApplyDto.setAuditFlag(Constants.FIRST);
-			result = saveElcMutualAuditLog(elcMutualApplyDto,session.realUid());
+
+		List<String> studentIdList = dto.getStudentIdList();
+		List<Long> mutualCourseIdList = dto.getMutualCourseIdList();
+		for(String studentId : studentIdList){
+			for(Long mutualCourseId : mutualCourseIdList){
+				//学生批量申请批量课程 一对一改为多对多 begin 如回滚请注掉双层循环
+
+				// 校验学生是否可以申请互选课程
+				if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+					ElcMutualApplyDto dto2 = new ElcMutualApplyDto();
+					dto2.setCalendarId(dto.getCalendarId());
+					dto2.setCategory(dto.getCategory());
+					dto2.setMutualCourseIds(Arrays.asList(mutualCourseId));
+					dto2.setMode(dto.getMode());
+					//初始化工具类
+					MutualApplyJugeUtil mutualApplyJugeUtil = new MutualApplyJugeUtil(elcMutualApplySwitchDao,elcMutualApplyDao);
+					//Boolean isApplyMutualCourseFlag = mutualApplyJugeUtil.jugeApplyMutualCourses(dto2, projectId, dto.getStudentId());
+					LOG.info("===========it is current user is or not Academic officer:{}",StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+							&& !session.isAdmin() && session.isAcdemicDean());
+					//跨学科课程添加申请校验
+					Boolean judgmentAcademicApplyMutualCourses = mutualApplyJugeUtil.judgmentAcademicApplyMutualCourses(dto2, projectId, studentId, session);
+					LOG.info("=========isApplyMutualCourseFlag:"+judgmentAcademicApplyMutualCourses+"=========");
+					if (!judgmentAcademicApplyMutualCourses.booleanValue()) {
+						return result;
+					}
+				}
+
+				Example example = new Example(ElcMutualApply.class);
+				Example.Criteria criteria = example.createCriteria();
+				criteria.andEqualTo("calendarId", dto.getCalendarId());
+				criteria.andEqualTo("studentId", studentId);
+				criteria.andEqualTo("mutualCourseId", mutualCourseId);
+				List<Integer> status = new ArrayList<>();
+				status.add(MutualApplyAuditStatus.DEPART_AUDITED_UN_APPROVED.status());
+				status.add(MutualApplyAuditStatus.AUDITED_UN_APPROVED.status());
+				criteria.andNotIn("status", status);
+				ElcMutualApply elcMutualApply = elcMutualApplyDao.selectOneByExample(example);
+				if(elcMutualApply!=null) {
+					throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("election.elcMutualApply")));
+				}
+
+				/** 本科生行政学院教务员代理申请同时审核；研究生行政学院教务员只代理申请不审核  */
+				ElcMutualApply apply = new ElcMutualApply();
+				apply.setCalendarId(dto.getCalendarId());
+				apply.setStudentId(studentId);
+				apply.setMutualCourseId(mutualCourseId);
+				apply.setUserId(session.realUid());
+				apply.setMode(dto.getMode());
+				apply.setApplyAt(new Date());
+				int count = elcMutualListDao.countElectionCourse(String.valueOf(mutualCourseId), studentId);
+				if(count>0) {
+					apply.setCourseTakeType(CourseTakeType.RETAKE.type());
+				}else {
+					apply.setCourseTakeType(CourseTakeType.NORMAL.type());
+				}
+				if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+					apply.setStatus(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status());
+				}else {
+					apply.setStatus(MutualApplyAuditStatus.UN_AUDITED.status());
+				}
+				result = elcMutualApplyDao.insertSelective(apply);
+
+				if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+					ElcMutualApplyDto elcMutualApplyDto = new ElcMutualApplyDto();
+					elcMutualApplyDto.setId(apply.getId());
+					elcMutualApplyDto.setAuditType(MutualApplyAuditType.DEPARTMENT.type());
+					elcMutualApplyDto.setAuditFlag(Constants.FIRST);
+					result = saveElcMutualAuditLog(elcMutualApplyDto,session.realUid());
+				}
+
+				//学生批量申请批量课程 一对一改为多对多 end
+			}
 		}
 		return result;
 	}
