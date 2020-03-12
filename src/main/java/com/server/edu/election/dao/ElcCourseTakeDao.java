@@ -402,5 +402,6 @@ public interface ElcCourseTakeDao
     /**获取该轮次下所有的课程信息*/
     List<String> listTeachingCourse(Long roundId);
 
-    List<PaidMail> findStudent(int index, Long currentCalendar);
+    List<PaidMail> findStudent(@Param("index") int index,
+                               @Param("calendarId") Long calendarId);
 }
