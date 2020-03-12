@@ -120,6 +120,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     @Autowired
     private TeachingClassDao tClassDao;
 
+    @Autowired
+    private RebuildCourseNoChargeTypeDao noChargeTypeDao;
+
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
     {
@@ -911,10 +914,15 @@ public class StudentElecServiceImpl extends AbstractCacheService
         PageInfo<PaidMail> page = new PageInfo<>();
         page.setNextPage(1);
         page.setHasNextPage(true);
-
+        List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
+        long abnormalStatuEndTime = System.currentTimeMillis();
+        long abnormalStatuStartTime = abnormalStatuEndTime - 365*24*60*60*1000;
+        List<String> noPayStudent = takeDao.findNoPayStudent(
+                currentCalendar, noStuPay,
+                abnormalStatuStartTime, abnormalStatuEndTime);
         while (page.isHasNextPage()){
             PageHelper.startPage(page.getNextPage(),100);
-            List<PaidMail> list = takeDao.findStudent(index, currentCalendar);
+            List<PaidMail> list = takeDao.findStudent(index, currentCalendar, noPayStudent);
             page = new PageInfo<>(list);
             EmailSend emailSend = new EmailSend();
             emailSend.sendEmail(list, fullName);
