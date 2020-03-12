@@ -152,13 +152,28 @@ public class ElcMutualAuditController {
         throws Exception
     {
         LOG.info("agentApply.start");
-        String studentId = dto.getStudentId();
-        Long mutualCourseId = dto.getMutualCourseId();
-        if (StringUtils.isBlank(studentId)) {
-            return RestResult.fail(I18nUtil.getMsg("student.notNull"));
+
+        List<String> studentIdList = dto.getStudentIdList();
+        List<Long> mutualCourseIdList = dto.getMutualCourseIdList();
+        if (studentIdList == null || studentIdList.isEmpty()) {
+            String studentId = dto.getStudentId();
+            if (StringUtils.isBlank(studentId)) {
+                return RestResult.fail(I18nUtil.getMsg("student.notNull"));
+            }
+            studentIdList = new ArrayList<>();
+            studentIdList.add(studentId);
+            dto.setStudentIdList(studentIdList);
+//            return RestResult.fail(I18nUtil.getMsg("student.notNull"));
         }
-        if (null == mutualCourseId) {
-            return RestResult.fail(I18nUtil.getMsg("courseId.notNull"));
+        if (null == mutualCourseIdList || mutualCourseIdList.isEmpty()) {
+            Long mutualCourseId = dto.getMutualCourseId();
+            if (null == mutualCourseId) {
+                return RestResult.fail(I18nUtil.getMsg("courseId.notNull"));
+            }
+            mutualCourseIdList = new ArrayList<>();
+            mutualCourseIdList.add(mutualCourseId);
+            dto.setMutualCourseIdList(mutualCourseIdList);
+//            return RestResult.fail(I18nUtil.getMsg("courseId.notNull"));
         }
         int result =elcMutualAuditService.agentApply(dto);
         return RestResult.successData(result);

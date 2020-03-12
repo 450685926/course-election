@@ -4,17 +4,25 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.List;
+
 public class AgentApplyDto {
 	@NotNull
     private Long calendarId;
-    @NotBlank
+//    @NotBlank
     private String studentId;
-    @NotNull
+//    @NotNull
     private Long mutualCourseId;
     
     private Integer category;
     
     private Integer mode;
+
+    //学号列表
+    private List<String> studentIdList;
+
+    //申请课程id列表
+    private List<Long> mutualCourseIdList;
 
 	public Long getCalendarId() {
 		return calendarId;
@@ -54,6 +62,22 @@ public class AgentApplyDto {
 
 	public void setCategory(Integer category) {
 		this.category = category;
+	}
+
+	public List<String> getStudentIdList() {
+		return studentIdList;
+	}
+
+	public void setStudentIdList(List<String> studentIdList) {
+		this.studentIdList = studentIdList;
+	}
+
+	public List<Long> getMutualCourseIdList() {
+		return mutualCourseIdList;
+	}
+
+	public void setMutualCourseIdList(List<Long> mutualCourseIdList) {
+		this.mutualCourseIdList = mutualCourseIdList;
 	}
 
 	public AgentApplyDto(){
