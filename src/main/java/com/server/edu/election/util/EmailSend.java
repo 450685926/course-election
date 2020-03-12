@@ -135,9 +135,10 @@ public class EmailSend {
 	 */
 	public void sendEmail(List<PaidMail> list, String calendarName)
 	{
+		List<EmailEntity> emailEntityList = new ArrayList<>(100);
+
 
 		for (PaidMail bean : list) {
-			List<EmailEntity> emailEntityList = new ArrayList<>(1);
 
 			String mail = bean.getMail();
 			if (StringUtils.isBlank(mail)) {
@@ -158,24 +159,22 @@ public class EmailSend {
 			emailEntity.setText(content);
 			List<String> emailList = new ArrayList<>(1);
 //			emailList.add(mail);
-			emailList.add("450685926@qq.com");
+			emailList.add("gmlic@isoftstone.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
-
-			try {
-				// 调用邮件发送服务发送邮件
-				if (CollectionUtil.isNotEmpty(emailEntityList)) {
-                    LOG.info(emailEntityList.toString());
-
-                    String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
-				}
-
-			} catch (RestClientException e) {
-				e.printStackTrace();
-				LOG.info("sendStatisticsEmail() error mess: {}", e);
-			}
 		}
 
+		try {
+			// 调用邮件发送服务发送邮件
+			if (CollectionUtil.isNotEmpty(emailEntityList)) {
+
+				String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+			}
+
+		} catch (RestClientException e) {
+			e.printStackTrace();
+			LOG.info("sendStatisticsEmail() error mess: {}", e);
+		}
 
 	}
 
