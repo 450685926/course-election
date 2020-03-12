@@ -975,22 +975,22 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
         //已选课程
-        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+//        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         
         //为了数据准确性，会对这个学期已经选取的课程进行查库操作
         //重修英语课不能超过三门（当前学期已经选择重修英语课最多只能两门，新修一门）
-//        StudentInfoCache studentInfo = context.getStudentInfo();
-//        Long calendarId = round.getCalendarId();
-//        List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+        StudentInfoCache studentInfo = context.getStudentInfo();
+        Long calendarId = round.getCalendarId();
+        List<ElcCourseTakeVo> selectedCourses = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
         List<String> asList =
                 courseOpenDao.getEnglishCourses(round.getCalendarId(), "000268");
         int isEngLishCount = 0;
-        Set<SelectedCourse> rateEngLishselectedcourse = new HashSet<>();
-        Set<SelectedCourse> normalEngLishselectedcourse = new HashSet<>();
+        Set<ElcCourseTakeVo> rateEngLishselectedcourse = new HashSet<>();
+        Set<ElcCourseTakeVo> normalEngLishselectedcourse = new HashSet<>();
         if (CollectionUtil.isNotEmpty(selectedCourses)){
         	//本学期已选公共外语课
-            rateEngLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c.getCourse())).filter(c->Constants.SECOND.equals(c.getCourseTakeType())).collect(Collectors.toSet());
-            normalEngLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c.getCourse())).filter(c->Constants.FIRST.equals(c.getCourseTakeType())).collect(Collectors.toSet());
+            rateEngLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c.getCourseCode())).filter(c->Constants.SECOND.equals(c.getCourseTakeType())).collect(Collectors.toSet());
+            normalEngLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c.getCourseCode())).filter(c->Constants.FIRST.equals(c.getCourseTakeType())).collect(Collectors.toSet());
         }
         for(ElecTeachClassDto data:teachClassIds) {
         	Long teachClassId = data.getTeachClassId();
