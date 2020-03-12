@@ -549,4 +549,15 @@ public class ElcResultController
         elcResultService.bindClass(id, bindClassId);
         return RestResult.success();
     }
+
+    @ApiOperation(value = "选课限制查询")
+    @GetMapping("/elecLimitQuery")
+    public RestResult<TeachingClassLimitVo> elecLimitQuery(@RequestParam("teachingClassId") Long teachingClassId)
+    {
+        TeachingClassLimitVo result = elcResultService.elecLimitQuery(teachingClassId);
+        return RestResult.successData(result);
+    }
+
+
+
 }

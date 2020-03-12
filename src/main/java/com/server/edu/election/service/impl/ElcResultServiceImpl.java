@@ -2058,4 +2058,23 @@ public class ElcResultServiceImpl implements ElcResultService
         }
 
     }
+
+    @Override
+    public TeachingClassLimitVo elecLimitQuery(Long teachingClassId) {
+        List<String> student = classElectiveRestrictAttrDao.selectRestrictStudent(teachingClassId);
+        List<SuggestProfessionDto> professionDtos = classElectiveRestrictAttrDao.selectRestrictProfession(teachingClassId);
+        Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("teachingClassId",teachingClassId);
+        List<TeachingClassElectiveRestrictAttr> teachingClassElectiveRestrictAttrs = classElectiveRestrictAttrDao.selectByExample(example);
+        TeachingClassLimitVo limitVo = new TeachingClassLimitVo();
+        if(CollectionUtil.isNotEmpty(teachingClassElectiveRestrictAttrs)){
+            limitVo.setElectiveRestrictAttr(teachingClassElectiveRestrictAttrs.get(0));
+        }else{
+            limitVo.setElectiveRestrictAttr(new TeachingClassElectiveRestrictAttr());
+        }
+        limitVo.setStudent(student);
+        limitVo.setElectiveProf(professionDtos);
+        return limitVo;
+    }
 }
