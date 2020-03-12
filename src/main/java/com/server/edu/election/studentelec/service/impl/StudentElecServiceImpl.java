@@ -912,13 +912,13 @@ public class StudentElecServiceImpl extends AbstractCacheService
         page.setNextPage(1);
         page.setHasNextPage(true);
 
-//        while (page.isHasNextPage()){
+        while (page.isHasNextPage()){
             PageHelper.startPage(page.getNextPage(),100);
             List<PaidMail> list = takeDao.findStudent(index, currentCalendar);
             page = new PageInfo<>(list);
             EmailSend emailSend = new EmailSend();
             emailSend.sendEmail(list, fullName);
-//        }
+        }
 
     }
 }

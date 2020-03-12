@@ -2854,6 +2854,7 @@
         join course_t co on t1.COURSE_CODE_ = co.CODE_
         where t1.CALENDAR_ID_ = #{calendarId}
         and t1.PAID_ = 0
+        and t1.COURSE_TAKE_TYPE_ = 2
         and st.MANAGER_DEPT_ID_ = 1
     </select>
 </mapper>
