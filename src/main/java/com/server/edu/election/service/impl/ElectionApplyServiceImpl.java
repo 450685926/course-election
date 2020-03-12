@@ -36,6 +36,7 @@ import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -355,7 +356,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 			//查询申请的体育、英语课
 			List<Integer> modeList = Arrays.asList(2,3);
 	        Example egPeExample = new Example(ElectionApply.class);
-	        egPeExample.createCriteria().andEqualTo("studentId", studentId).andEqualTo("calendarId", calendarId).andIn("mode", modeList);
+	        egPeExample.createCriteria().andEqualTo("studentId", studentId).andEqualTo("calendarId", calendarId).andEqualTo("apply", Constants.APPLY).andIn("mode", modeList);
 	        List<ElectionApply> electionApplys= electionApplyDao.selectByExample(egPeExample);
 			List<String> PECourses = engLishPECourses.stream().filter(c->"000293".equals(c.getFaculty())).map(c->c.getCourseCode()).collect(Collectors.toList());
 			List<String> engLishCourseCodes = engLishPECourses.stream().filter(c->"000268".equals(c.getFaculty())).map(c->c.getCourseCode()).collect(Collectors.toList());
@@ -511,7 +512,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             .setElecApplyCourse(studentId, electionApplys);
         ElecContextUtil.setElecStatus(calendarId,
         		studentId,
-            ElecStatus.Init);		
+            ElecStatus.Init);
+        applicationContext
+        .publishEvent(new ElectLoadEvent(calendarId, studentId));
     }
 
 }
