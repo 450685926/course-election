@@ -404,6 +404,7 @@ public interface ElcCourseTakeDao
     List<String> listTeachingCourse(Long roundId);
 
     List<PaidMail> findStudent(@Param("index") int index,
+
                                @Param("calendarId") Long calendarId,
                                @Param("noPayStudent") List<String> noPayStudent);
 
@@ -411,4 +412,9 @@ public interface ElcCourseTakeDao
                                    @Param("noStuPay") List<RebuildCourseNoChargeType> noStuPay,
                                   @Param("abnormalStatuStartTime") long abnormalStatuStartTime,
                                   @Param("abnormalStatuEndTime") long abnormalStatuEndTime);
+
+
+    /**退课校验重修缴费*/
+    ElcCourseTake findRebuildFee(@Param("take") ElcCourseTake take,@Param("index") int index);
+
 }

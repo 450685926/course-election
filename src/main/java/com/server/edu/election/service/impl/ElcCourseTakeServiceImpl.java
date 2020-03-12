@@ -1041,11 +1041,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     public void withdraw(List<ElcCourseTake> value)
     {
     	Session currentSession = SessionUtils.getCurrentSession();
+        boolean admin = currentSession.isAdmin();
         Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
         List<ElcLog> logList = new ArrayList<>();
         Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
         for (ElcCourseTake take : value)
         {
+            this.canWithdrawByFee(take,admin);
             Long calendarId = take.getCalendarId();
             String studentId = take.getStudentId();
             Long teachingClassId = take.getTeachingClassId();
@@ -2463,6 +2465,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         return result;
 	};
     
-    
+    private void canWithdrawByFee(ElcCourseTake take,Boolean isAdmin){
+        int index = TableIndexUtil.getIndex(take.getCalendarId());
+        ElcCourseTake courseTake = courseTakeDao.findRebuildFee(take,index);
+        if(courseTake != null){
+            Integer courseTakeType = courseTake.getCourseTakeType();
+            Integer paid = courseTake.getPaid();
+            //重修并且缴费，只能管理员可以退课
+            if(Constants.SECOND.equals(courseTakeType) && Constants.NORMAL_MODEL.equals(paid)){
+                //教务员不能退课
+                if(!isAdmin){
+                    throw  new ParameterValidateException("学号："+courseTake.getStudentId() +",修读重修课程:"+courseTake.getCourseCode()+"已经缴费,请联系管理员退课");
+                }
+            }
+        }
+    }
 
 }
