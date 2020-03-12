@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 
+import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.dto.StudnetTimeTable;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -114,9 +115,13 @@ public class ElcMutualListVo extends ElcMutualApply{
      */
     private List<TimeAndRoom> timeTableList;
 	/**
+	 * 教学安排（上课时间地点）本科生
+	 */
+	private List<StudnetTimeTable> studnetTimeTable;
+	/**
 	 * 教学安排（上课时间地点）研究生
 	 */
-	private List<StudnetTimeTable> schoolTimetab;
+	private List<StudentSchoolTimetab> schoolTimetab;
     /**
      * 学分
      */
@@ -308,11 +313,19 @@ public class ElcMutualListVo extends ElcMutualApply{
 		this.courseTakeTypeName = courseTakeTypeName;
 	}
 
-	public List<StudnetTimeTable> getSchoolTimetab() {
+	public List<StudentSchoolTimetab> getSchoolTimetab() {
 		return schoolTimetab;
 	}
 
-	public void setSchoolTimetab(List<StudnetTimeTable> schoolTimetab) {
+	public void setSchoolTimetab(List<StudentSchoolTimetab> schoolTimetab) {
 		this.schoolTimetab = schoolTimetab;
+	}
+
+	public List<StudnetTimeTable> getStudnetTimeTable() {
+		return studnetTimeTable;
+	}
+
+	public void setStudnetTimeTable(List<StudnetTimeTable> studnetTimeTable) {
+		this.studnetTimeTable = studnetTimeTable;
 	}
 }
