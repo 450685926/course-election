@@ -76,12 +76,11 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
     public PageInfo<ElcMutualListVo> getMutualStuList(PageCondition<ElcMutualListDto> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 
-//        Session session = SessionUtils.getCurrentSession();
+        Session session = SessionUtils.getCurrentSession();
 
-//        String faculty = session.getFaculty();
+        String faculty = session.getFaculty();
 
-//        String projectId = session.getCurrentManageDptId();
-        String projectId ="1";
+        String projectId = session.getCurrentManageDptId();
 
         ElcMutualListDto dto = condition.getCondition();
 
@@ -92,18 +91,17 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         }
 
         // 教务员查看本学院申请了本研互选选课的学生和申请了本学院开设课程的学生
-//        boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
-        boolean isAcdemicDean = false;
-//        if (isAcdemicDean) {
-//            List<String> deptIds = SessionUtils.getCurrentSession().
-//                    getGroupData().get(GroupDataEnum.department.getValue());
-//
-//            if (dto.getProjectIds().contains(projectId)) {
-//                dto.setColleges(deptIds);  // 学生行政学院
-//            } else {
-//                dto.setOpenColleges(deptIds);  // 开课学院
-//            }
-//        }
+        boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
+        if (isAcdemicDean) {
+            List<String> deptIds = SessionUtils.getCurrentSession().
+                    getGroupData().get(GroupDataEnum.department.getValue());
+
+            if (dto.getProjectIds().contains(projectId)) {
+                dto.setColleges(deptIds);  // 学生行政学院
+            } else {
+                dto.setOpenColleges(deptIds);  // 开课学院
+            }
+        }
         LOG.info("=======修读类型的courseTakeType==========" + dto.getCourseTakeType());
         List<ElcMutualListVo> list = elcMutualListDao.getMutualStuList(dto);
         //获取学生列表
