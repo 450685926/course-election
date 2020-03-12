@@ -134,7 +134,7 @@ public class EmailSend {
 	 */
 	public void sendEmail(List<PaidMail> list, String calendarName)
 	{
-		List<EmailEntity> emailEntityList = new ArrayList<>();
+		List<EmailEntity> emailEntityList = new ArrayList<>(1000);
 
 		for (PaidMail bean : list) {
 			String mail = bean.getMail();
