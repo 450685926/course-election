@@ -175,6 +175,10 @@ public class ElcMutualAuditController {
             dto.setMutualCourseIdList(mutualCourseIdList);
 //            return RestResult.fail(I18nUtil.getMsg("courseId.notNull"));
         }
+        LOG.info("studentIdList:" + dto.getStudentIdList());
+        LOG.info("mutualCourseIdList:" +dto.getMutualCourseIdList());
+        LOG.info("studentId:"+dto.getStudentId());
+        LOG.info("mutualCourseId：" + dto.getMutualCourseId());
         int result =elcMutualAuditService.agentApply(dto);
         return RestResult.successData(result);
     }

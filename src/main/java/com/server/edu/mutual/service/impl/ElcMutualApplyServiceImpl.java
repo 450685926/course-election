@@ -401,6 +401,8 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		ElcMutualCrossStuDto stuDto = new ElcMutualCrossStuDto();
         dtoPotting(dto,stuDto);
         String studentId = dto.getStudentId();
+		LOG.info("studentIdList:" + dto.getStudentIdList());
+		LOG.info("studentId:" + dto.getStudentId());
 		stuDto.setCalendarId(dto.getCalendarId());
 		stuDto.setStudentId(studentId);
 		//返回单个po对象在切换学期时代码报错（切换未上送学生id所以返回多条记录），故统一使用list接收
@@ -650,7 +652,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	}
 
 	private void dtoPotting(ElcMutualApplyDto dto,ElcMutualCrossStuDto stuDto){
-
+		LOG.info("dtoPotting begin...");
         //增加批量学生 11685
         List<String> studentIdList = dto.getStudentIdList();
         if(studentIdList != null  && studentIdList.size() > 0){
@@ -659,6 +661,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
             //增加批量学生 11685
             stuDto.setStudentIdList(studentIdList);
         }
+		LOG.info("dtoPotting end...");
     }
 
 }
