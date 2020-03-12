@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.server.edu.election.dto.PaidMail;
+import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.vo.*;
 import org.apache.ibatis.annotations.Param;
 
@@ -403,5 +404,11 @@ public interface ElcCourseTakeDao
     List<String> listTeachingCourse(Long roundId);
 
     List<PaidMail> findStudent(@Param("index") int index,
-                               @Param("calendarId") Long calendarId);
+                               @Param("calendarId") Long calendarId,
+                               @Param("noPayStudent") List<String> noPayStudent);
+
+    List<String> findNoPayStudent( @Param("calendarId") Long calendarId,
+                                   @Param("noStuPay") List<RebuildCourseNoChargeType> noStuPay,
+                                  @Param("abnormalStatuStartTime") long abnormalStatuStartTime,
+                                  @Param("abnormalStatuEndTime") long abnormalStatuEndTime);
 }
