@@ -158,15 +158,16 @@ public class EmailSend {
 			emailEntity.setText(content);
 			List<String> emailList = new ArrayList<>(1);
 //			emailList.add(mail);
-			emailList.add("gmlic@isoftstone.com");
+			emailList.add("450685926@qq.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
 
 			try {
 				// 调用邮件发送服务发送邮件
-				LOG.info("EmailSend.sendEmail() send email");
 				if (CollectionUtil.isNotEmpty(emailEntityList)) {
-					String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+                    LOG.info(emailEntityList.toString());
+
+                    String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
 				}
 
 			} catch (RestClientException e) {
