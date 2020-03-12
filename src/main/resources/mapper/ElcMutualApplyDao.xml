@@ -124,15 +124,21 @@
 		  FROM
 		     elc_mutual_apply_t t3 
 		  WHERE t3.`CALENDAR_ID_` = #{calendarId}
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
-				AND t3.`STUDENT_ID_` = #{studentId}
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentIdList)">
-				AND t3.`STUDENT_ID_` in
-				<foreach item="studentId" collection="studentIdList" open="(" close=")" separator=",">
-					#{studentId}
-				</foreach>
-			</if>
+			<choose>
+				<when test="_parameter.batch">
+					<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentIdList)">
+						AND t3.`STUDENT_ID_` in
+						<foreach item="studentId" collection="studentIdList" open="(" close=")" separator=",">
+							#{studentId}
+						</foreach>
+					</if>
+				</when>
+				<otherwise>
+					<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+						AND t3.`STUDENT_ID_` = #{studentId}
+					</if>
+				</otherwise>
+			</choose>
 			AND t3.MODE_=#{mode}
 			<!--申请记录中除过审核状态、通过状态的数据无法再次勾选,其余数据需要展示 【问题单:11303】-->
 			AND (t3.`STATUS_` = 0 OR t3.`STATUS_` = 1 OR t3.`STATUS_` = 3)

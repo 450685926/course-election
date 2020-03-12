@@ -100,10 +100,22 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
 		        and CALENDAR_ID_ = #{calendarId}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
-		        and STUDENT_ID_ = #{studentId}
-		    </if>
-		</where>  
+			<choose>
+				<when test="_parameter.batch">
+					<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentIdList)">
+						AND STUDENT_ID_ in
+						<foreach item="studentId" collection="studentIdList" open="(" close=")" separator=",">
+							#{studentId}
+						</foreach>
+					</if>
+				</when>
+				<otherwise>
+					<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+						and STUDENT_ID_ = #{studentId}
+					</if>
+				</otherwise>
+			</choose>
+		</where>
   </select>
 
 	<!--根据条件全量删除本研互选学生-->

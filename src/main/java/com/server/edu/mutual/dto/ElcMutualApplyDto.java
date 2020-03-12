@@ -108,7 +108,11 @@ public class ElcMutualApplyDto extends ElcMutualApply {
     //学期差值
     private  Long semester;
 
+    //学号列表
     private List<String> studentIdList;
+
+    //是否是批量操作：当前端上送studentIdList则此值被设置为true，否则设置为false。
+    private Boolean batch = Boolean.FALSE;
 
 	public String getCourseSelectionMark() {
 		return courseSelectionMark;
@@ -325,6 +329,14 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 
 	public void setStudentIdList(List<String> studentIdList) {
 		this.studentIdList = studentIdList;
+	}
+
+	public Boolean isBatch() {
+		return batch;
+	}
+
+	public void setBatch(Boolean batch) {
+		this.batch = batch;
 	}
 
 	public ElcMutualApplyDto() {

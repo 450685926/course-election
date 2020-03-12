@@ -75,6 +75,9 @@ public class ElcMutualCrossStuDto extends ElcCrossStds{
     //学号集合
 	private List<String> studentIdList;
 
+	//是否是批量操作：当前端上送studentIdList则此值被设置为true，否则设置为false。
+	private Boolean batch = Boolean.FALSE;
+
 	public String getDegreeType() {
 		return degreeType;
 	}
@@ -210,6 +213,14 @@ public class ElcMutualCrossStuDto extends ElcCrossStds{
 
 	public void setStudentIdList(List<String> studentIdList) {
 		this.studentIdList = studentIdList;
+	}
+
+	public Boolean isBatch() {
+		return batch;
+	}
+
+	public void setBatch(Boolean batch) {
+		this.batch = batch;
 	}
 
 	public ElcMutualCrossStuDto() {
