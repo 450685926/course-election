@@ -131,9 +131,11 @@ public class EmailSend {
 	 * 重修缴费提醒发邮件
 	 * @param list
 	 * @param calendarName
+	 * @param startTime
+	 * @param endTime
 	 * @throws Exception
 	 */
-	public void sendEmail(List<PaidMail> list, String calendarName)
+	public void sendEmail(List<PaidMail> list, String calendarName, String startTime, String endTime)
 	{
 		List<EmailEntity> emailEntityList = new ArrayList<>(100);
 
@@ -145,12 +147,17 @@ public class EmailSend {
 				continue;
 			}
 
+			StringBuilder sb = new StringBuilder();
 			// 生成发送邮件的内容
-			String content = bean.getStudentName() + "(" +
-					bean.getStudentId() + "),您好：\r\n" + "       "
-					+ calendarName + " 重修课程：" + bean.getCourseCode()
-					+ bean.getCourseName() + "\r\n未缴费";
-
+			sb.append(bean.getStudentName()).append("(").
+					append(bean.getStudentId()).append("),您好：\r\n").
+					append("       ").append(calendarName).
+					append(" 重修课程：").append(bean.getCourseCode()).
+					append("[").append(bean.getCourseName()).append("]").
+					append("还未缴费，缴费时间为").append(startTime).
+					append("-").append(endTime).
+					append("，逾期未缴费选课数据将被自动删除，请知悉。");
+			String content = sb.toString();
 
 			// 构建发送邮件的实体
 			EmailEntity emailEntity = new EmailEntity();
@@ -159,7 +166,8 @@ public class EmailSend {
 			emailEntity.setText(content);
 			List<String> emailList = new ArrayList<>(1);
 //			emailList.add(mail);
-			emailList.add("gmlic@isoftstone.com");
+			emailList.add("jysung@isoftstone.com");
+			emailList.add("nanzhangw@isoftstone.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
 		}
@@ -168,7 +176,7 @@ public class EmailSend {
 			// 调用邮件发送服务发送邮件
 			if (CollectionUtil.isNotEmpty(emailEntityList)) {
 
-				String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+				ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
 			}
 
 		} catch (RestClientException e) {

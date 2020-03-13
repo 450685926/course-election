@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -122,6 +123,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Autowired
     private RebuildCourseNoChargeTypeDao noChargeTypeDao;
+
+    @Autowired
+    private ElcRebuildChargeTimeSetDao elcRebuildChargeTimeSetDao;
 
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
@@ -908,7 +912,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 BaseresServiceInvoker.getCurrentCalendar();
         SchoolCalendarVo schoolCalendar =
                 BaseresServiceInvoker.getSchoolCalendarById(currentCalendar);
-        String fullName = schoolCalendar.getFullName();
+        String calendarName = schoolCalendar.getFullName();
         int index = TableIndexUtil.getIndex(currentCalendar);
 
         PageInfo<PaidMail> page = new PageInfo<>();
@@ -920,12 +924,24 @@ public class StudentElecServiceImpl extends AbstractCacheService
         List<String> noPayStudent = takeDao.findNoPayStudent(
                 currentCalendar, noStuPay,
                 abnormalStatuStartTime, abnormalStatuEndTime);
+
+        Example example = new Example(ElcRebuildChargeTimeSet.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("calendarId", currentCalendar);
+        criteria.andEqualTo("projId", "1");
+        ElcRebuildChargeTimeSet elcRebuildChargeTimeSet = elcRebuildChargeTimeSetDao.selectOneByExample(example);
+        Date endTime = elcRebuildChargeTimeSet.getEndtime();
+        Date startTime = elcRebuildChargeTimeSet.getStrattime();
+        String str = "yyyy年MM月dd日 HH点mm分ss秒";
+        SimpleDateFormat sdf=new SimpleDateFormat(str);
+        String start = sdf.format(startTime);
+        String end = sdf.format(endTime);
         while (page.isHasNextPage()){
             PageHelper.startPage(page.getNextPage(),100);
             List<PaidMail> list = takeDao.findStudent(index, currentCalendar, noPayStudent);
             page = new PageInfo<>(list);
             EmailSend emailSend = new EmailSend();
-            emailSend.sendEmail(list, fullName);
+            emailSend.sendEmail(list, calendarName, start, end);
         }
 
     }
