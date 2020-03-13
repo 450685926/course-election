@@ -131,9 +131,10 @@ public class EmailSend {
 	 * 重修缴费提醒发邮件
 	 * @param list
 	 * @param calendarName
+	 * @param endTime
 	 * @throws Exception
 	 */
-	public void sendEmail(List<PaidMail> list, String calendarName)
+	public void sendEmail(List<PaidMail> list, String calendarName, String endTime)
 	{
 		List<EmailEntity> emailEntityList = new ArrayList<>(100);
 
@@ -145,7 +146,17 @@ public class EmailSend {
 				continue;
 			}
 
+			StringBuilder sb = new StringBuilder();
 			// 生成发送邮件的内容
+			sb.append(bean.getStudentName()).append("(").
+					append(bean.getStudentId()).append("),您好：\r\n").
+					append("       ").append(calendarName).
+					append(" 重修课程：").append(bean.getCourseCode()).
+					append("[").append("]").append(bean.getCourseName()).
+					append("还未缴费，截止时间为").append(endTime).
+					append("，逾期未缴费选课数据将被自动删除，请知悉。");
+
+
 			String content = bean.getStudentName() + "(" +
 					bean.getStudentId() + "),您好：\r\n" + "       "
 					+ calendarName + " 重修课程：" + bean.getCourseCode()
@@ -168,7 +179,7 @@ public class EmailSend {
 			// 调用邮件发送服务发送邮件
 			if (CollectionUtil.isNotEmpty(emailEntityList)) {
 
-				String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+				ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
 			}
 
 		} catch (RestClientException e) {
