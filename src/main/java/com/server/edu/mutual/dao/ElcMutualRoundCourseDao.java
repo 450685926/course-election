@@ -72,5 +72,13 @@ public interface ElcMutualRoundCourseDao extends Mapper<ElectionRoundsCour>,MySq
      * @see [类、类#方法、类#成员]
      */
     void deleteByRoundId(@Param("roundId") Long roundId);
+    
+    
+	/**
+	 * 获取已添加课程列表（学生选课getDate专用）
+	 * @param query
+	 * @return
+	 */
+	List<String> courseCodeListForGetData(ElecRoundCourseQuery query);
 	 
 }
