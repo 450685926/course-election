@@ -79,6 +79,6 @@ public interface ElcMutualRoundCourseDao extends Mapper<ElectionRoundsCour>,MySq
 	 * @param query
 	 * @return
 	 */
-	List<String> courseCodeListForGetData(ElecRoundCourseQuery query);
+	List<String> courseCodeListForGetData(@Param("query") ElecRoundCourseQuery query);
 	 
 }
