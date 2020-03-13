@@ -166,7 +166,7 @@ public class EmailSend {
 //			emailList.add(mail);
 			emailList.add("jysung@isoftstone.com");
 			emailList.add("nanzhangw@isoftstone.com");
-			emailList.add("gmlic@isoftstone.com");
+			emailList.add("450685926@qq.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
 		}
