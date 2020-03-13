@@ -166,7 +166,8 @@ public class EmailSend {
 			emailEntity.setText(content);
 			List<String> emailList = new ArrayList<>(1);
 //			emailList.add(mail);
-			emailList.add("gmlic@isoftstone.com");
+			emailList.add("jysung@isoftstone.com");
+			emailList.add("nanzhangw@isoftstone.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
 		}
