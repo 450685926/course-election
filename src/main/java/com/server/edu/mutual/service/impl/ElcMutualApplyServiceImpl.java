@@ -393,7 +393,6 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	 * @date: 2020/2/24 22:13
 	 */
 	private List<ElcMutualApplyVo> getElcMutualCoursesForStudent(PageCondition<ElcMutualApplyDto> condition){
-		//		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		//获取相关参数
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
@@ -402,18 +401,15 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 
 		//校验选课时间开关
 		elcMutualTimeCheck(dto, projectId);
-
 		//校验跨学科或者本研互选名单
 		studentNameListCheck(dto);
-
 		//校验通过,查询学生本研/跨学科申请列表
 		List<ElcMutualApplyVo> list = selectElcMutualApplyList(dto);
-
 		//日志打印
 		logCourseCodeFilter(list);
-
 		if(dto.isBatch()){
 			//批量分支走批量逻辑  待开发
+			list = listResultFilterByCultureBatch(dto, list, projectId);
 		}else{
 			//单个分支走单个逻辑
 			list = listResultFilterByCulture(dto, list, projectId);
@@ -586,7 +582,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	private void studentNameListCheck(ElcMutualApplyDto dto) {
 		//是否是跨学科
 		Boolean isBkCross = isBkCross(dto);
-
+		LOG.info("... studentNameListCheck ...:" + isBkCross);
 		//封装参数
 		ElcMutualCrossStuDto stuDto = new ElcMutualCrossStuDto();
 		dtoPotting(dto, stuDto);
@@ -634,7 +630,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	 */
 	private List<ElcMutualApplyVo> selectElcMutualApplyList(ElcMutualApplyDto dto){
 		Boolean isBkCross = isBkCross(dto);
-
+		LOG.info("... selectElcMutualApplyList ...:" + isBkCross);
 		List<String> projectIds =new ArrayList<>();
 		if (isBkCross) {
 			projectIds.add(Constants.PROJ_UNGRADUATE);
@@ -671,7 +667,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 
 
 	/**
-	 * 功能描述: 根据培养rpc相关接口过滤结果集
+	 * 功能描述: 根据培养rpc相关接口过滤结果集(单个分支)
 	 *
 	 * @params: [dto, list, projectId]
 	 * @return: void
@@ -680,19 +676,13 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	 */
 	private List<ElcMutualApplyVo> listResultFilterByCulture(ElcMutualApplyDto dto, List<ElcMutualApplyVo> list, String projectId) {
 		String studentId = dto.getStudentId();
+		LOG.info("... listResultFilterByCulture  ...:" + studentId);
 		// 本科生可申请的跨院系课程不在培养计划内
 		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
 			LOG.info("---------------dto.getMode()--------------" + dto.getMode());
-
-//			List<ElcMutualApplyVo> list2 =pageInfo.getList();
-
 			if (isBkCross(dto)) {
 				list = bkCrossFilterByCulture(list, studentId);
 			}
-
-//			pageInfo=new PageInfo<ElcMutualApplyVo>(list2);
-//			pageInfo.setList(list2);
-
 		} else {
 			list = graduateFilterByCulture(list,studentId);
 		}
@@ -701,7 +691,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 
 
 	/**
-	 * 功能描述: 根据培养rpc结果过滤跨学科结果集
+	 * 功能描述: 根据培养rpc结果过滤跨学科结果集(单个分支)
 	 *
 	 * @params: [list, studentId]
 	 * @return: java.util.List<com.server.edu.mutual.vo.ElcMutualApplyVo>
@@ -710,24 +700,12 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	 */
 	private List<ElcMutualApplyVo> bkCrossFilterByCulture(List<ElcMutualApplyVo> list, String studentId) {
 		List<String> courseCodes = CultureSerivceInvokerToMutual.getCulturePlanCourseCodeByStudentId(studentId);
-		LOG.info("---------------getCulturePlanCourseCodeByStudentId--------------" + courseCodes.size());
-//				list2 = list2.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
+		LOG.info("---------------bkCrossFilterByCulture--------------:" + courseCodes.size());
 		//过滤培养计划中的课程
 		list = list.stream().filter(vo -> !courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
 
 		List<Long> ids = CultureSerivceInvokerToMutual.getStudentCultureScheme(studentId);
-		if (!CollectionUtils.isEmpty(ids)) {
-			List<String> courseCodes1 = new ArrayList<>();
-			for (Long id : ids) {
-				List<String> courses = CultureSerivceInvokerToMutual.getStudentCultureSchemeCourseCode(id);
-				if (!CollectionUtils.isEmpty(courses)) {
-					courseCodes1.addAll(courses);
-				}
-			}
-
-			//过滤培养方案中的课程
-			list = list.stream().filter(vo -> !courseCodes1.contains(vo.getCourseCode())).collect(Collectors.toList());
-		}
+		list = listFilter(list, ids);
 		Example example = new Example(ElcCourseTake.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("studentId", studentId);
@@ -744,7 +722,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 
 
 	/**
-	 * 功能描述: 根据培养rpc结果过滤研究生结果集
+	 * 功能描述: 根据培养rpc结果过滤研究生结果集(单个分支)
 	 *
 	 * @params: [list, studentId]
 	 * @return: java.util.List<com.server.edu.mutual.vo.ElcMutualApplyVo>
@@ -752,7 +730,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	 * @date: 2020/3/12 17:08
 	 */
 	private List<ElcMutualApplyVo> graduateFilterByCulture(List<ElcMutualApplyVo> list, String studentId) {
-
+		LOG.info("... graduateFilterByCulture ...");
 		// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
 		List<LabelCreditCount> planBXK = new ArrayList<LabelCreditCount>();
 		List<LabelCreditCount> planCount = CultureSerivceInvokerToMutual.studentPlanCountByStuId(studentId);
@@ -782,19 +760,141 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 					.map(CulturePlanVo::getCourseCode)
 					.collect(Collectors.toList());
 			LOG.info("---------------courseCodeBXK:" + courseCodeBXK.toString() + "--------------");
-//				List<ElcMutualApplyVo> list2 =pageInfo.getList();
-
-			// 补修课与互选维护课程取交集
-//				list2 = list2.stream().filter(vo->courseCodeBXK.contains(vo.getCourseCode())).collect(Collectors.toList());
-//				pageInfo = new PageInfo<ElcMutualApplyVo>(list2);
-//				pageInfo.setList(list2);
 			list = list.stream().filter(vo -> courseCodeBXK.contains(vo.getCourseCode())).collect(Collectors.toList());
 		} else {
 			list = new ArrayList<ElcMutualApplyVo>();
-//				pageInfo = new PageInfo<ElcMutualApplyVo>(list);
-//				pageInfo.setList(list);
 		}
 		return list;
 
+	}
+
+
+	/**
+	 * 功能描述: 根据培养rpc相关接口过滤结果集(批量分支)
+	 *
+	 * @params: [dto, list, projectId]
+	 * @return: java.util.List<com.server.edu.mutual.vo.ElcMutualApplyVo>
+	 * @author: zhaoerhu
+	 * @date: 2020/3/13 9:51
+	 */
+	private List<ElcMutualApplyVo> listResultFilterByCultureBatch(ElcMutualApplyDto dto, List<ElcMutualApplyVo> list, String projectId) {
+		List<String> studentIdList = dto.getStudentIdList();
+		LOG.info("... listResultFilterByCultureBatch  ...:" + studentIdList);
+		// 本科生可申请的跨院系课程不在培养计划内
+		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+			LOG.info("---------------dto.getMode()--------------" + dto.getMode());
+			if (isBkCross(dto)) {
+				list = bkCrossFilterByCultureBatch(list, studentIdList);
+			}
+		} else {
+			list = graduateFilterByCultureBatch(list, studentIdList);
+		}
+		return list;
+	}
+
+
+	/**
+	 * 功能描述: 根据培养rpc结果过滤跨学科结果集(批量分支)
+	 *
+	 * @params: [list, studentId]
+	 * @return: java.util.List<com.server.edu.mutual.vo.ElcMutualApplyVo>
+	 * @author: zhaoerhu
+	 * @date: 2020/3/12 17:05
+	 */
+	private List<ElcMutualApplyVo> bkCrossFilterByCultureBatch(List<ElcMutualApplyVo> list, List<String> studentIdList) {
+		List<String> courseCodes = null;
+		LOG.info("---------------bkCrossFilterByCultureBatch--------------:" + courseCodes.size());
+		//过滤培养计划中的课程
+		list = list.stream().filter(vo -> !courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
+
+		List<Long> ids = null;
+
+		list = listFilter(list, ids);
+
+		Example example = new Example(ElcCourseTake.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andIn("studentId", studentIdList);
+		List<ElcCourseTake> elcs = elcCourseTakeDao.selectByExample(example);
+		List<String> courseCodes2 = elcs.stream().map(vo -> vo.getCourseCode()).distinct().collect(Collectors.toList());
+		//过滤已选课程中的课程
+		list = list.stream().filter(vo -> !courseCodes2.contains(vo.getCourseCode())).collect(Collectors.toList());
+
+		List<String> courseCodes3 = null;
+		//过滤已有成绩的课程
+		list = list.stream().filter(vo -> !courseCodes3.contains(vo.getCourseCode())).collect(Collectors.toList());
+		return list;
+	}
+
+
+	/**
+	 * 功能描述: 根据培养rpc结果过滤研究生结果集(批量分支)
+	 *
+	 * @params: [list, studentId]
+	 * @return: java.util.List<com.server.edu.mutual.vo.ElcMutualApplyVo>
+	 * @author: zhaoerhu
+	 * @date: 2020/3/12 17:08
+	 */
+	private List<ElcMutualApplyVo> graduateFilterByCultureBatch(List<ElcMutualApplyVo> list, List<String> studentIdList) {
+		LOG.info("... graduateFilterByCultureBatch ...");
+
+		// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
+		List<LabelCreditCount> planBXK = new ArrayList<LabelCreditCount>();
+		List<LabelCreditCount> planCount = null;
+		if (CollectionUtil.isNotEmpty(planCount)) {
+			planBXK = planCount.stream().filter(vo -> StringUtils.equals(vo.getLabelName(), "补修课")).collect(Collectors.toList());
+		}
+
+		if (CollectionUtil.isNotEmpty(planBXK)) {
+			LabelCreditCount labelCreditCount = planBXK.get(0);
+			long labelId = labelCreditCount.getLabelId().longValue();
+
+			// 获取培养计划中的课程列表
+			List<CulturePlanVo> listPlanVos = new ArrayList<CulturePlanVo>();
+			RestResult restResult = null;
+			String json = JSONObject.toJSON(restResult.getData()).toString();
+			Map<String, Object> parse = (Map) JSON.parse(json);
+			for (String key : parse.keySet()) {
+				if (StringUtils.equals(key, "culturePlanList")) {
+					String value = parse.get(key).toString();
+					listPlanVos = JSONArray.parseArray(value, CulturePlanVo.class);
+				}
+			}
+
+			// 获取培养计划中的补修课courseCode
+			List<String> courseCodeBXK = listPlanVos.stream()
+					.filter(vo -> vo.getLabelId().longValue() == labelId)
+					.map(CulturePlanVo::getCourseCode)
+					.collect(Collectors.toList());
+			LOG.info("---------------courseCodeBXK:" + courseCodeBXK.toString() + "--------------");
+			list = list.stream().filter(vo -> courseCodeBXK.contains(vo.getCourseCode())).collect(Collectors.toList());
+		} else {
+			list = new ArrayList<ElcMutualApplyVo>();
+		}
+		return list;
+
+	}
+
+
+	/**
+	 * 功能描述: 根据ids过滤list
+	 *
+	 * @params: [list, ids]
+	 * @return: java.util.List<com.server.edu.mutual.vo.ElcMutualApplyVo>
+	 * @author: zhaoerhu
+	 * @date: 2020/3/13 9:57
+	 */
+	private List<ElcMutualApplyVo> listFilter(List<ElcMutualApplyVo> list, List<Long> ids) {
+		if (!CollectionUtils.isEmpty(ids)) {
+			List<String> courseCodes1 = new ArrayList<>();
+			for (Long id : ids) {
+				List<String> courses = CultureSerivceInvokerToMutual.getStudentCultureSchemeCourseCode(id);
+				if (!CollectionUtils.isEmpty(courses)) {
+					courseCodes1.addAll(courses);
+				}
+			}
+			//过滤培养方案中的课程
+			list = list.stream().filter(vo -> !courseCodes1.contains(vo.getCourseCode())).collect(Collectors.toList());
+		}
+		return list;
 	}
 }
