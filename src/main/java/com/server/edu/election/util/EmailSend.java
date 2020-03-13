@@ -152,8 +152,8 @@ public class EmailSend {
 			StringBuilder sb = new StringBuilder();
 			sb.append(student).append("),您好：\r\n").append("       ").
 					append(calendarName).append(" 重修课程：").
-					append(String.join(",", courses)).
-					append("还未缴费，缴费时间为").append(startTime).
+					append(String.join(", ", courses)).
+					append(" 还未缴费，缴费时间为").append(startTime).
 					append("-").append(endTime).
 					append("，逾期未缴费选课数据将被自动删除，请知悉。");;
 			String content = sb.toString();
@@ -175,7 +175,9 @@ public class EmailSend {
 			// 调用邮件发送服务发送邮件
 			if (CollectionUtil.isNotEmpty(emailEntityList)) {
 
-				ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+				String s = ServicePathEnum.
+						COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+				LOG.info("==============" + s);
 			}
 
 		} catch (RestClientException e) {
