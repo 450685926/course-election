@@ -131,10 +131,11 @@ public class EmailSend {
 	 * 重修缴费提醒发邮件
 	 * @param list
 	 * @param calendarName
+	 * @param startTime
 	 * @param endTime
 	 * @throws Exception
 	 */
-	public void sendEmail(List<PaidMail> list, String calendarName, String endTime)
+	public void sendEmail(List<PaidMail> list, String calendarName, String startTime, String endTime)
 	{
 		List<EmailEntity> emailEntityList = new ArrayList<>(100);
 
@@ -153,7 +154,8 @@ public class EmailSend {
 					append("       ").append(calendarName).
 					append(" 重修课程：").append(bean.getCourseCode()).
 					append("[").append("]").append(bean.getCourseName()).
-					append("还未缴费，截止时间为").append(endTime).
+					append("还未缴费，缴费时间为").append(startTime).
+					append("-").append(endTime).
 					append("，逾期未缴费选课数据将被自动删除，请知悉。");
 			String content = sb.toString();
 

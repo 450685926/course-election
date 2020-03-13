@@ -931,15 +931,17 @@ public class StudentElecServiceImpl extends AbstractCacheService
         criteria.andEqualTo("projId", "1");
         ElcRebuildChargeTimeSet elcRebuildChargeTimeSet = elcRebuildChargeTimeSetDao.selectOneByExample(example);
         Date endTime = elcRebuildChargeTimeSet.getEndtime();
+        Date startTime = elcRebuildChargeTimeSet.getStrattime();
         String str = "yyyy年MM月dd日 HH点mm分ss秒";
         SimpleDateFormat sdf=new SimpleDateFormat(str);
-        String format = sdf.format(endTime);
+        String start = sdf.format(startTime);
+        String end = sdf.format(endTime);
         while (page.isHasNextPage()){
             PageHelper.startPage(page.getNextPage(),100);
             List<PaidMail> list = takeDao.findStudent(index, currentCalendar, noPayStudent);
             page = new PageInfo<>(list);
             EmailSend emailSend = new EmailSend();
-            emailSend.sendEmail(list, calendarName, format);
+            emailSend.sendEmail(list, calendarName, start, end);
         }
 
     }
