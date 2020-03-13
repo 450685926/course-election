@@ -143,9 +143,9 @@ public class EmailSend {
 		for (PaidMail bean : list) {
 
 			String mail = bean.getMail();
-			if (StringUtils.isBlank(mail)) {
-				continue;
-			}
+//			if (StringUtils.isBlank(mail)) {
+//				continue;
+//			}
 
 			StringBuilder sb = new StringBuilder();
 			// 生成发送邮件的内容
