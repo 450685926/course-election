@@ -92,6 +92,6 @@
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        and STATUS_ = 3 and EFFECTIVE_TIME_ BETWEEN #{startTime}  and #{endTime} and STUDENT_ID_ = #{studentId}
+        and STATUS_ = 3 and STUDENT_ID_ = #{studentId} and ( EFFECTIVE_TIME_ BETWEEN #{startTime}  and #{endTime} )
     </select>
 </mapper>

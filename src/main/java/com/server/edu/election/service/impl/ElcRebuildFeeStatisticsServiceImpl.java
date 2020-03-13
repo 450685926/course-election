@@ -60,7 +60,7 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
         List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
 		dto.setNoPayStudentType(noStuPay);
 		dto.setAbnormalStatuEndTime(System.currentTimeMillis());
-        dto.setAbnormalStatuStartTime(System.currentTimeMillis() - 365*24*60*60*1000);
+        dto.setAbnormalStatuStartTime(System.currentTimeMillis() - (365*24*60*60*1000L));
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<StudentRebuildFeeVo> list = elcCourseTakeDao.getStudentRebuildFeeList(condition.getCondition());
 		return new PageResult<>(list);

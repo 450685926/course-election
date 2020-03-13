@@ -308,7 +308,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         dto.setNoStuPay(noStuPay);
         dto.setDeptId(dptId);
         dto.setAbnormalEndTime(System.currentTimeMillis());
-        dto.setAbnormalStartTime(System.currentTimeMillis() - 365*24*60*60*1000);
+        dto.setAbnormalStartTime(System.currentTimeMillis() - (365*24*60*60*1000L));
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(dto);
        /* if (courseNoChargeList != null) {
@@ -811,7 +811,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             if(CollectionUtil.isNotEmpty(collect)){
                 //查找一年内异动学生
                 Long oneYearTime =System.currentTimeMillis();
-                Long oneYearAgo = System.currentTimeMillis() - 365*24*60*60*1000;
+                Long oneYearAgo = (oneYearTime - (365*24*60*60*1000L));
                 abnormalStu = noChargeTypeDao.getAbnormalStudentByOne(collect,oneYearAgo,oneYearTime,studentId);
             }
             for (RebuildCourseNoChargeType t : list) {
