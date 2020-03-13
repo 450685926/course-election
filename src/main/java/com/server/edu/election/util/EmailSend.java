@@ -19,6 +19,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class EmailSend {
@@ -139,26 +141,22 @@ public class EmailSend {
 	{
 		List<EmailEntity> emailEntityList = new ArrayList<>(100);
 
-
-		for (PaidMail bean : list) {
-
-			String mail = bean.getMail();
-//			if (StringUtils.isBlank(mail)) {
-//				continue;
-//			}
-
+		Map<String, List<PaidMail>> collect = list.stream().
+				collect(Collectors.groupingBy(s -> s.getStudentName() + "("
+						+ s.getStudentName()));
+		for (Map.Entry<String, List<PaidMail>> entry : collect.entrySet()) {
+			String student = entry.getKey();
+			List<PaidMail> value = entry.getValue();
+			List<String> courses = value.stream().map(s -> s.getCourseCode() + "["
+					+ s.getCourseName() + "]").collect(Collectors.toList());
 			StringBuilder sb = new StringBuilder();
-			// 生成发送邮件的内容
-			sb.append(bean.getStudentName()).append("(").
-					append(bean.getStudentId()).append("),您好：\r\n").
-					append("       ").append(calendarName).
-					append(" 重修课程：").append(bean.getCourseCode()).
-					append("[").append(bean.getCourseName()).append("]").
+			sb.append(student).append("),您好：\r\n").append("       ").
+					append(calendarName).append(" 重修课程：").
+					append(String.join(",", courses)).
 					append("还未缴费，缴费时间为").append(startTime).
 					append("-").append(endTime).
-					append("，逾期未缴费选课数据将被自动删除，请知悉。");
+					append("，逾期未缴费选课数据将被自动删除，请知悉。");;
 			String content = sb.toString();
-
 			// 构建发送邮件的实体
 			EmailEntity emailEntity = new EmailEntity();
 			// 邮件实体类
@@ -168,6 +166,7 @@ public class EmailSend {
 //			emailList.add(mail);
 			emailList.add("jysung@isoftstone.com");
 			emailList.add("nanzhangw@isoftstone.com");
+			emailList.add("gmlic@isoftstone.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
 		}
