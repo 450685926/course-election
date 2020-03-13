@@ -931,8 +931,11 @@ public class StudentElecServiceImpl extends AbstractCacheService
         criteria.andEqualTo("projId", "1");
         ElcRebuildChargeTimeSet elcRebuildChargeTimeSet = elcRebuildChargeTimeSetDao.selectOneByExample(example);
         Date endTime = elcRebuildChargeTimeSet.getEndtime();
+        if (new Date().after(endTime)) {
+            return;
+        }
         Date startTime = elcRebuildChargeTimeSet.getStrattime();
-        String str = "yyyy年MM月dd日 HH点mm分ss秒";
+        String str = "yyyy年MM月dd日 HH点mm分";
         SimpleDateFormat sdf=new SimpleDateFormat(str);
         String start = sdf.format(startTime);
         String end = sdf.format(endTime);
