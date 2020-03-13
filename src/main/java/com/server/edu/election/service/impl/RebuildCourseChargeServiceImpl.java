@@ -801,6 +801,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         Student record = new Student();
         record.setStudentCode(studentId);
         Student student = studentDao.selectOne(record);
+        if(student == null){
+            throw new ParameterValidateException("没有查到该学生，请用正确学生登陆");
+        }
         List<RebuildCourseNoChargeType> list = noChargeTypeDao.selectAll();
         if(CollectionUtil.isNotEmpty(list)){
             List<String> collect = list.stream().filter(vo ->StringUtils.isNotBlank(vo.getRegistrationStatus())).map(RebuildCourseNoChargeType::getRegistrationStatus).collect(Collectors.toList());
