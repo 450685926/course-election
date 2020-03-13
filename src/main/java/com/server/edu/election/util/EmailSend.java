@@ -155,13 +155,7 @@ public class EmailSend {
 					append("[").append("]").append(bean.getCourseName()).
 					append("还未缴费，截止时间为").append(endTime).
 					append("，逾期未缴费选课数据将被自动删除，请知悉。");
-
-
-			String content = bean.getStudentName() + "(" +
-					bean.getStudentId() + "),您好：\r\n" + "       "
-					+ calendarName + " 重修课程：" + bean.getCourseCode()
-					+ bean.getCourseName() + "\r\n未缴费";
-
+			String content = sb.toString();
 
 			// 构建发送邮件的实体
 			EmailEntity emailEntity = new EmailEntity();
