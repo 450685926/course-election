@@ -177,7 +177,7 @@ public class EmailSend {
 
 				String s = ServicePathEnum.
 						COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
-				LOG.info("==============" + s);
+				LOG.info("==============" + emailEntityList.size());
 			}
 
 		} catch (RestClientException e) {
