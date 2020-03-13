@@ -153,7 +153,7 @@ public class EmailSend {
 					append(bean.getStudentId()).append("),您好：\r\n").
 					append("       ").append(calendarName).
 					append(" 重修课程：").append(bean.getCourseCode()).
-					append("[").append("]").append(bean.getCourseName()).
+					append("[").append(bean.getCourseName()).append("]").
 					append("还未缴费，缴费时间为").append(startTime).
 					append("-").append(endTime).
 					append("，逾期未缴费选课数据将被自动删除，请知悉。");
