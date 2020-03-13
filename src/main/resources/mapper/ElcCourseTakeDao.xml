@@ -1810,6 +1810,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
                 and t1.GRADE_ =#{grade}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
+                and t1.IS_OVERSEAS_ =#{isOverseas}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
                 and t1.MANAGER_DEPT_ID_ =#{deptId}
             </if>
