@@ -32,7 +32,7 @@ import tk.mybatis.mapper.entity.Example;
  * 本科生培养计划课程查询
  * 
  */
-@Component
+//@Component
 public class BKMutualCoursePlanLoad extends MutualDataProLoad<ElecContextMutualBk>
 {
     Logger log = LoggerFactory.getLogger(getClass());
