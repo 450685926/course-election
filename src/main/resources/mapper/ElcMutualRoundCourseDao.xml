@@ -284,6 +284,32 @@
   		GROUP BY t3.ID_
 	  	order by t3.CODE_
   </select>
+  
+   <select id="courseCodeListForGetData" resultType="java.lang.String">
+		SELECT
+			distinct(t1.COURSE_CODE_)
+		from
+		  (select * from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}) t2
+			left join teaching_class_t t4 on t2.TEACHING_CLASS_ID_ = t4.ID_
+			left join teaching_task_t t3 ON t4.TASK_ID_ = t3.ID_
+			left join course_open_t t1 on t3.COURSE_OPEN_ID_ = t1.id_
+			LEFT JOIN elc_mutual_courses_t elc ON elc.`COURSE_ID_` = t1.id_
+	  	<where>
+	  	    1 = 1
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.inType)">
+	            and elc.`IN_TYPE_` = #{query.inType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.byType)">
+	            and elc.`BY_TYPE_` = #{query.byType}
+		    </if>
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
+	  			and t1.PROJ_ID_ = #{query.projectId}
+	  		</if>
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
+		  		and t1.CALENDAR_ID_ = #{query.calendarId}
+		  	</if> 
+	  	</where>
+  </select>
 
   <select id="listPageGraduate" resultMap="CourseOpenDtoMap">
   	select 
