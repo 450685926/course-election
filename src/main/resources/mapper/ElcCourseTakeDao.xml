@@ -614,12 +614,12 @@
         FROM elc_course_takes_t el
         JOIN course_t co on el.COURSE_CODE_=co.CODE_
         JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
-        left join student_abnormal_apply_v t8 on el.STUDENT_ID_ = t8.STUDENT_ID_ and t8.STATUS_ = 3
         JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(hasChangeGrade)">
-            left JOIN student.student_abnormal_apply_t sa
-            on el.STUDENT_ID_ = sa.STUDENT_ID_ and sa.STATUS_ = 3 and sa.CLASS_ID_ = '300015'
-            and #{endTime} &gt;= sa.EFFECTIVE_TIME_ &gt;= #{beginTime}
+            left JOIN (select DISTINCT sa.STUDENT_ID_ from student.student_abnormal_apply_t sa
+            where  sa.STATUS_ = 3 and sa.CLASS_ID_ = '300015'
+            and ( sa.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+            ) ff on  ff.STUDENT_ID_ = el.STUDENT_ID_
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
             left join
@@ -645,7 +645,7 @@
                     and t10.IS_OVERSEAS_ = #{item.isOverseas}
                 </if>
                 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
-                    and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime}
+                    and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
                 </if>
                 )
             </foreach>
@@ -702,10 +702,10 @@
                 </foreach>
             </if>
             <if test="hasChangeGrade == 1">
-                and sa.ID_ is not null
+                and ff.STUDENT_ID_ is not null and el.PAID_ = 1
             </if>
             <if test="hasChangeGrade == 0">
-                and sa.ID_ is null
+                and (ff.STUDENT_ID_ is null or el.PAID_ = 0)
             </if>
 
         </where>
@@ -2530,7 +2530,7 @@
                         and t10.IS_OVERSEAS_ = #{item.isOverseas}
                     </if>
                     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
-                        and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime}
+                        and t9.CLASS_ID_ = #{item.registrationStatus} and (t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime})
                     </if>
                     )
                 </foreach>
