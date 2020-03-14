@@ -920,7 +920,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         page.setHasNextPage(true);
         List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
         long abnormalStatuEndTime = System.currentTimeMillis();
-        long abnormalStatuStartTime = abnormalStatuEndTime - 365*24*60*60*1000;
+        long abnormalStatuStartTime = abnormalStatuEndTime - (365*24*60*60*1000L);
         List<String> noPayStudent = takeDao.findNoPayStudent(
                 currentCalendar, noStuPay,
                 abnormalStatuStartTime, abnormalStatuEndTime);
