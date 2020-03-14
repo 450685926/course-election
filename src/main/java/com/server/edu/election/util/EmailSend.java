@@ -142,8 +142,8 @@ public class EmailSend {
 		List<EmailEntity> emailEntityList = new ArrayList<>(100);
 
 		Map<String, List<PaidMail>> collect = list.stream().
-				collect(Collectors.groupingBy(s -> s.getStudentName() + "("
-						+ s.getStudentName()));
+				collect(Collectors.groupingBy(
+						s -> s.getStudentName() + "(" + s.getStudentId()));
 		for (Map.Entry<String, List<PaidMail>> entry : collect.entrySet()) {
 			String student = entry.getKey();
 			List<PaidMail> value = entry.getValue();
@@ -182,7 +182,7 @@ public class EmailSend {
 
 		} catch (RestClientException e) {
 			e.printStackTrace();
-			LOG.info("sendStatisticsEmail() error mess: {}", e);
+			LOG.info("sendEmail() error mess: {}", e);
 		}
 
 	}
