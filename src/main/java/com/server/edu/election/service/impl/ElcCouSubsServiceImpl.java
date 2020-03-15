@@ -110,9 +110,7 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
         dto.setStudentId(elcCouSubs.getStudentId());
         List<ElcCouSubsVo> list =
             elcCouSubsDao.selectElcNoGradCouSubs(dto);
-        ElecContextUtil.setReplaceCourses(elcCouSubs.getStudentId(),
-            list);
-        ElecContextUtil.initCurrentAndNextCalendarStu(elcCouSubs.getStudentId());
+        updateReplaceCache(elcCouSubs.getStudentId(), list);
         return result;
     }
     
@@ -163,11 +161,20 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
         dto.setStudentId(elcCouSubs.getStudentId());
         List<ElcCouSubsVo> list =
             elcCouSubsDao.selectElcNoGradCouSubs(dto);
-        ElecContextUtil.setReplaceCourses(elcCouSubs.getStudentId(),
-            list);
-        ElecContextUtil.initCurrentAndNextCalendarStu(elcCouSubs.getStudentId());
+        updateReplaceCache(elcCouSubs.getStudentId(), list);
         return result;
     }
+
+	private void updateReplaceCache(String studentId, List<ElcCouSubsVo> list) {
+		ElecContextUtil.setReplaceCourses(studentId,
+            list);
+        ElecContextUtil.initCurrentAndNextCalendarStu(studentId);
+        Long nowCalendarId = BaseresServiceInvoker.getCurrentCalendar();
+        applicationContext
+        .publishEvent(new ElectLoadEvent(nowCalendarId, studentId));
+        applicationContext
+        .publishEvent(new ElectLoadEvent(nowCalendarId+1L, studentId));
+	}
     
     @Override
     @Transactional
@@ -204,8 +211,7 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
                 List<ElcCouSubsVo> stuCous = elcNoGradCouSubsList.stream()
                     .filter(c -> studentId.equals(c.getStudentId()))
                     .collect(Collectors.toList());
-                ElecContextUtil.setReplaceCourses(studentId, stuCous);
-                ElecContextUtil.initCurrentAndNextCalendarStu(studentId);
+                updateReplaceCache(studentId, stuCous);
             }
         }
         return result;
