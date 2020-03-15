@@ -982,54 +982,59 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             List<PayOrderDto> orderDtos = elcBillDao.findToBaseById(ids);
             //分表规则
             int index = TableIndexUtil.getIndex(rebuildCourseNoChargeLists.get(0).getCalendarId());
+            //全部的订单号集合
+            List<String> allList = new ArrayList<>();
+            //从页面传下来的订单id
+            List<String> list = new ArrayList<>();
             List<Long> billIds = rebuildCourseNoChargeLists.stream().filter(r -> null != r.getBillId()).map(r -> r.getBillId()).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(billIds)){
+            if (CollectionUtil.isNotEmpty(billIds)) {
                 //去数据库查询订单号
                 Example example = new Example(ElcBill.class);
                 Example.Criteria criteria = example.createCriteria();
-                criteria.andIn("id",billIds);
+                criteria.andIn("id", billIds);
                 List<ElcBill> elcBills = elcBillDao.selectByExample(example);
-                if (CollectionUtil.isNotEmpty(elcBills)){
-                    List<String> list = elcBills.stream().map(e -> e.getBillNum()).collect(Collectors.toList());
-                    List<PayOrderDto> dtos = new ArrayList<>();
-                    if (CollectionUtil.isNotEmpty(orderDtos)){
+                if (CollectionUtil.isNotEmpty(elcBills)) {
+                    list = elcBills.stream().map(e -> e.getBillNum()).collect(Collectors.toList());
+                    if (CollectionUtil.isNotEmpty(orderDtos)) {
                         //过滤掉从页面查询过来的订单
-                        dtos = orderDtos.stream().filter(o -> !list.contains(o.getOrderNo())).collect(Collectors.toList());
-                    }
-                    if (CollectionUtil.isNotEmpty(dtos)){
-                        //创建订单，以及更新选课数据
-                        this.setOrder(dtos);
-                        //把从页面传过来的和base获取的订单号全部去财务对账
-                        dtos.forEach(d ->{
-                            list.add(d.getOrderNo());
-                        });
-                    }
-                    List<PayResult> payResult = BaseresServiceInvoker.getPayResult(list);
-                    //解析对账结果
-                    List<PayResult> results = payResult.stream().filter(r -> r.getPayFlag() && StringUtils.isNotBlank(r.getPaystate())).collect(Collectors.toList());
-                    List<PayResultDto> payResultDtoList = new ArrayList<>();
-                    List<ElcBill> elcBillList = new ArrayList<>();
-                    results.forEach(r ->{
-                        PayResultDto payResultDto = new PayResultDto();
-                        BeanUtils.copyProperties(r,payResultDto);
-                        payResultDto.setIndex(index);
-                        payResultDto.setPaid(("4".equals(payResultDto.getPaystate())?1:0));
-                        payResultDtoList.add(payResultDto);
-                        //账单金额已缴金额处理
-                        ElcBill elcBill = new ElcBill();
-                        elcBill.setBillNum(payResultDto.getBillno());
-                        elcBill.setFlag(("4".equals(payResultDto.getPaystate())?true:false));
-                        elcBillList.add(elcBill);
-                    });
-
-                    if(CollectionUtil.isNotEmpty(payResultDtoList)){
-                        courseTakeDao.setPayStatusBatch(payResultDtoList);
-                    }
-                    //账单金额已缴金额处理
-                    if(CollectionUtil.isNotEmpty(elcBillList)){
-                        elcBillDao.updatePayBatch(elcBillList);
+                        List<String> finalList = list;
+                        orderDtos = orderDtos.stream().filter(o -> !finalList.contains(o.getOrderNo())).collect(Collectors.toList());
                     }
                 }
+            }
+            if (CollectionUtil.isNotEmpty(orderDtos)){
+                //创建订单，以及更新选课数据
+                this.setOrder(orderDtos);
+                //把从页面传过来的和base获取的订单号全部去财务对账
+                orderDtos.forEach(d ->{
+                    allList.add(d.getOrderNo());
+                });
+            }
+            allList.addAll(list);
+            List<PayResult> payResult = BaseresServiceInvoker.getPayResult(allList);
+            //解析对账结果
+            List<PayResult> results = payResult.stream().filter(r -> r.getPayFlag() && StringUtils.isNotBlank(r.getPaystate())).collect(Collectors.toList());
+            List<PayResultDto> payResultDtoList = new ArrayList<>();
+            List<ElcBill> elcBillList = new ArrayList<>();
+            results.forEach(r ->{
+                PayResultDto payResultDto = new PayResultDto();
+                BeanUtils.copyProperties(r,payResultDto);
+                payResultDto.setIndex(index);
+                payResultDto.setPaid(("4".equals(payResultDto.getPaystate())?1:0));
+                payResultDtoList.add(payResultDto);
+                //账单金额已缴金额处理
+                ElcBill elcBill = new ElcBill();
+                elcBill.setBillNum(payResultDto.getBillno());
+                elcBill.setFlag(("4".equals(payResultDto.getPaystate())?true:false));
+                elcBillList.add(elcBill);
+            });
+
+            if(CollectionUtil.isNotEmpty(payResultDtoList)){
+                courseTakeDao.setPayStatusBatch(payResultDtoList);
+            }
+            //账单金额已缴金额处理
+            if(CollectionUtil.isNotEmpty(elcBillList)){
+                elcBillDao.updatePayBatch(elcBillList);
             }
         }
     }
