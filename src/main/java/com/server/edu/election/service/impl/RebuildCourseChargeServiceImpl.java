@@ -999,13 +999,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     if (CollectionUtil.isNotEmpty(dtos)){
                         //创建订单，以及更新选课数据
                         this.setOrder(dtos);
-                    }
-                    //把从页面传过来的和base获取的订单号全部去财务对账
-                    if (CollectionUtil.isNotEmpty(orderDtos)){
-                        orderDtos.forEach(o ->{
-                            if (!list.contains(o.getOrderNo())){
-                                list.add(o.getOrderNo());
-                            }
+                        //把从页面传过来的和base获取的订单号全部去财务对账
+                        dtos.forEach(d ->{
+                            list.add(d.getOrderNo());
                         });
                     }
                     List<PayResult> payResult = BaseresServiceInvoker.getPayResult(list);
