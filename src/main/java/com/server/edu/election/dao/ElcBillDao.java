@@ -3,6 +3,7 @@ package com.server.edu.election.dao;
 import com.server.edu.election.dto.PayOrderDto;
 import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.ElcBill;
+import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 
@@ -15,5 +16,5 @@ public interface ElcBillDao extends Mapper<ElcBill>, MySqlMapper<ElcBill> {
 
     List<StudentRePaymentDto> payDetailById(StudentRePaymentDto condition);
 
-    List<PayOrderDto> findToBaseById(List<Long> ids);
+    List<PayOrderDto> findToBaseById(@Param("ids") List<Long> ids);
 }
