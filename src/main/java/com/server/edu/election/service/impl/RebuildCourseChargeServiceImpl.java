@@ -1049,7 +1049,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             elcBill.setBillNum(d.getOrderNo());
             elcBill.setAmount(Double.valueOf(d.getAmount()));
             elcBill.setPay(("4".equals(d.getPayStatus())?Double.valueOf(d.getAmount()):0));
-            elcBillDao.insertSelective(elcBill);
+            elcBillDao.save(elcBill);
+            //elcBillDao.insertSelective(elcBill);
+            System.out.println("返回的id======"+elcBill.getId());
             //更新缴费信息
             ElcCourseTake courseTake = new ElcCourseTake();
             courseTake.setPaid(("4".equals(d.getPayStatus())?1:0));

@@ -17,4 +17,6 @@ public interface ElcBillDao extends Mapper<ElcBill>, MySqlMapper<ElcBill> {
     List<StudentRePaymentDto> payDetailById(StudentRePaymentDto condition);
 
     List<PayOrderDto> findToBaseById(@Param("ids") List<Long> ids);
+
+    void save(ElcBill elcBill);
 }
