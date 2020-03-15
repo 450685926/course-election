@@ -15,7 +15,12 @@
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
 
-  <!--批量设置支付状态-->
+    <insert id="save" parameterType="com.server.edu.election.entity.ElcBill" useGeneratedKeys="true" keyColumn="ID_" keyProperty="id">
+        INSERT INTO elc_bills_t(STUDENT_ID_,CALENDAR_ID_,BILL_NUM_,AMOUNT_,PAY_)
+        VALUES (#{studentId},#{calendarId},#{billNum},#{amount},#{pay})
+    </insert>
+
+    <!--批量设置支付状态-->
   <update id="updatePayBatch" parameterType="java.util.List">
     <foreach collection="list" item="item" index="index"  separator=";">
       update elc_bills_t eb

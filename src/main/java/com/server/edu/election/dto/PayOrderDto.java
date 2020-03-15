@@ -58,7 +58,7 @@ public class PayOrderDto
     /**
      * 支付状态
      */
-    private Integer payStatus;
+    private String payStatus;
     
     /**
      * 金额
@@ -169,12 +169,12 @@ public class PayOrderDto
         this.major = major;
     }
 
-    public Integer getPayStatus()
+    public String getPayStatus()
     {
         return payStatus;
     }
 
-    public void setPayStatus(Integer payStatus)
+    public void setPayStatus(String payStatus)
     {
         this.payStatus = payStatus;
     }
