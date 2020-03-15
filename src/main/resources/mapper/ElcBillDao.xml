@@ -81,7 +81,7 @@
   </select>
 
     <select id="findToBaseById" resultType="com.server.edu.election.dto.PayOrderDto">
-        SELECT bc.*
+        SELECT
         bc.ORDER_NO_ orderNo,
         bc.STUDENT_ID_ studentId,
         bc.FEEITEM_CODE_ feeItemCode,
