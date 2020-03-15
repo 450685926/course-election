@@ -207,6 +207,18 @@ public class ElecContextBk implements IElecContext
     	this.getReplaceCourses().clear();
     }
     
+    
+    public void elecCompletedCoursesClear()
+    {
+    	this.getCompletedCourses().clear();
+    }
+    
+    public void elecFailedCoursesClear()
+    {
+    	this.getFailedCourse().clear();
+    }
+    
+    
     @Override
     public Long getCalendarId()
     {

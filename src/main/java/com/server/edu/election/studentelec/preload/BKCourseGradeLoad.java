@@ -300,7 +300,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
      * @param stu
      * @see [类、类#方法、类#成员]
      */
-    private void loadScoreTemp(ElecContextBk context, StudentInfoCache studentInfo,
+    public void loadScoreTemp(ElecContextBk context, StudentInfoCache studentInfo,
         String studentId, Student stu,List<ElcCouSubsVo> list)
     {
         List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentId);
@@ -574,12 +574,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
      * @see [类、类#方法、类#成员]
      */
     public void loadElcCouSubsCourse(String studentId,
-    		Set<ElcCouSubsVo> set)
+    		Set<ElcCouSubsVo> set,List<ElcCouSubsVo> elcCouSubsList)
     {
-    	ElcCouSubsDto dto = new ElcCouSubsDto();
-    	dto.setStudentId(studentId);
-        List<ElcCouSubsVo> elcCouSubsList =
-        		elcCouSubsDao.selectElcNoGradCouSubs(dto);
         if(CollectionUtil.isNotEmpty(elcCouSubsList)) {
         	set = new HashSet<>(elcCouSubsList);
         }
