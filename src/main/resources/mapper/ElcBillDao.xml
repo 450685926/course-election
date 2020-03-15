@@ -79,4 +79,23 @@
           on eb.BILL_NUM_ = bc.ORDER_NO_
           WHERE eb.ID_ = #{billId}
   </select>
+
+    <select id="findToBaseById" resultType="com.server.edu.election.dto.PayOrderDto">
+        SELECT bc.*
+        bc.ORDER_NO_ orderNo,
+        bc.STUDENT_ID_ studentId,
+        bc.FEEITEM_CODE_ feeItemCode,
+        bc.TERM_ term,
+        bc.PAY_STATUS_ payStatus,
+        bc.AMOUNT_ amount,
+        bc.BUS_IDS_ busIds,
+        bc.ORDER_NO_ orderNo
+        FROM baseres.common_pay_order_t bc
+        WHERE bc.FEEITEM_CODE_ = 'JWC-02'
+        AND (
+        <foreach collection="ids" item="id" index="index"  separator="OR">
+            bc.BUS_IDS_ LIKE CONCAT('%',#{grade},',%')
+        </foreach>
+        )
+    </select>
 </mapper>

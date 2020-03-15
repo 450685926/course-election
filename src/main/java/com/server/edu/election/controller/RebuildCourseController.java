@@ -395,7 +395,7 @@ public class RebuildCourseController
     }
 
     /**
-     * @Description: 财务对账(通过账单号)
+     * @Description: 财务对账(通过账单号),如果没有账单号则去base库对
      * @author kan yuanfeng
      * @date 2019/10/22 11:26
      */
