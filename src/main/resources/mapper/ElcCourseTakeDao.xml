@@ -2647,6 +2647,7 @@
     <select id="findByStuIdAndCId" resultType="com.server.edu.election.dto.StudentRePaymentDto">
         SELECT
         el.ID_ id,
+        el.CALENDAR_ID_ calendarId,
         el.COURSE_CODE_ courseCode,
         el.PAID_ paid,
         c.CREDITS_ credits,
