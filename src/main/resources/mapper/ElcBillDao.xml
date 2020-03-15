@@ -94,7 +94,7 @@
         WHERE bc.FEEITEM_CODE_ = 'JWC-02'
         AND (
         <foreach collection="ids" item="id" index="index"  separator="OR">
-            bc.BUS_IDS_ LIKE CONCAT('%',#{grade},',%')
+            bc.BUS_IDS_ LIKE CONCAT('%',#{id},',%')
         </foreach>
         )
     </select>
