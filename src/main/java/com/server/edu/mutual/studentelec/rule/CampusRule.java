@@ -40,9 +40,9 @@ public class CampusRule extends AbstractMutualElecRuleExceutor
                 return true;
             }
             ElecRespose respose = context.getRespose();
+            String key = courseClass.getCourseCode() + "[" + courseClass.getCourseName() + "]";
             respose.getFailedReasons()
-                .put(courseClass.getCourseCodeAndClassCode(),
-                    I18nUtil.getMsg("ruleCheck.campus"));
+                .put(key,I18nUtil.getMsg("ruleCheck.campus"));
             return false;
         }
     }

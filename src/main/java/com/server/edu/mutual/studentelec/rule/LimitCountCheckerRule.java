@@ -40,9 +40,9 @@ public class LimitCountCheckerRule extends AbstractMutualElecRuleExceutor
             return true;
         }
         ElecRespose respose = context.getRespose();
+        String key = courseClass.getCourseCode() + "[" + courseClass.getCourseName() + "]";
         respose.getFailedReasons()
-            .put(courseClass.getCourseCodeAndClassCode(),
-                I18nUtil.getMsg("ruleCheck.limitCount"));
+            .put(key,I18nUtil.getMsg("ruleCheck.limitCount"));
         
         return false;
     }
