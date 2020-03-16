@@ -72,13 +72,13 @@ public class CultureSerivceInvokerToMutual {
 		RestResult result = ServicePathEnum.CULTURESERVICE
                 .getForObject("/bclCulturePlan/findPlanCourseTab?studentID={0}", RestResult.class,studentId);
 		LOG.info("findPlanCourseTab return value:"+JSONObject.toJSONString(result));
-		
+
 		if (null != result
                 && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
         {
 			String json =JSONObject.toJSON(result.getData()).toString();
 			List<PlanCourseTabVo> ls = JSONArray.parseArray(json, PlanCourseTabVo.class);
-			List<String> list=new ArrayList<>(); 
+			List<String> list=new ArrayList<>();
 			ls.stream().forEach(v->{
 				list.add(v.getCourseCode());
 			});
@@ -86,6 +86,30 @@ public class CultureSerivceInvokerToMutual {
         }
         return Collections.emptyList();
 	}
+
+    /**
+     * 功能描述: 获取本科生培养计划里的所有课程代码(获取多个学生的)
+     *
+     * @params: [studentId]
+     * @return: java.util.List<java.lang.String>
+     * @author: zhaoerhu
+     * @date: 2020/3/16 9:34
+     */
+    public static List<String> getCulturePlanCourseCodeByStudentIdForJD(String studentIds){
+        RestResult result = ServicePathEnum.CULTURESERVICE
+                .getForObject("/bclCulturePlan/findPlanCourseTabForJD?studentID={0}", RestResult.class,studentIds);
+        LOG.info("findPlanCourseTabForJD return value:"+JSONObject.toJSONString(result));
+
+        if (null != result
+                && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
+        {
+			String json = JSONObject.toJSON(result.getData()).toString();
+			List<String> list = JSONArray.parseArray(json, String.class);
+			return list;
+        }
+        return Collections.emptyList();
+    }
+
 	public static List<String> studentPlanCourseCode(String studentId)
     {
 		RestResult resultList = ServicePathEnum.CULTURESERVICE
@@ -159,6 +183,28 @@ public class CultureSerivceInvokerToMutual {
 //				}
 //			}
         }
+		return Collections.emptyList();
+	}
+
+	/**
+	 * 功能描述: 获取本科生培养方案获取模板id(获取多个学生的id)
+	 *
+	 * @params: [studentIds]
+	 * @return: java.util.List<java.lang.Long>
+	 * @author: zhaoerhu
+	 * @date: 2020/3/16 9:26
+	 */
+	public static List<Long> getStudentCultureSchemeForJD(String studentIds) {
+		RestResult result = ServicePathEnum.CULTURESERVICE
+				.getForObject("/bclStudentCultureRel/queryStudentCultureSchemeForJD?studentIds={0}", RestResult.class, studentIds);
+		LOG.info(" queryStudentCultureScheme return value:" + JSONObject.toJSONString(result));
+
+		if (null != result
+				&& ResultStatus.SUCCESS.code() == result.getCode() && null != result.getData()) {
+			String json = JSONObject.toJSON(result.getData()).toString();
+			List<Long> list = JSONArray.parseArray(json, Long.class);
+			return list;
+		}
 		return Collections.emptyList();
 	}
 	

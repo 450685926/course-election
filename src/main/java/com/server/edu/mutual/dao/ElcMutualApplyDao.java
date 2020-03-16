@@ -72,4 +72,14 @@ public interface ElcMutualApplyDao extends Mapper<ElcMutualApply>,MySqlMapper<El
      * @return
      */
     List<String> getStuCourseCodesFromScore(@RequestParam("studentId") String studentId);
+
+	/**
+	 * 功能描述: 获取学生已有成绩的课程(批量获取多个学生有成绩的课程并集)
+	 *
+	 * @params: [studentIdList]
+	 * @return: java.util.List<java.lang.String>
+	 * @author: zhaoerhu
+	 * @date: 2020/3/16 9:28
+	 */
+	List<String> getStuCourseCodesFromScoreForJD(@Param("studentIdList") List<String> studentIdList);
 }

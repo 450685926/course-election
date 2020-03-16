@@ -551,5 +551,17 @@
 			STUDENT_ID_ =#{studentId}
     </select>
 
+	<select id="getStuCourseCodesFromScoreForJD" resultType="java.lang.String">
+		SELECT
+		COURSE_CODE_
+		FROM
+		score_student_result_t
+		WHERE
+		STUDENT_ID_ in
+		<foreach item="studentId" collection="studentIdList" open="(" close=")" separator=",">
+			#{studentId}
+		</foreach>
+	</select>
+
 
 </mapper>
