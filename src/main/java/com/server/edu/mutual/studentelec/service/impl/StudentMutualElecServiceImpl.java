@@ -3,8 +3,6 @@ package com.server.edu.mutual.studentelec.service.impl;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +13,10 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElecRoundCourseQuery;
@@ -170,19 +166,20 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
         ElecRespose response =
             ElecContextUtil.getElecRespose(studentId);
         ElecStatus status = ElecContextUtil.getElecStatus(calendarId, studentId);
-        
-        //请求时间设置为1秒
-        for(int i=0; i<5; i++) {
-        	if (status == ElecStatus.Ready) {
-        		break;
-        	}
-        	try {
+    	try {
+    		//请求时间设置为1秒
+    		for(int i=0; i<5; i++) {
+            	if (status == ElecStatus.Ready) {
+            		break;
+            	}
+            	LOG.info("--------------AAAAA-------------" + System.currentTimeMillis());
 				Thread.sleep(200L);
+				LOG.info("--------------BBBBB-------------" + System.currentTimeMillis());
 				status = ElecContextUtil.getElecStatus(calendarId, studentId);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-        }
+    		}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
         
         if (response == null)
         {
