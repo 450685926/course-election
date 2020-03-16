@@ -177,7 +177,7 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
                 {
                     // 校验不通过时跳过后面的校验进行下一个
                     allSuccess = false;
-                    String key = teachClass.getCourseCodeAndClassCode();
+                    String key = teachClass.getCourseCode() + "[" + teachClass.getCourseName() + "]";
                     if (!failedReasons.containsKey(key))
                     {
                         failedReasons.put(key, exceutor.getDescription());
@@ -414,8 +414,8 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
                 {
                     // 校验不通过时跳过后面的校验进行下一个
                     allSuccess = false;
-                    String key =
-                        teachClass.getCourse().getCourseCodeAndClassCode();
+                    TeachingClassCache course = teachClass.getCourse();
+                    String key = course.getCourseCode() + "[" + course.getCourseName() + "]";
                     if (!failedReasons.containsKey(key))
                     {
                         failedReasons.put(key, exceutor.getDescription());
