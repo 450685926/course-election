@@ -176,7 +176,7 @@ public class EmailSend {
 			if (CollectionUtil.isNotEmpty(emailEntityList)) {
 
 				String s = ServicePathEnum.
-						COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+						COMMONSERVICE.postForObject("/mail/asyncSend", emailEntityList, String.class);
 				LOG.info("==============" + emailEntityList.size());
 			}
 
