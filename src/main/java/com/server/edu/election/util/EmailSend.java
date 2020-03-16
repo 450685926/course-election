@@ -89,7 +89,8 @@ public class EmailSend {
 
 	public String buildEmailContent2(RemindTimeBean bean, String calendarName, String mess) throws Exception {
 		String count = (bean.getStudentName() + "(" + bean.getStudentId() + "),您好：\r\n" + "       " + calendarName
-				+ " 课程：" + bean.getCourseNameAndCode() + "\r\n已经在" + bean.getRemindTime() + " 代理退课成功");
+				+ " 课程：" + bean.getCourseNameAndCode() + "\r\n已经在" + bean.getRemindTime()
+				+ " 代理退课成功。如有问题请在选课开放期间内联系学院及本科生院学务管理中心解决，逾期不予办理。");
 		return count;
 	}
 
