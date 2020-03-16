@@ -391,7 +391,10 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 			stuDto.setBatch(Boolean.TRUE);
             //增加批量学生 11685
             stuDto.setStudentIdList(studentIdList);
-        }
+        }else{
+			dto.setBatch(Boolean.FALSE);
+			stuDto.setBatch(Boolean.FALSE);
+		}
 		stuDto.setCalendarId(dto.getCalendarId());
 		stuDto.setStudentId(dto.getStudentId());
 

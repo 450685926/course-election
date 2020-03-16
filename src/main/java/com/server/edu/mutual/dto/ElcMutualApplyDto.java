@@ -336,7 +336,7 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 	}
 
 	public void setBatch(Boolean batch) {
-		this.batch = batch;
+		this.batch = (batch == null ? Boolean.FALSE : batch);
 	}
 
 	public ElcMutualApplyDto() {
