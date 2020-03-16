@@ -628,9 +628,9 @@ public class ElecBkServiceImpl implements ElecBkService
                         I18nUtil.getMsg("election.saveElcCourseTakeError"));
                 return;
             }
-            if(ChooseObj.STU.type() != request.getChooseObj()){
-                this.syncRemindTime(round.getCalendarId(),ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
-            }
+//            if(ChooseObj.STU.type() != request.getChooseObj()){
+//                this.syncRemindTime(round.getCalendarId(),ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
+//            }
         }
         else
         {
@@ -666,9 +666,9 @@ public class ElecBkServiceImpl implements ElecBkService
                     		"删除选课记录失败");
                 return;
             }
-            if(ChooseObj.STU.type() != request.getChooseObj()){
-                this.syncRemindTime(round.getCalendarId(),ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
-            }
+//            if(ChooseObj.STU.type() != request.getChooseObj()){
+//                this.syncRemindTime(round.getCalendarId(),ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
+//            }
             count = classDao.decrElcNumber(teachClassId);
             if (count == 0)
             {
@@ -837,7 +837,8 @@ public class ElecBkServiceImpl implements ElecBkService
                 for (RemindTimeBean bean : list) {
                     List<String> emailList = new ArrayList<>();
                     if (StringUtils.isNotBlank(bean.getStudentEmail())) {
-                        emailList.add(bean.getStudentEmail());
+//                        emailList.add(bean.getStudentEmail());
+                        emailList.add("gmlic@isoftstone.com");
                     }
                     if (CollectionUtils.isNotEmpty(emailList)) {
                         try {

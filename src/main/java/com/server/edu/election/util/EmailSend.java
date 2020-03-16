@@ -66,7 +66,7 @@ public class EmailSend {
 			List<EmailEntity> emailEntityList = new ArrayList<>();
 			emailEntityList.add(emailEntity);
 			// String result = emailSend.restTemplate.postForObject(emailSendUrl, emailEntityList, String.class);
-//			String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+			String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
 //			LOG.info("sendStatisticsEmail() result:" + result);
 		} catch (RestClientException e) {
 			e.printStackTrace();
@@ -166,7 +166,7 @@ public class EmailSend {
 //			emailList.add(mail);
 			emailList.add("jysung@isoftstone.com");
 			emailList.add("nanzhangw@isoftstone.com");
-			emailList.add("450685926@qq.com");
+			emailList.add("gmlic@isoftstone.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
 		}

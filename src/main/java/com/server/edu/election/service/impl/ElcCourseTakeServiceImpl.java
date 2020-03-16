@@ -586,11 +586,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             applicationContext
                     .publishEvent(new ElectLoadEvent(calendarId, studentId));
             Student stu  = studentDao.findStudentByCode(studentId);
-            try {
-                elecBkService.syncRemindTime(calendarId,1,studentId,stu.getName(),courseName+"("+courseCode+")");
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+//            try {
+//                elecBkService.syncRemindTime(calendarId,1,studentId,stu.getName(),courseName+"("+courseCode+")");
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
             String elecStatus = Constants.IS_ELEC;
             //更新培养的选课状态
             StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
@@ -668,11 +668,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             applicationContext
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
             Student stu  = studentDao.findStudentByCode(studentId);
-            try{
-                elecBkService.syncRemindTime(calendarId,1,studentId,stu.getName(),courseName+"("+courseCode+")");
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+//            try{
+//                elecBkService.syncRemindTime(calendarId,1,studentId,stu.getName(),courseName+"("+courseCode+")");
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
             String elecStatus = Constants.IS_ELEC;
             //更新培养的选课状态
             StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
@@ -1115,11 +1115,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 
                 vo.setCalendarId(calendarId);
                 vo.setStudentId(studentId);
-//                try{
-//                    elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }
+                try{
+                    elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 withdrawMap.put(
                     String
                         .format("%s-%s", vo.getCalendarId(), vo.getStudentId()),
