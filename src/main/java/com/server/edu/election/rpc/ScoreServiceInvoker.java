@@ -15,6 +15,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.entity.Student;
+import com.server.edu.util.CollectionUtil;
 
 /**
  * 成绩模块微服务调用
@@ -74,6 +75,23 @@ public class ScoreServiceInvoker {
                         studentCode,courseCode,calendarId);
 
         return restResult.getData();
+    }
+
+    public static List<String> findStu(String courseCode,List<String> studentCodes)
+    {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("courseCode", courseCode);
+        jsonObject.put("studentCodes", studentCodes);
+        if (CollectionUtil.isEmpty(studentCodes)) {
+            return new ArrayList<>();
+        }
+        @SuppressWarnings("unchecked")
+        List<String> list =
+                ServicePathEnum.SCORESERVICE.postForObject(
+                        "/studentScoreCount/findStu",
+                        jsonObject, List.class);
+
+        return list;
     }
 
     public static PageResult<StudentScore> findUnPassStuScore(PageCondition<String> condition)
