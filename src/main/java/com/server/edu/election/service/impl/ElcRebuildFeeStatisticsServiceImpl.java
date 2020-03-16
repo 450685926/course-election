@@ -6,7 +6,9 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
@@ -19,6 +21,7 @@ import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.election.vo.StudentRebuildFeeVo;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.exam.rpc.BaseresServiceExamInvoker;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -54,13 +57,16 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 		String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
 
 		StudentRebuildFeeDto dto = condition.getCondition();
-		/*int mode = TableIndexUtil.getMode(dto.getCalendarId());
-		dto.setMode(mode);*/
+		//查询校历时间
+		SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(dto.getCalendarId());
+		//获取上学期
+		SchoolCalendarVo preTerm = BaseresServiceExamInvoker.getPreOrNextTerm(dto.getCalendarId(), false);
+
 		dto.setManageDptId(dptId);
         List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
 		dto.setNoPayStudentType(noStuPay);
-		dto.setAbnormalStatuEndTime(System.currentTimeMillis());
-        dto.setAbnormalStatuStartTime(System.currentTimeMillis() - (365*24*60*60*1000L));
+		dto.setAbnormalStatuEndTime(calendar.getEndDay());
+        dto.setAbnormalStatuStartTime(preTerm.getBeginDay());
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<StudentRebuildFeeVo> list = elcCourseTakeDao.getStudentRebuildFeeList(condition.getCondition());
 		return new PageResult<>(list);

@@ -28,6 +28,37 @@ public class StudentDto extends Student
 
     private Long teachingClassId;
 
+    private String inSchool;
+
+    private String graduateStudent;
+
+    private String internationalGraduates;
+
+
+    public String getInSchool() {
+        return inSchool;
+    }
+
+    public void setInSchool(String inSchool) {
+        this.inSchool = inSchool;
+    }
+
+    public String getGraduateStudent() {
+        return graduateStudent;
+    }
+
+    public void setGraduateStudent(String graduateStudent) {
+        this.graduateStudent = graduateStudent;
+    }
+
+    public String getInternationalGraduates() {
+        return internationalGraduates;
+    }
+
+    public void setInternationalGraduates(String internationalGraduates) {
+        this.internationalGraduates = internationalGraduates;
+    }
+
     public String getKeyword() {
         return keyword;
     }

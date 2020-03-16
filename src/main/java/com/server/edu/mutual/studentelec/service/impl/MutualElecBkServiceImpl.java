@@ -213,7 +213,9 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         }
         // 判断学生是否要重修缴费
         String studentId = context.getStudentInfo().getStudentId();
-        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
+        Long roundId = context.getRequest().getRoundId();
+        ElectionRounds elcRound = dataProvider.getRound(roundId);
+        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId,elcRound.getCalendarId()))
         {
             context.getRespose().getData().put("retakePay", "true");
         }

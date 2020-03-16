@@ -156,5 +156,13 @@
 	  	    c.TEACHING_CLASS_ID_ = #{teachClassId}  
 	  	</where>
   	</select>
+
+    <select id="findStudentRoundType" resultType="com.server.edu.election.dto.StudentDto" >
+        select t1.STUDENT_CODE_ inSchool,t2.XH graduateStudent,t3.XH internationalGraduates
+        from student_t t1
+        left join  tj_ungraduate t2 on t1.STUDENT_CODE_ = t2.XH
+        left join tj_ungraduate_foreign t3 on t1.STUDENT_CODE_ = t3.XH
+        where t1.STUDENT_CODE_ = #{studentId}
+    </select>
     
 </mapper>
