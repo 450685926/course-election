@@ -814,6 +814,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 //查找一年内异动学生
                 Long oneYearTime =System.currentTimeMillis();
                 Long oneYearAgo = (oneYearTime - (365*24*60*60*1000L));
+                //不收费类型 中编级 不能有转专业的，此处先查询，下面判断
+                if(collect.contains("300015")){
+                    collect.add("300006");
+                }
                 abnormalStu = noChargeTypeDao.getAbnormalStudentByOne(collect,oneYearAgo,oneYearTime,studentId);
             }
             for (RebuildCourseNoChargeType t : list) {
