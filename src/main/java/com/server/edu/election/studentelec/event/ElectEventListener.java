@@ -56,7 +56,7 @@ public class ElectEventListener implements ApplicationListener<ElectLoadEvent>
                 context.elecReplaceCoursesClear();
                 context.elecCompletedCoursesClear();
                 context.elecFailedCoursesClear();
-                StudentInfoCache studentInfo = context.getStudentInfo();
+                //StudentInfoCache studentInfo = context.getStudentInfo();
                 // 重新加载学生缓存数据
                 bKCourseGradeLoad.loadSelectedCourses(studentId,
                     context.getSelectedCourses(),
@@ -67,7 +67,7 @@ public class ElectEventListener implements ApplicationListener<ElectLoadEvent>
                 		elcCouSubsDao.selectElcNoGradCouSubs(dto);
                 bKCourseGradeLoad.loadElecApplyCourse(studentId, context.getElecApplyCourses(), calendarId);
                 bKCourseGradeLoad.loadElcCouSubsCourse(studentId, context.getReplaceCourses(),elcCouSubsList);
-                bKCourseGradeLoad.loadScoreTemp(context, studentInfo, studentId, stu,elcCouSubsList);
+                //bKCourseGradeLoad.loadScoreTemp(context, studentInfo, studentId, stu,elcCouSubsList);
                 context.saveToCache();
             }
             else
