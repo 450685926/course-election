@@ -837,8 +837,8 @@ public class ElecBkServiceImpl implements ElecBkService
                 for (RemindTimeBean bean : list) {
                     List<String> emailList = new ArrayList<>();
                     if (StringUtils.isNotBlank(bean.getStudentEmail())) {
-//                        emailList.add(bean.getStudentEmail());
-                        emailList.add("gmlic@isoftstone.com");
+                        emailList.add(bean.getStudentEmail());
+//                        emailList.add("gmlic@isoftstone.com");
                     }
                     if (CollectionUtils.isNotEmpty(emailList)) {
                         try {
