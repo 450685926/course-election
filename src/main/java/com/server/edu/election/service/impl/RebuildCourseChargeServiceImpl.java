@@ -312,6 +312,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         dto.setAbnormalStartTime(System.currentTimeMillis() - (365*24*60*60*1000L));
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(dto);
+
        /* if (courseNoChargeList != null) {
             List<RebuildCourseNoChargeList> list = courseNoChargeList.getResult();
             for (RebuildCourseNoChargeList rebuildList : list) {
@@ -847,8 +848,14 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                         continue;
                     }else{
                         List<String> stringList = abnormalStu.stream().map(StudentRebuildFeeVo::getRegistrationStatus).collect(Collectors.toList());
+
                         if(!stringList.contains(registrationStatus)){
                             continue;
+                        }else{
+                            //编级（300015 300006 需要收费）
+                            if(registrationStatus.equals("300015") && stringList.contains("300006")){
+                                continue;
+                            }
                         }
                     }
 
