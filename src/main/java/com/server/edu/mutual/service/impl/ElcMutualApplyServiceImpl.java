@@ -270,6 +270,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		List<ElcMutualApplyVo> list = selectElcMutualApplyList(dto);
 		//日志打印
 		logCourseCodeFilter(list);
+		//测试日志
+		LOG.info("-----------dto.isBatch()---------:" + dto.isBatch());
+		LOG.info("-----------dto---------:" + dto.toString());
 		if(dto.isBatch()){
 			//批量分支走批量逻辑  待开发
 			list = listResultFilterByCultureBatch(dto, list, projectId);

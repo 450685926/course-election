@@ -404,6 +404,7 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 				", statusArray=" + statusArray +
 				", collegeList=" + collegeList +
 				", idSign=" + idSign +
+				", batch=" + batch +
 				'}';
 	}
 }
