@@ -54,8 +54,8 @@ public class ElectEventListener implements ApplicationListener<ElectLoadEvent>
                 context.courseClear();
                 context.elecApplyCoursesClear();
                 context.elecReplaceCoursesClear();
-                context.elecCompletedCoursesClear();
-                context.elecFailedCoursesClear();
+//                context.elecCompletedCoursesClear();
+//                context.elecFailedCoursesClear();
                 //StudentInfoCache studentInfo = context.getStudentInfo();
                 // 重新加载学生缓存数据
                 bKCourseGradeLoad.loadSelectedCourses(studentId,
