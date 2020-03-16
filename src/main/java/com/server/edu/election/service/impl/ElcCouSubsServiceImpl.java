@@ -169,11 +169,11 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
 		ElecContextUtil.setReplaceCourses(studentId,
             list);
         ElecContextUtil.initCurrentAndNextCalendarStu(studentId);
-        Long nowCalendarId = BaseresServiceInvoker.getCurrentCalendar();
-        applicationContext
-        .publishEvent(new ElectLoadEvent(nowCalendarId, studentId));
-        applicationContext
-        .publishEvent(new ElectLoadEvent(nowCalendarId+1L, studentId));
+//        Long nowCalendarId = BaseresServiceInvoker.getCurrentCalendar();
+//        applicationContext
+//        .publishEvent(new ElectLoadEvent(nowCalendarId, studentId));
+//        applicationContext
+//        .publishEvent(new ElectLoadEvent(nowCalendarId+1L, studentId));
 	}
     
     @Override
