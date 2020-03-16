@@ -168,15 +168,17 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
         ElecStatus status = ElecContextUtil.getElecStatus(calendarId, studentId);
     	try {
     		//请求时间设置为1秒
-    		for(int i=0; i<5; i++) {
+    		for(int i=0; i<10; i++) {
             	if (status == ElecStatus.Ready) {
             		break;
             	}
-				Thread.sleep(200L);
+				Thread.sleep(100L);
 				status = ElecContextUtil.getElecStatus(calendarId, studentId);
     		}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		} finally {
+			response = ElecContextUtil.getElecRespose(studentId);
 		}
         
         if (response == null)
