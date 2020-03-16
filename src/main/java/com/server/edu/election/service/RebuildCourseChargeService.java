@@ -75,7 +75,7 @@ public interface RebuildCourseChargeService {
     /**导出回收站*/
     ExcelResult exportRecycle(RebuildCourseDto condition);
 
-    boolean isNoNeedPayForRetake(String studentId);
+    boolean isNoNeedPayForRetake(String studentId,Long calendarId);
 
     PageResult<StudentRePaymentDto> findStuRePayment(PageCondition<StudentRePaymentDto> studentRePaymentDto);
 

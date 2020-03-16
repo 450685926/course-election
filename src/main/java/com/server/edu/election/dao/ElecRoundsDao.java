@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.dto.StudentDto;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -90,4 +91,11 @@ public interface ElecRoundsDao extends Mapper<ElectionRounds>
      * @return
      */
     List<ElectionRoundsDto> getRoundByTeachClassId(@Param("teachClassId") Long teachClassId);
+
+    /**
+     * 通过学号查询能看到那几个轮次
+     * @param studentId
+     * @return
+     */
+    StudentDto findStudentRoundType(@Param("studentId") String studentId);
 }

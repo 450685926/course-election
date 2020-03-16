@@ -81,6 +81,8 @@ public class ElecController
         	}
         }
         String studentId = session.realUid();
+        //判断学生类型 （在校 ，结业 ，留学结业，按照模式显示轮次信息）
+        List<String> studentRoundType = roundService.findStudentRoundType(studentId);
         for (ElectionRounds round : allRound)
         {
             Long roundId = round.getId();
@@ -90,7 +92,8 @@ public class ElecController
                 && date.before(round.getEndTime())
 //                && dataProvider.containsStu(roundId, studentId)
                 && dataProvider
-                    .containsStuCondition(roundId, studentId, projectId))
+                    .containsStuCondition(roundId, studentId, projectId)
+                    && studentRoundType.contains(String.valueOf(round.getMode())))
             {
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules = dataProvider.getRules(roundId);

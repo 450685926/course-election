@@ -80,4 +80,12 @@ public interface ElecRoundService
      * @return
      */
     List<ElectionRounds> getAllList(ElectionRounds rounds);
+
+    /**
+     * 通过学号查询能够显示那个轮次 3 结业 4 留学结业 否则算在校显示
+     * */
+
+    List<String> findStudentRoundType(String studentId);
+
+
 }

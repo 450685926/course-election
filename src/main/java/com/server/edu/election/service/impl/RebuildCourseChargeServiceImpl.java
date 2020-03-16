@@ -32,6 +32,7 @@ import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.CommonConstant;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.*;
+import com.server.edu.exam.rpc.BaseresServiceExamInvoker;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -302,14 +303,14 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         RebuildCourseDto dto = condition.getCondition();
         //查询校历时间
         SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(dto.getCalendarId());
-        dto.setBeginTime(calendar.getBeginDay());
-        dto.setEndTime(calendar.getEndDay());
+        //获取上学期
+        SchoolCalendarVo preTerm = BaseresServiceExamInvoker.getPreOrNextTerm(dto.getCalendarId(), false);
         dto.setIndex(TableIndexUtil.getIndex(dto.getCalendarId()));
         List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
         dto.setNoStuPay(noStuPay);
         dto.setDeptId(dptId);
-        dto.setAbnormalEndTime(System.currentTimeMillis());
-        dto.setAbnormalStartTime(System.currentTimeMillis() - (365*24*60*60*1000L));
+        dto.setAbnormalEndTime(calendar.getEndDay());
+        dto.setAbnormalStartTime(preTerm.getBeginDay());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(dto);
 
@@ -799,7 +800,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     }
 
     @Override
-    public boolean isNoNeedPayForRetake(String studentId) {
+    public boolean isNoNeedPayForRetake(String studentId,Long calendarId) {
         Student record = new Student();
         record.setStudentCode(studentId);
         Student student = studentDao.selectOne(record);
@@ -811,9 +812,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             List<String> collect = list.stream().filter(vo ->StringUtils.isNotBlank(vo.getRegistrationStatus())).map(RebuildCourseNoChargeType::getRegistrationStatus).collect(Collectors.toList());
             List<StudentRebuildFeeVo> abnormalStu = new ArrayList<>();
             if(CollectionUtil.isNotEmpty(collect)){
-                //查找一年内异动学生
-                Long oneYearTime =System.currentTimeMillis();
-                Long oneYearAgo = (oneYearTime - (365*24*60*60*1000L));
+
+                SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(calendarId);
+                SchoolCalendarVo preTerm = BaseresServiceExamInvoker.getPreOrNextTerm(calendarId, false);
+
+                //查找当前学期 以及上学期内异动学生
+                Long oneYearTime = calendar.getEndDay();
+                Long oneYearAgo = preTerm.getBeginDay();
                 //不收费类型 中编级 不能有转专业的，此处先查询，下面判断
                 if(collect.contains("300015")){
                     collect.add("300006");
@@ -882,19 +887,20 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<StudentRePaymentDto> findStuRePayment(PageCondition<StudentRePaymentDto> pageCondition) {
         PageResult<StudentRePaymentDto> paymentDtoList=new PageResult<>();
-        String studentCode = pageCondition.getCondition().getStudentCode();
+        StudentRePaymentDto paymentDto = pageCondition.getCondition();
+        String studentCode = paymentDto.getStudentCode();
         /**是否在不缴费学生类型中*/
         // todo 因为毕业证书类型现在取不到，暂时无法判断是否需要收费
-        boolean retake = isNoNeedPayForRetake(studentCode);
+        boolean retake = isNoNeedPayForRetake(studentCode,paymentDto.getCalendarId());
         if(retake){
             return null;
         }
         //去收费标准查询，是否需要缴费
-        List<RebuildCourseCharge> rebuildCourseChargeList =  courseChargeDao.selectByStuId(pageCondition.getCondition().getStudentCode());
+        List<RebuildCourseCharge> rebuildCourseChargeList =  courseChargeDao.selectByStuId(paymentDto.getStudentCode());
         if (CollectionUtil.isNotEmpty(rebuildCourseChargeList) && rebuildCourseChargeList.get(0).getIsCharge().equals(1)){
             //查询该学期缴费的课程及缴费状态
             PageHelper.startPage(pageCondition.getPageNum_(), pageCondition.getPageSize_());
-            Page<StudentRePaymentDto> page = (Page<StudentRePaymentDto>)courseTakeDao.findByStuIdAndCId(pageCondition.getCondition());
+            Page<StudentRePaymentDto> page = (Page<StudentRePaymentDto>)courseTakeDao.findByStuIdAndCId(paymentDto);
             //设置单价
             if (CollectionUtil.isNotEmpty(page.getResult())){
                 page.getResult().forEach(p -> p.setUnitPrice(rebuildCourseChargeList.get(0).getUnitPrice()));
@@ -940,7 +946,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<RebuildCourseNoChargeList> findNoChargeListByStuId(PageCondition<RebuildCourseDto> condition) {
         RebuildCourseDto rebuildCourseDto = condition.getCondition();
-        boolean retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId());
+        boolean retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId(),rebuildCourseDto.getCalendarId());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
                // int mode = TableIndexUtil.getMode(c.getCalendarId());
         rebuildCourseDto.setIndex(TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId()));
@@ -963,7 +969,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public ExcelWriterUtil exportByStuId(RebuildCourseDto rebuildCourseDto) throws Exception {
-        boolean retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId());
+        boolean retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId(),rebuildCourseDto.getCalendarId());
         rebuildCourseDto.setIndex(TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId()));
         Page<RebuildCourseNoChargeList> list = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
         for (RebuildCourseNoChargeList rebuildCourseNoChargeList : list) {

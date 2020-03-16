@@ -1,8 +1,11 @@
 package com.server.edu.election.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.server.edu.election.dto.StudentDto;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -219,5 +222,31 @@ public class ElecRoundServiceImpl implements ElecRoundService
         .andGreaterThan("endTime",rounds.getBeginTime()).andEqualTo("openFlag",1).andEqualTo("deleteStatus",0);
         List<ElectionRounds> roundsList = roundsDao.selectByExample(example);
         return roundsList;
+    }
+
+    @Override
+    public List<String> findStudentRoundType(String studentId) {
+        List<String> list = new ArrayList<>();
+        StudentDto studentDto = roundsDao.findStudentRoundType(studentId);
+        if(studentDto != null){
+            if(StringUtils.isNotBlank(studentDto.getGraduateStudent())){
+                 list.add(String.valueOf(Constants.THIRD_TURN));
+                 return list;
+            }
+
+            if(StringUtils.isNotBlank(studentDto.getInternationalGraduates())){
+                list.add(String.valueOf(Constants.FOURTH_TURN));
+                return list;
+            }
+
+             if(StringUtils.isNotBlank(studentDto.getInSchool())){
+                 list.add(String.valueOf(Constants.FIRST_TURN));
+                 list.add(String.valueOf(Constants.SECOND_TURN));
+                 list.add(String.valueOf(Constants.FIFTH));
+                 return list;
+             }
+
+        }
+        return list;
     }
 }
