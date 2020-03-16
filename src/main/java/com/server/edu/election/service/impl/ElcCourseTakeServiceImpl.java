@@ -1435,10 +1435,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		Session currentSession = SessionUtils.getCurrentSession();
 		ElcResultQuery cond = page.getCondition();
 		cond.setProjectId(currentSession.getCurrentManageDptId());
-		
+
 		//查询本门课是否有选课
 		logger.info("cond.getCourseCode()+++++++++++++++++++++++"+cond.getCourseCode());
-		
+
 		Example example = new Example(ElcCourseTake.class);
 		example.createCriteria().andEqualTo("courseCode",cond.getCourseCode());
 		List<ElcCourseTake> selectByExample = courseTakeDao.selectByExample(example);
@@ -1448,6 +1448,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 			collect.add(string.getStudentId());
 		}
 		collect.add("0");
+
+        List<String> stu = ScoreServiceInvoker.findStu(cond.getCourseCode(), cond.getStudentIds());
+        collect.addAll(stu);
 		cond.setStudentCodes(collect);
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
