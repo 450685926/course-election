@@ -172,9 +172,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             	if (status == ElecStatus.Ready) {
             		break;
             	}
-            	LOG.info("--------------AAAAA-------------" + System.currentTimeMillis());
-				Thread.sleep(2000L);
-				LOG.info("--------------BBBBB-------------" + System.currentTimeMillis());
+				Thread.sleep(200L);
 				status = ElecContextUtil.getElecStatus(calendarId, studentId);
     		}
 		} catch (InterruptedException e) {
