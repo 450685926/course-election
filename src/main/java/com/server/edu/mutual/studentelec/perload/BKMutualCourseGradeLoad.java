@@ -131,21 +131,21 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
         StudentInfoCache studentInfo = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         String studentId = studentInfo.getStudentId();
-        Student stu = studentDao.findStudentByCode(studentId);
-        if (null == stu)
-        {
-            String msg =
-                String.format("student not find studentId=%s", studentId);
-            throw new RuntimeException(msg);
-        }
+//        Student stu = studentDao.findStudentByCode(studentId);
+//        if (null == stu)
+//        {
+//            String msg =
+//                String.format("student not find studentId=%s", studentId);
+//            throw new RuntimeException(msg);
+//        }
         // 学生替代课程
-        ElcCouSubsDto dto = new ElcCouSubsDto();
-        dto.setStudentId(studentId);
-        List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
+//        ElcCouSubsDto dto = new ElcCouSubsDto();
+//        dto.setStudentId(studentId);
+//        List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
 
         // 加载成绩已完成和未通过的课程
         //loadScore(context, studentInfo, studentId, stu);
-        loadScoreTemp(context, studentInfo, studentId, stu,list);
+//        loadScoreTemp(context, studentInfo, studentId, stu,list);
         
         //得到校历id
         Long calendarId = request.getCalendarId();
@@ -156,24 +156,24 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
         
         //3.学生免修课程
-        List<ElecCourse> applyRecord =
-            applyDao.findApplyRecord(calendarId, studentId);
+//        List<ElecCourse> applyRecord =
+//            applyDao.findApplyRecord(calendarId, studentId);
         
-        Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
-        applyForDropCourses.addAll(applyRecord);
+//        Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
+//        applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
         
         //5. 学生选课申请课程
-        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
-        Example aExample = new Example(ElectionApply.class);
-        Example.Criteria aCriteria = aExample.createCriteria();
-        aCriteria.andEqualTo("studentId", studentId);
-        aCriteria.andEqualTo("calendarId", calendarId);
-        List<ElectionApply> electionApplys =
-            electionApplyDao.selectByExample(aExample);
-        elecApplyCourses.addAll(electionApplys);
-        //6. 保存学生替代课程
-        context.getReplaceCourses().addAll(list);
+//        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
+//        Example aExample = new Example(ElectionApply.class);
+//        Example.Criteria aCriteria = aExample.createCriteria();
+//        aCriteria.andEqualTo("studentId", studentId);
+//        aCriteria.andEqualTo("calendarId", calendarId);
+//        List<ElectionApply> electionApplys =
+//            electionApplyDao.selectByExample(aExample);
+//        elecApplyCourses.addAll(electionApplys);
+//        //6. 保存学生替代课程
+//        context.getReplaceCourses().addAll(list);
     }
 
     /**
