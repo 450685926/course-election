@@ -921,9 +921,12 @@ public class StudentElecServiceImpl extends AbstractCacheService
         List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
         long abnormalStatuEndTime = System.currentTimeMillis();
         long abnormalStatuStartTime = abnormalStatuEndTime - (365*24*60*60*1000L);
-        List<String> noPayStudent = takeDao.findNoPayStudent(
-                currentCalendar, noStuPay,
-                abnormalStatuStartTime, abnormalStatuEndTime);
+        List<String> noPayStudent = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(noStuPay)) {
+            noPayStudent = takeDao.findNoPayStudent(
+                    currentCalendar, noStuPay,
+                    abnormalStatuStartTime, abnormalStatuEndTime);
+        }
 
         Example example = new Example(ElcRebuildChargeTimeSet.class);
         Example.Criteria criteria = example.createCriteria();
