@@ -379,7 +379,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
     {
         logger.info("it is start to loadSelectedCourses.................");
         List<ElcCourseTakeVo> courseTakes =
-            elcCourseTakeDao.findSelectedCourses(studentId, calendarId);
+            elcCourseTakeDao.findYjsSelectedCourses(studentId, calendarId);
         if (CollectionUtil.isNotEmpty(courseTakes))
         {
             List<Long> teachClassIds = courseTakes.stream()
