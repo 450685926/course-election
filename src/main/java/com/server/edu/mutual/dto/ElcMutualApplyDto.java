@@ -13,6 +13,9 @@ public class ElcMutualApplyDto extends ElcMutualApply {
     //主键标识 默认为0 标识没数据， 其他值标识有数据 区分：新增和更新
     private int idSign=0;
 
+    //学位类型 做检索用
+	private String degreeType;
+
     private String courseCode;
     
     private String courseName;
@@ -337,6 +340,14 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 
 	public void setBatch(Boolean batch) {
 		this.batch = (batch == null ? Boolean.FALSE : batch);
+	}
+
+	public String getDegreeType() {
+		return degreeType;
+	}
+
+	public void setDegreeType(String degreeType) {
+		this.degreeType = degreeType;
 	}
 
 	public ElcMutualApplyDto() {

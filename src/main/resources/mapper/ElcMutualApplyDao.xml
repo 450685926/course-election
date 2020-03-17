@@ -232,6 +232,8 @@
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
 		        and t5.FACULTY_  = #{openCollege}
+		    </if><if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
+				 and t4.DEGREE_TYPE_ = #{degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
 		        and t5.PROJ_ID_ in  
@@ -460,6 +462,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 		        and t5.PROJ_ID_ = #{projectId}
 		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
+				and t4.DEGREE_TYPE_ = #{degreeType}
+			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
 				and t5.PROJ_ID_ in
 				<foreach item="projectId" collection="projectIds" open="(" close=")" separator=",">
