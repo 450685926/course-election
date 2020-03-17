@@ -1056,17 +1056,17 @@ public class ElecBkServiceImpl implements ElecBkService
                     if(isRetake) {
                     	num = rateEngLishselectedcourse.size()+isEngLishCount;
                     	if(num>2) {
-                    		failedReasons.put(String.format("%s[%s]",
-                                    teachClass.getCourseCode(),
-                                    teachClass.getTeachClassCode()), "最多能重修两门公共英语课");
+                    		failedReasons.put(String.format("[%s]%s",
+                    				teachClass.getTeachClassCode(),
+                    				teachClass.getCourseName()), "最多能重修两门公共英语课");
                     		continue;
                     	}
                     }else {
                     	num = normalEngLishselectedcourse.size()+isEngLishCount;
                     	if(num>1) {
-                    		failedReasons.put(String.format("%s[%s]",
-                                    teachClass.getCourseCode(),
-                                    teachClass.getTeachClassCode()), "只能选一门公共英语课");
+                    		failedReasons.put(String.format("[%s]%s",
+                                    teachClass.getTeachClassCode(),
+                                    teachClass.getCourseName()), "只能选一门公共英语课");
                     		continue;
                     	}
                     }
