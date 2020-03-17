@@ -4,28 +4,39 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.server.edu.common.dto.CultureRuleDto;
+import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.GradeStuPlanCourseDto;
 import com.server.edu.election.dto.PaidMail;
 import com.server.edu.election.dto.StudentChangeDto;
+import com.server.edu.election.dto.StudentScoreDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.query.PublicCourseQuery;
 import com.server.edu.election.query.PublicCourseTag;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.*;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
+import com.server.edu.election.studentelec.preload.BKCoursePlanLoad;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.utils.*;
+import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.election.util.EmailSend;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
@@ -126,6 +137,15 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Autowired
     private ElcRebuildChargeTimeSetDao elcRebuildChargeTimeSetDao;
+    
+    @Autowired
+    private CourseDao courseDao;
+    
+    @Autowired
+    private BKCoursePlanLoad load;
+    
+	@Autowired
+	private StudentUndergraduateScoreInfoDao infoDao; 
 
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
@@ -307,7 +327,6 @@ public class StudentElecServiceImpl extends AbstractCacheService
         List<ElectionRuleVo> noRetakeRules = rules.stream().filter(r -> "NoRetakeRule".equals(r.getServiceName())).collect(Collectors.toList());
         List<ElectionRuleVo> limitRules = rules.stream().filter(r -> "TimeConflictCheckerRule".equals(r.getServiceName())).collect(Collectors.toList());
         List<ElectionRuleVo> peRules = rules.stream().filter(r -> "OnePeCourseCheckerRule".equals(r.getServiceName())).collect(Collectors.toList());
-
         Integer semester = 0;
         if (CollectionUtil.isNotEmpty(peRules)){
             //查询规则参数是否生效
@@ -331,17 +350,17 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }
 
-        Integer onlyRetakeRule = 1;
-        Integer noRetakeRule = 1;
-        if (CollectionUtil.isEmpty(onlyRetakeRules)){
-            onlyRetakeRule = 0;
+        Integer onlyRetakeRule = 0;
+        Integer noRetakeRule = 0;
+        //是否展示已修页签
+        Integer isShowCompletedTag = 0;
+        if (CollectionUtil.isNotEmpty(onlyRetakeRules)){
+            onlyRetakeRule = 1;
+            isShowCompletedTag = 1;
         }
-        if (CollectionUtil.isEmpty(noRetakeRules)){
-            noRetakeRule = 0;
+        if (CollectionUtil.isNotEmpty(noRetakeRules)){
+            noRetakeRule = 1;
         }
-
-
-
         Integer isPlan = 1;
         Integer isLimit = 1;
     	if(CollectionUtil.isEmpty(planRules)) {
@@ -418,7 +437,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         //查询学生是否编级、降转学生
         Integer isDetainedStudent = 0;
         //查询学生是否编级学生
-        Integer isEditLevelStudent = 0;
+//        Integer isEditLevelStudent = 0;
         //获取选课学期是否为当前学期
         Long nowCalendarId = BaseresServiceInvoker.getCurrentCalendar();
         //判断学生学籍变动范围
@@ -449,17 +468,16 @@ public class StudentElecServiceImpl extends AbstractCacheService
         }
         if(CollectionUtil.isNotEmpty(studentChangeList1)) {
         	List<StudentChangeDto> studentChanges1 = studentChangeList1.stream().filter(c->Constants.FIFTH.equals(c.getXjydType())).collect(Collectors.toList());
-        	if(studentChanges1.size()>0) {
-        		isEditLevelStudent = 1;
+        	if(Constants.FIRST.equals(noRetakeRule)&&studentChanges1.size()>0) {
+        		isShowCompletedTag = 1;
         	}
         }
         if(CollectionUtil.isNotEmpty(studentChangeList2)) {
         	List<StudentChangeDto> studentChanges2 = studentChangeList2.stream().filter(c->Constants.FIFTH.equals(c.getXjydType())).collect(Collectors.toList());
-        	if(studentChanges2.size()>0) {
-        		isEditLevelStudent = 1;
+        	if(Constants.FIRST.equals(noRetakeRule)&&studentChanges2.size()>0) {
+        		isShowCompletedTag = 1;
         	}
         }
-        
         ElecRespose respose = context.getRespose();
         respose.setTurn(round.getTurn());
         respose.setIsPlan(isPlan);
@@ -469,7 +487,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
         respose.setOnlyRetakeFilter(onlyRetakeRule);
         respose.setNoRetakeRule(noRetakeRule);
         respose.setIsOverseas(student.getIsOverseas());
-        respose.setIsEditLevelStudent(isEditLevelStudent);
+//        respose.setIsEditLevelStudent(isEditLevelStudent);
+        respose.setIsShowCompletedTag(isShowCompletedTag);
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
             for(int i=0;i<loginExceutors.size();i++) {
@@ -955,4 +974,86 @@ public class StudentElecServiceImpl extends AbstractCacheService
         EmailSend emailSend = new EmailSend();
         emailSend.sendEmail(list, calendarName, start, end);
     }
+    
+    public List<GradePlanCourse> getGradeStuPlanCourse(GradeStuPlanCourseDto gdto){
+    	List<GradePlanCourse> planCourses = new ArrayList<>();
+        Example example = new Example(Course.class);
+        Example.Criteria criteria =example.createCriteria();
+        criteria.andEqualTo("college", "000293");
+        List<Course> courses = courseDao.selectByExample(example);
+        List<String> PEList = courses.stream().map(Course::getCode).collect(Collectors.toList());
+        List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(gdto.getStudentId());
+   	    StudentScoreDto dto = new StudentScoreDto();
+        dto.setStudentId(gdto.getStudentId());
+        List<ScoreStudentResultVo> stuScore = infoDao.getStudentScoreList(dto);
+        List<String> selectedCourse = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(stuScore)) {
+            selectedCourse = stuScore.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
+        }
+        Long roundId = gdto.getRoundId();
+        if(CollectionUtil.isNotEmpty(courseType)){
+            for (PlanCourseDto planCourse : courseType) {
+                List<PlanCourseTypeDto> list = planCourse.getList();
+                CultureRuleDto rule = planCourse.getRule();
+                Long labelId = planCourse.getLabel();
+                String labelName = planCourse.getLabelName();
+                if(CollectionUtil.isNotEmpty(list)){
+                    for (PlanCourseTypeDto pct : list) {//培养课程
+                    	Integer isHaveScore =0;
+                        String courseCode = pct.getCourseCode();
+                        if(StringUtils.isBlank(courseCode) ||(CollectionUtil.isNotEmpty(selectedCourse) && selectedCourse.contains(courseCode)) ) {
+                            continue;
+                        }
+                        boolean isEnglishFlag = load.checkCultureEnglish(gdto.getStudentId(), courseCode);
+                        if(!isEnglishFlag){
+                            continue;
+                        }
+                        GradePlanCourse pl=new GradePlanCourse();
+//                        Example example = new Example(Course.class);
+//                        example.createCriteria().andEqualTo("code", courseCode);
+//                        Course course = courseDao.selectOneByExample(example);
+                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+                        if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                            ElecCourse course2 = new ElecCourse();
+                            course2.setCourseCode(courseCode);
+                            course2.setCourseName(pct.getName());
+                            course2.setNameEn(pct.getNameEn());
+                            course2.setCredits(pct.getCredits());
+                            course2.setCompulsory(pct.getCompulsory());
+                            course2.setLabelId(labelId);
+                            course2.setLabelName(labelName);
+                            course2.setChosen(pct.getChosen());
+                            course2.setIsQhClass(pct.getIsQhClass());
+                            if(CollectionUtil.isNotEmpty(PEList)){
+                                if (PEList.contains(courseCode)){
+                                    course2.setIsPE(Constants.ONE);
+                                    pl.setIsPE(Constants.ONE);
+                                }else{
+                                    course2.setIsPE(Constants.ZERO);
+                                    pl.setIsPE(Constants.ZERO);
+                                }
+                            }else{
+                                course2.setIsPE(Constants.ZERO);
+                                pl.setIsPE(Constants.ZERO);
+                            }
+                            if(StringUtils.isBlank(courseCode) ||(CollectionUtil.isNotEmpty(selectedCourse) && selectedCourse.contains(courseCode)) ) {
+                            	isHaveScore = Constants.FIRST;
+                            }
+                        	pl.setIsHaveScore(isHaveScore);
+                            pl.setCourse(course2);
+                            pl.setSemester(pct.getSemester());
+                            pl.setWeekType(pct.getWeekType());
+                            pl.setSubCourseCode(pct.getSubCourseCode());
+                            pl.setLabel(labelId);
+                            pl.setLabelName(labelName);
+                            planCourses.add(pl);
+                        }
+                    }
+                }
+            }
+        }
+        return planCourses;
+         
+    }
+
 }

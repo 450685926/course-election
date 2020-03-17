@@ -1,12 +1,17 @@
 package com.server.edu.election.controller;
 
+import com.github.pagehelper.PageInfo;
+import com.server.edu.common.PageCondition;
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dto.GradeStuPlanCourseDto;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.GradePlanCourse;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.PublicCourseQuery;
 import com.server.edu.election.query.PublicCourseTag;
 import com.server.edu.election.service.ElecRoundService;
@@ -15,12 +20,14 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.election.vo.PublicCourseVo;
+import com.server.edu.election.vo.StudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -276,5 +283,22 @@ public class ElecController
         logger.info("send Email !!!");
         elecService.sendEmail();
         return RestResult.success();
+    }
+    
+	 /**
+     * 获取结业生培养计划课程接口
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "特殊学生名单列表")
+    @PostMapping("/getGradeStuPlanCourse")
+    public RestResult<List<GradePlanCourse>> getGradeStuPlanCourse(
+        @RequestBody GradeStuPlanCourseDto dto)
+        throws Exception
+    {
+    	List<GradePlanCourse> list =elecService.getGradeStuPlanCourse(dto);
+        return RestResult.successData(list);
     }
 }

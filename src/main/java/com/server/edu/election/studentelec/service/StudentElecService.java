@@ -1,6 +1,8 @@
 package com.server.edu.election.studentelec.service;
 
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.GradeStuPlanCourseDto;
+import com.server.edu.election.entity.GradePlanCourse;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.PublicCourseQuery;
 import com.server.edu.election.query.PublicCourseTag;
@@ -8,10 +10,12 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.vo.PublicCourseVo;
 import com.server.edu.util.async.AsyncResult;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 选课请求的主入口
@@ -71,4 +75,6 @@ public interface StudentElecService
     List<PublicCourseTag> getPublicCourse(PublicCourseQuery query);
 
     void sendEmail();
+    
+    List<GradePlanCourse> getGradeStuPlanCourse(GradeStuPlanCourseDto dto);
 }
