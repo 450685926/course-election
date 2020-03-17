@@ -87,7 +87,17 @@ public class ElecCourse implements Serializable
      */
     @Code2Text(DictTypeEnum.X_SKYY)
     private String teachingLanguage;
-    
+
+    @Code2Text(transformer = "X_YX")
+    private String faculty;
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
 
     public String getTeachingLanguage() {
 		return teachingLanguage;

@@ -90,6 +90,17 @@ public class TeachingClassCache extends ElecCourse implements Serializable
     /**替代课程学分*/
     private Double replaceCredits;
 
+    @Code2Text(DictTypeEnum.X_YX)
+    private String replaceFaculty;
+
+    public String getReplaceFaculty() {
+        return replaceFaculty;
+    }
+
+    public void setReplaceFaculty(String replaceFaculty) {
+        this.replaceFaculty = replaceFaculty;
+    }
+
     public Double getReplaceCredits() {
         return replaceCredits;
     }

@@ -36,7 +36,29 @@ public class ElcCouSubsVo extends ElcCouSubs
     
     /**新课程信息*/
     private String subCourseInfo;
-    
+
+    @Code2Text(transformer = "X_YX")
+    private String origsCollege;
+
+    @Code2Text(transformer = "X_YX")
+    private String subCollege;
+
+    public String getOrigsCollege() {
+        return origsCollege;
+    }
+
+    public void setOrigsCollege(String origsCollege) {
+        this.origsCollege = origsCollege;
+    }
+
+    public String getSubCollege() {
+        return subCollege;
+    }
+
+    public void setSubCollege(String subCollege) {
+        this.subCollege = subCollege;
+    }
+
     public String getStudentName()
     {
         return studentName;
