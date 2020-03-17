@@ -273,8 +273,9 @@ public class ElcResultServiceImpl implements ElcResultService
             listPage = classDao.listPage(condition);
         }
         List<TeachingClassVo> list = listPage.getResult();
+        List<Long> collect = new ArrayList<>();
         if(CollectionUtil.isNotEmpty(list)) {
-            List<Long> collect = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+             collect = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
             List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(collect);
             MultiValueMap<Long, TimeAndRoom> multiValueMap = new LinkedMultiValueMap<>(50);
             if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
@@ -302,8 +303,30 @@ public class ElcResultServiceImpl implements ElcResultService
             // 添加教室容量
             Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(toSet());
             List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
+            //remark  字段 获取的是选课备注 不是排课备注
+            Map<Long, List<TeachingClassElectiveRestrictAttr>> listMap = new HashMap<>();
+            if(CollectionUtil.isNotEmpty(collect)){
+                Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+                Example.Criteria criteria = example.createCriteria();
+                criteria.andIn("teachingClassId",collect);
+                List<TeachingClassElectiveRestrictAttr> Attrs = classElectiveRestrictAttrDao.selectByExample(example);
+                if(CollectionUtil.isNotEmpty(Attrs)){
+                     listMap = Attrs.stream().collect(Collectors.groupingBy(TeachingClassElectiveRestrictAttr::getTeachingClassId));
+                }
+            }
             for(TeachingClassVo vo: list) {
                 Long id = vo.getId();
+                if(listMap.size() > 0 ){
+                    List<TeachingClassElectiveRestrictAttr> teachingAttrs = listMap.get(id);
+                    if(CollectionUtil.isNotEmpty(teachingAttrs)){
+                        String remark = teachingAttrs.get(0).getRemark();
+                        vo.setRemark(remark);
+                    }else{
+                        vo.setRemark("");
+                    }
+                }else{
+                    vo.setRemark("");
+                }
                 TeachingClassVo teachingClassVo = classDao.bindClass(id);
                 if (teachingClassVo != null) {
                     String tId;
@@ -1476,10 +1499,19 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Override
 	@Transactional
 	public void updateClassRemark(Long id, String remark) {
-		TeachingClass teachingClass =new TeachingClass();
-		teachingClass.setId(id);
-		teachingClass.setRemark(remark);
-		teachingClassDao.updateByPrimaryKeySelective(teachingClass);
+	    //更新的是选课备注
+        Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+        example.createCriteria().andEqualTo("teachingClassId",id);
+        List<TeachingClassElectiveRestrictAttr> restrictAttrs = classElectiveRestrictAttrDao.selectByExample(example);
+        //有就更新，没有就插入
+        TeachingClassElectiveRestrictAttr arr = new TeachingClassElectiveRestrictAttr();
+        arr.setRemark(remark);
+        if(CollectionUtil.isNotEmpty(restrictAttrs)){
+            classElectiveRestrictAttrDao.updateByExampleSelective(arr,example);
+        }else{
+            arr.setTeachingClassId(id);
+            classElectiveRestrictAttrDao.insertSelective(arr);
+        }
 	}
 
 	@Override
