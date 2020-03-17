@@ -162,8 +162,8 @@ public interface ElcCourseTakeDao
     
     void addCourseTakeFromRecycle(List<RebuildCourseNoChargeList> list);
     
-    /**已选择课程信息*/
-    List<ElcCourseTakeVo> findSelectedCourses(
+    /**研究生已选择课程信息*/
+    List<ElcCourseTakeVo> findYjsSelectedCourses(
         @Param("studentId") String studentId,
         @Param("calendarId") Long calendarId);
     
@@ -178,7 +178,11 @@ public interface ElcCourseTakeDao
         @Param("studentId") String studentId,
         @Param("calendarId") Long calendarId);
 
-
+    /** 指定学年学期已选择课程信息 */
+    List<ElcCourseTakeVo> findSelectedCourses(
+        @Param("studentId") String studentId,
+        @Param("calendarId") Long calendarId,
+        @Param("index") Integer index);
 
     Page<RollBookList> findAllTeachingClass(RollBookConditionDto condition);
 
