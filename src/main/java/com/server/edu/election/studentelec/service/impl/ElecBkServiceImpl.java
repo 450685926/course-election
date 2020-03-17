@@ -1007,8 +1007,10 @@ public class ElecBkServiceImpl implements ElecBkService
         StudentInfoCache studentInfo = context.getStudentInfo();
         Long calendarId = round.getCalendarId();
         List<ElcCourseTakeVo> selectedCourses = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+//        List<String> asList =
+//                courseOpenDao.getEnglishCourses(round.getCalendarId(), "000268",Constants.FIRST);
         List<String> asList =
-                courseOpenDao.getEnglishCourses(round.getCalendarId(), "000268",Constants.FIRST);
+                courseDao.getAllCoursesLevelCourse();
         int isEngLishCount = 0;
         Set<ElcCourseTakeVo> rateEngLishselectedcourse = new HashSet<>();
         Set<ElcCourseTakeVo> normalEngLishselectedcourse = new HashSet<>();

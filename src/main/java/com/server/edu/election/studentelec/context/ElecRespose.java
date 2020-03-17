@@ -49,13 +49,24 @@ public class ElecRespose
     /**是否编级*/
     private Integer isEditLevelStudent;
     
+    
     /**
      * 是否留学生 0：否  1：是
      */
     private String isOverseas;
     
+    /**是否展示已修*/
+    private Integer isShowCompletedTag;
     
-    public Integer getIsEditLevelStudent() {
+    public Integer getIsShowCompletedTag() {
+		return isShowCompletedTag;
+	}
+
+	public void setIsShowCompletedTag(Integer isShowCompletedTag) {
+		this.isShowCompletedTag = isShowCompletedTag;
+	}
+
+	public Integer getIsEditLevelStudent() {
 		return isEditLevelStudent;
 	}
 
