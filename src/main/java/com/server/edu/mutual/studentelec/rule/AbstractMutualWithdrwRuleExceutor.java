@@ -1,7 +1,7 @@
 package com.server.edu.mutual.studentelec.rule;
 
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 import com.server.edu.mutual.vo.SelectedCourse;
 
 /**
@@ -12,7 +12,7 @@ import com.server.edu.mutual.vo.SelectedCourse;
  * @since  [产品/模块版本]
  */
 public abstract class AbstractMutualWithdrwRuleExceutor
-    extends AbstractRuleExceutor<ElecContextMutualBk, SelectedCourse>
+    extends AbstractRuleExceutor<ElecContextMutual, SelectedCourse>
 {
 	
 }

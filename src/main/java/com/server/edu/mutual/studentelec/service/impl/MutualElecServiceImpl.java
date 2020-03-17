@@ -41,11 +41,11 @@ import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElectionRuleVo;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 import com.server.edu.mutual.studentelec.rule.AbstractMutualElecRuleExceutor;
 import com.server.edu.mutual.studentelec.rule.AbstractMutualWithdrwRuleExceutor;
 import com.server.edu.mutual.studentelec.rule.LimitCountCheckerRule;
-import com.server.edu.mutual.studentelec.service.MutualElecBkService;
+import com.server.edu.mutual.studentelec.service.MutualElecService;
 import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.util.BeanUtil;
 import com.server.edu.util.CollectionUtil;
@@ -56,8 +56,8 @@ import com.server.edu.util.CollectionUtil;
  * @author xlluoc
  */
 @Service
-public class MutualElecBkServiceImpl implements MutualElecBkService{
-	Logger LOG = LoggerFactory.getLogger(MutualElecBkServiceImpl.class);
+public class MutualElecServiceImpl implements MutualElecService{
+	Logger LOG = LoggerFactory.getLogger(MutualElecServiceImpl.class);
 	
     @Autowired
     private RoundDataProvider dataProvider;
@@ -89,8 +89,8 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         
         Assert.notNull(calendarId, "calendarId must be not null");
         
-        ElecContextMutualBk context =
-            new ElecContextMutualBk(studentId, calendarId, request);
+        ElecContextMutual context =
+            new ElecContextMutual(studentId, calendarId, request);
         
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
         
@@ -135,13 +135,12 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
 	}
 	
     /**选课*/
-    private void doElec(ElecContextMutualBk context,
+    private void doElec(ElecContextMutual context,
         List<AbstractMutualElecRuleExceutor> exceutors,
         List<ElecTeachClassDto> teachClassIds, ElectionRounds round)
     {
         if (CollectionUtil.isEmpty(teachClassIds))
         {
-        	LOG.info("-------232323 teachClassIds :{} ----", teachClassIds.size());
             return;
         }
         Collections.sort(exceutors);
@@ -153,8 +152,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
-            
-            LOG.info("--------------242424 teachClassId :{} --------------", teachClassId);
             
             TeachingClassCache teachClass =
                 dataProvider.getTeachClass(round.getId(),
@@ -168,7 +165,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
                     data.getTeachClassCode()), "教学班不存在无法选课");
                 continue;
             }
-            LOG.info("--------------252525 teachClass :"+ teachClass.toString() +" --------------");
 
             boolean allSuccess = true;
             for (AbstractMutualElecRuleExceutor exceutor : exceutors)
@@ -190,17 +186,11 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
             if (allSuccess)
             {
             	ElecContextBk contextBk = new ElecContextBk();
-            	LOG.info("--------------262626 allSuccess :"+ allSuccess +" --------------");
-            	LOG.info("--------------272727 contextBk :"+ contextBk.toString() +" --------------");
-            	LOG.info("--------------282828 context :"+ context.toString() +" --------------");
             	try {
 					BeanUtil.copyProperties(contextBk, context);
 				} catch (Exception e) {
 					LOG.error(e.getMessage());
 				}
-            	
-            	LOG.info("--------------292929 contextBk :"+ contextBk.toString() +" --------------");
-            	
             	
                 // 判断是否有重修课
                 if (!hasRetakeCourse && RetakeCourseUtil
@@ -223,7 +213,7 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
     
     @Transactional
     @Override
-    public void saveElc(ElecContextMutualBk context, TeachingClassCache teachClass,
+    public void saveElc(ElecContextMutual context, TeachingClassCache teachClass,
         ElectRuleType type,boolean hasRetakeCourse)
     {
         StudentInfoCache stu = context.getStudentInfo();
@@ -239,8 +229,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         String courseCode = teachClass.getCourseCode();
         String courseName = teachClass.getCourseName();
         
-        LOG.info("--------------303030 teachClass :"+ teachClass.toString() +" --------------");
-        
         Integer logType = ElcLogVo.TYPE_1;
         
 //        Integer courseTakeType =
@@ -251,13 +239,9 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         Integer courseTakeType = hasRetakeCourse==true?2:1;
         if (ElectRuleType.ELECTION.equals(type))
         {
-        	LOG.info("--------------313131 teachClass :"+ teachClass.toString() +" --------------");
-        	
             if (dataProvider.containsRule(roundId,
                 LimitCountCheckerRule.class.getSimpleName()))
             {
-                LOG.info("---- LimitCountCheckerRule ----");
-                LOG.info("--------------323232 teachClass :"+ teachClass.toString() +" --------------");
                 // 增加选课人数
                 int count = classDao.increElcNumberAtomic(teachClassId);
                 if (count == 0)
@@ -270,11 +254,10 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
             }
             else
             {
-            	LOG.info("--------------343434 teachClass :"+ teachClass.toString() +" --------------");
                 classDao.increElcNumber(teachClassId);
             }
             
-            LOG.info("--------------353535 take take take START --------------");
+            LOG.info("-------------- elec START --------------");
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(round.getCalendarId());
             take.setChooseObj(request.getChooseObj());
@@ -286,7 +269,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
             take.setMode(round.getMode());
             take.setTurn(round.getTurn());
             courseTakeDao.insertSelective(take);
-            LOG.info("--------------363636 take take take STOP --------------");
         }
         else
         {
@@ -314,7 +296,7 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         }
         
         // 添加选课日志
-        LOG.info("--------------373737 log log log START --------------");
+        LOG.info("-------------- elec log START --------------");
         ElcLog log = new ElcLog();
         log.setCalendarId(round.getCalendarId());
         log.setCourseCode(courseCode);
@@ -330,7 +312,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         log.setTurn(round.getTurn());
         log.setType(logType);
         this.elcLogDao.insertSelective(log);
-        LOG.info("--------------383838 log log log STOP --------------");
         
         if (ElectRuleType.ELECTION.equals(type))
         {
@@ -339,7 +320,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
             //    .update(studentId, round.getCalendarId(), courseCode);
             
         	// 更新缓存
-        	LOG.info("--------------393939  --------------");
             dataProvider.incrementElecNumber(teachClassId);
             respose.getSuccessCourses().add(teachClassId);
             SelectedCourse course = new SelectedCourse(teachClass);
@@ -363,20 +343,18 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
 					break;
 				}
 			}
-            LOG.info("--------------404040 selected size: "+ context.getSelectedCourses().size() +" --------------");
         }
         // 更新缓存中教学班人数
         teachClassCacheService.updateTeachingClassNumber(teachClassId);
     }
 
     /**退课*/
-    private void doWithdraw(ElecContextMutualBk context,
+    private void doWithdraw(ElecContextMutual context,
         List<AbstractMutualWithdrwRuleExceutor> exceutors,
         List<ElecTeachClassDto> teachClassIds)
     {
         if (CollectionUtil.isEmpty(teachClassIds))
         {
-        	LOG.info("--------------202020-------teachClassIds:"+ teachClassIds.size() +"-------------------------------");
             return;
         }
         

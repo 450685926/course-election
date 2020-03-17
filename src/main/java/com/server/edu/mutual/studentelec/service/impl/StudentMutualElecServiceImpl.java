@@ -32,7 +32,7 @@ import com.server.edu.mutual.dao.ElecMutualRoundsDao;
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.service.ElcMutualApplyService;
 import com.server.edu.mutual.service.ElcMutualRoundCourseService;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
 import com.server.edu.mutual.studentelec.service.StudentMutualElecService;
 import com.server.edu.mutual.studentelec.utils.MutualQueueGroups;
@@ -193,7 +193,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 	}
 
 	@Override
-	public ElecContextMutualBk getData(ElecContextMutualBk c, ElectionRounds round, Long calendarId) {
+	public ElecContextMutual getData(ElecContextMutual c, ElectionRounds round, Long calendarId) {
 		List<SelectedCourse> optionalCourses = c.getOptionalCourses();
 		
 		Set<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程

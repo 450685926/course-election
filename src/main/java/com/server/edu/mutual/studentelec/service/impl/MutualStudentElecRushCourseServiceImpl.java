@@ -12,7 +12,7 @@ import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.mutual.studentelec.service.AbstractMutualElecQueueComsumerService;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
-import com.server.edu.mutual.studentelec.service.MutualElecBkService;
+import com.server.edu.mutual.studentelec.service.MutualElecService;
 import com.server.edu.mutual.studentelec.service.MutualStudentElecRushCourseService;
 import com.server.edu.mutual.studentelec.utils.MutualQueueGroups;
 
@@ -24,7 +24,7 @@ public class MutualStudentElecRushCourseServiceImpl extends AbstractMutualElecQu
             LoggerFactory.getLogger(MutualStudentElecRushCourseServiceImpl.class);
 	
     @Autowired
-    private MutualElecBkService mutualElecBkService;
+    private MutualElecService mutualElecService;
 
     public MutualStudentElecRushCourseServiceImpl(
     		ElecMutualQueueService<ElecRequest> mutualQueueService){
@@ -46,16 +46,8 @@ public class MutualStudentElecRushCourseServiceImpl extends AbstractMutualElecQu
         {
             Assert.notNull(projectId, "projectId must be not null");
             Assert.notNull(calendarId, "calendarId must be not null");
-            
-//            if (Constants.PROJ_UNGRADUATE.equals(projectId))
-//            {
-//                context = mutualElecBkService.doELec(request);
-//            }
-//            else
-//            {
-//                context = mutualElecYjsService.doELec(request);
-//            }
-            context = mutualElecBkService.doELec(request);
+
+            context = mutualElecService.doELec(request);
         }
         catch (Exception e)
         {

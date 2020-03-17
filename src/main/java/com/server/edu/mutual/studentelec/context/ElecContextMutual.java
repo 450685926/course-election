@@ -19,7 +19,7 @@ import com.server.edu.mutual.vo.SelectedCourse;
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
  *
  */
-public class ElecContextMutualBk implements IElecContext
+public class ElecContextMutual implements IElecContext
 {
 	/**选课申请课程*/
     public static final String ELEC_APPLY_COURSES = "elecApplyCourses";
@@ -78,19 +78,19 @@ public class ElecContextMutualBk implements IElecContext
     
     private ElecContextUtil contextUtil;
     
-    public ElecContextMutualBk(String studentId, Long calendarId,
+    public ElecContextMutual(String studentId, Long calendarId,
         ElecRequest elecRequest)
     {
         this(studentId, calendarId);
         this.request = elecRequest;
     }
     
-    public ElecContextMutualBk()
+    public ElecContextMutual()
     {
         super();
     }
     
-    public ElecContextMutualBk(String studentId, Long calendarId)
+    public ElecContextMutual(String studentId, Long calendarId)
     {
         this.calendarId = calendarId;
         this.contextUtil = ElecContextUtil.create(studentId, this.calendarId);

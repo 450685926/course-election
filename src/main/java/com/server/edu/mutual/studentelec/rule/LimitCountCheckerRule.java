@@ -7,7 +7,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 
 /**
  * 本研互选--人数上限检查
@@ -27,7 +27,7 @@ public class LimitCountCheckerRule extends AbstractMutualElecRuleExceutor
     }
     
     @Override
-    public boolean checkRule(ElecContextMutualBk context,
+    public boolean checkRule(ElecContextMutual context,
         TeachingClassCache courseClass)
     {
         Long teachClassId = courseClass.getTeachClassId();

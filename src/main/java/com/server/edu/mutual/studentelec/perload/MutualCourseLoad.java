@@ -34,7 +34,7 @@ import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
 import com.server.edu.mutual.dao.ElecMutualRoundsDao;
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.service.ElcMutualAuditService;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 import com.server.edu.mutual.util.ProjectUtil;
 import com.server.edu.mutual.vo.ElcMutualApplyVo;
 import com.server.edu.mutual.vo.SelectedCourse;
@@ -50,7 +50,7 @@ import com.server.edu.util.CollectionUtil;
  * @since  [产品/模块版本]
  */
 @Component
-public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
+public class MutualCourseLoad extends MutualDataProLoad<ElecContextMutual>{
 
 	@Override
 	public int getOrder() {
@@ -62,7 +62,7 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 		return "1,2,4";
 	}
 	
-	private Logger LOG = LoggerFactory.getLogger(BKMutualCourseLoad.class);
+	private Logger LOG = LoggerFactory.getLogger(MutualCourseLoad.class);
 	
 	
     @Autowired
@@ -81,7 +81,7 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
     private ElcCourseTakeDao elcCourseTakeDao;
 	
 	@Override
-	public void load(ElecContextMutualBk context) {		
+	public void load(ElecContextMutual context) {		
 		ElecRequest request = context.getRequest();
 		Long calendarId = context.getCalendarId();
 		
