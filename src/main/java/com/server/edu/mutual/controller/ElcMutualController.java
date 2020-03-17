@@ -112,8 +112,8 @@ public class ElcMutualController {
     }
     
     @ApiOperation(value = "获取本科生选课数据")
-    @PostMapping("/{roundId}/getDataBk")
-    public RestResult<ElecContextMutual> getDataBk(
+    @PostMapping("/{roundId}/getData")
+    public RestResult<ElecContextMutual> getData(
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
@@ -127,12 +127,8 @@ public class ElcMutualController {
         
         Long calendarId = round.getCalendarId();
         
-        ElecContextMutual c =
-            new ElecContextMutual(session.realUid(), calendarId);
-//        Set<SelectedCourse> courses = c.getSelectedCourses();
-//        courses.clear();
-//        courses.addAll(c.getSelectedMutualCourses());
-//        c.getSelectedMutualCourses().clear();
+        ElecContextMutual c = 
+        		new ElecContextMutual(session.realUid(), calendarId);
         c = mutualElecService.getData(c, round, calendarId);
         return RestResult.successData(c);
     }
