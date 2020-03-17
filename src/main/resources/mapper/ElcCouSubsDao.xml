@@ -38,9 +38,11 @@
 		   t4.PROFESSION_,
 		   t2.CODE_ origsCourseCode,
 		   t2.NAME_ origsCourseName,
+	  	   t2.COLLEGE_ origsCollege,
 		   t2.CREDITS_ origsCredits,
 		   t3.CODE_ subCourseCode,
 		   t3.NAME_ subCourseName,
+	       t3.COLLEGE_ subCollege,
 		   t3.CREDITS_ subCredits
 		FROM
 			elc_cou_subs_t t1

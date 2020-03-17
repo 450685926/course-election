@@ -122,6 +122,7 @@ public class BKForeignStuCourseLoad extends DataProLoad<ElecContextBk>
                     elecCourse.setCourseName(course.getName());
                     elecCourse.setCredits(course.getCredits());
                     elecCourse.setNameEn(course.getNameEn());
+                    elecCourse.setFaculty(course.getCollege());
                     ForeignCourse foreignCourse = new ForeignCourse();
                     foreignCourse.setCourse(elecCourse);
                     foreignStuCourses.add(foreignCourse);

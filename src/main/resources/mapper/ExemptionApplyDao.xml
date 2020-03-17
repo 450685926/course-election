@@ -196,7 +196,7 @@
 
     <select id="findApplyRecord" resultType="com.server.edu.election.studentelec.context.ElecCourse">
         select
-        co.CODE_ courseCode,co.NAME_ courseName,co.CREDITS_ credits,co.NAME_EN_ nameEn,st.CAMPUS_ campus,co.IS_ELECTIVE_ publicElec
+        co.CODE_ courseCode,co.NAME_ courseName,co.CREDITS_ credits,co.NAME_EN_ nameEn,st.CAMPUS_ campus,co.IS_ELECTIVE_ publicElec,co.COLLEGE_ faculty
         from exemption_apply_manage_t ap
         join course_t co on co.CODE_ =ap.COURSE_CODE_
         join student_t st on st.STUDENT_CODE_ =ap.STUDENT_CODE_

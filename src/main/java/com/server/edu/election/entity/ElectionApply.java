@@ -3,14 +3,8 @@ package com.server.edu.election.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 @Table(name = "election_applys_t")
 public class ElectionApply implements Serializable {
@@ -71,6 +65,18 @@ public class ElectionApply implements Serializable {
      */
     @Column(name = "CREATED_AT_")
     private Date createdAt;
+
+    /**学院字段*/
+    @Transient
+    private String faculty;
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
 
     private static final long serialVersionUID = 1L;
 

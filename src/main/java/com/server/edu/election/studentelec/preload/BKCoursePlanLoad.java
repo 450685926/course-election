@@ -11,6 +11,7 @@ import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseDao;
+import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcStuCouLevelDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.entity.Course;
@@ -23,6 +24,7 @@ import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.exception.ParameterValidateException;
+import freemarker.core.ReturnInstruction;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +80,9 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
 
+    @Autowired
+    private ElcCourseTakeDao elcCourseTakeDao;
+
     @Override
     public int getOrder()
     {
@@ -123,6 +128,16 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
             Set<PlanCourse> onlyCourses = context.getOnlyCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
+            List<String> codes = new ArrayList<>();
+            courseType.forEach(vo -> {
+                List<String> strings = vo.getList().stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toList());
+                codes.addAll(strings);
+            });
+            Map<String,Course> map = new HashMap<>();
+            if(CollectionUtil.isNotEmpty(codes)){
+                List<Course> courseCodes = elcCourseTakeDao.findCourses(codes);
+                 map = courseCodes.stream().collect(Collectors.toMap(Course::getCode, s -> s));
+            }
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();
@@ -158,6 +173,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             course2.setLabelName(labelName);
                             course2.setChosen(pct.getChosen());
                             course2.setIsQhClass(pct.getIsQhClass());
+                            course2.setFaculty(map.get(courseCode).getCollege());
                             if(CollectionUtil.isNotEmpty(PEList)){
                                 if (PEList.contains(courseCode)){
                                     course2.setIsPE(Constants.ONE);
@@ -270,6 +286,25 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         List<BkPublicCourseVo> bkPublicCourse = ElecContextUtil.getBKPublicCourse();
         Integer grade = stu.getGrade();
         if (CollectionUtil.isNotEmpty(bkPublicCourse)) {
+            //获取所有课程学院bkPublicCourse
+            List<String> codes = new ArrayList<>();
+            bkPublicCourse.forEach(vo ->{
+                List<BkPublicCourse> list = vo.getList();
+                if(CollectionUtil.isNotEmpty(list)){
+                    list.forEach(it ->{
+                        List<PublicCourse> itList = it.getList();
+                        if(CollectionUtil.isNotEmpty(itList)){
+                            List<String> stringList = itList.stream().map(PublicCourse::getCourseCode).collect(Collectors.toList());
+                            codes.addAll(stringList);
+                        }
+                    });
+                }
+            });
+            Map<String,Course> map = new HashMap<>();
+            if(CollectionUtil.isNotEmpty(codes)){
+                List<Course> courseCodes = elcCourseTakeDao.findCourses(codes);
+                map = courseCodes.stream().collect(Collectors.toMap(Course::getCode, s -> s));
+            }
             for (BkPublicCourseVo bkPublicCourseVo : bkPublicCourse) {
                 String grades = bkPublicCourseVo.getGrades();
                 if (compare(grade, grades)) {
@@ -308,6 +343,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                                         elecCourse.setJp(pc.getJp());
                                         elecCourse.setCx(pc.isCx());
                                         elecCourse.setYs(pc.isYs());
+                                        elecCourse.setFaculty(map.get(courseCode).getCollege());
                                         TsCourse tsCourse = new TsCourse();
                                         tsCourse.setTag(tag);
                                         tsCourse.setIndex(i);

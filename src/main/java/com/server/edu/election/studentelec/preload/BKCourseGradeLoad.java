@@ -176,6 +176,14 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
+        if(CollectionUtil.isNotEmpty(electionApplys)){
+            List<String> collect = electionApplys.stream().map(ElectionApply::getCourseCode).collect(Collectors.toList());
+            List<Course> courses = elcCourseTakeDao.findCourses(collect);
+            Map<String, Course> map = courses.stream().collect(Collectors.toMap(Course::getCode, s -> s));
+            for (ElectionApply electionApply : electionApplys) {
+                electionApply.setFaculty(map.get(electionApply.getCourseCode()).getCollege());
+            }
+        }
         elecApplyCourses.addAll(electionApplys);
         //6. 保存学生替代课程
         context.getReplaceCourses().addAll(list);
@@ -406,6 +414,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 	lesson.setReplaceCourse(elcCouSubsVo.getSubCourseCode());
                     lesson.setReplaceCourseName(elcCouSubsVo.getSubCourseName());
                     lesson.setReplaceCredits(elcCouSubsVo.getSubCredits());
+                    lesson.setReplaceFaculty(elcCouSubsVo.getSubCollege());
                 }
                 if(openCourse.contains(courseCode)){
                     lesson.setIsOldCourse("1");
