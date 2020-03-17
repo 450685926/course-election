@@ -62,12 +62,11 @@ public class MutualStudentElecRushCourseServiceImpl extends AbstractMutualElecQu
         finally
         {
             // 不管选课有没有成功，结束时表示可以进行下一个选课请求
-            ElecContextUtil
-                .setElecStatus(calendarId, studentId, ElecStatus.Ready);
-            if (null != context)
-            {
-                context.saveToCache();
-            }
+        	if (null != context)
+        	{
+        		context.saveToCache();
+        	}
+            ElecContextUtil.setElecStatus(calendarId, studentId, ElecStatus.Ready);
         }
 	}
 
