@@ -113,8 +113,8 @@ public class ElecMutualAgentController {
     }
     
     @ApiOperation(value = "获取本科生选课数据")
-    @PostMapping("/{roundId}/getDataBk")
-    public RestResult<ElecContextMutual> getDataBk(
+    @PostMapping("/{roundId}/getData")
+    public RestResult<ElecContextMutual> getData(
         @PathVariable("roundId") @NotNull Long roundId, @RequestParam("studentId") String studentId)
     {
         ElectionRounds round = dataProvider.getRound(roundId);
