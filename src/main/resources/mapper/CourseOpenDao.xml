@@ -197,5 +197,6 @@
 	    and t1.PROJ_ID_ = 1
 		and t1.CALENDAR_ID_ = #{calendarId}
 		and t1.FACULTY_ = #{faculty}
+		and t1.IS_ELECTIVE_ = #{isElective}
 	</select>
 </mapper>
