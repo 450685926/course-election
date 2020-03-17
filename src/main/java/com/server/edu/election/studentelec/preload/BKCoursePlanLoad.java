@@ -130,8 +130,13 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
             List<String> codes = new ArrayList<>();
             courseType.forEach(vo -> {
-                List<String> strings = vo.getList().stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toList());
-                codes.addAll(strings);
+                List<PlanCourseTypeDto> list = vo.getList();
+                if (CollectionUtil.isNotEmpty(list)) {
+                    List<String> strings = list.stream().
+                            map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toList());
+                    codes.addAll(strings);
+                }
+
             });
             Map<String,Course> map = new HashMap<>();
             if(CollectionUtil.isNotEmpty(codes)){
