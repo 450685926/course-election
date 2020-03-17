@@ -55,7 +55,7 @@ public class ElcCourseTake implements Serializable
     private Long teachingClassId;
     
     /**
-     * 修读类别(1正常修读,2重修,3免修不免考,4免修)
+     * 修读类别(1正常修读,2重修,3免修不免考,4免修,5本研互选)
      */
     @Code2Text(DictTypeEnum.X_XDLX)
     @Column(name = "COURSE_TAKE_TYPE_")
