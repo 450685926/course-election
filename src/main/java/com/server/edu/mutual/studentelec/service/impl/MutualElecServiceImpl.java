@@ -32,6 +32,7 @@ import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
@@ -187,19 +188,23 @@ public class MutualElecServiceImpl implements MutualElecService{
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
-            	ElecContextBk contextBk = new ElecContextBk();
             	try {
-					BeanUtil.copyProperties(contextBk, context);
+            		if (!hasRetakeCourse) {
+            			if (StringUtils.equals(round.getProjectId(), Constants.PROJ_UNGRADUATE)) {
+            				ElecContext contextYjs = new ElecContext();
+            				BeanUtil.copyProperties(contextYjs, context);
+            				hasRetakeCourse = RetakeCourseUtil.isRetakeCourse(contextYjs, teachClass.getCourseCode());
+            			}else {
+            				ElecContextBk contextBk = new ElecContextBk();
+            				BeanUtil.copyProperties(contextBk, context);
+            				hasRetakeCourse = RetakeCourseUtil.isRetakeCourseBk(contextBk, teachClass.getCourseCode());
+						}
+            		}
 				} catch (Exception e) {
 					LOG.error(e.getMessage());
 				}
             	
-                // 判断是否有重修课
-                if (!hasRetakeCourse && RetakeCourseUtil
-                    .isRetakeCourseBk(contextBk, teachClass.getCourseCode()))
-                {
-                    hasRetakeCourse = true;
-                }
+                // 学生选课
                 this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse);
             }
         }
