@@ -15,7 +15,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 import com.server.edu.mutual.studentelec.perload.MutualDataProLoad;
 import com.server.edu.mutual.studentelec.service.AbstractMutualElecQueueComsumerService;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
@@ -58,16 +58,7 @@ public class MutualStudentElecPreloadingServiceImpl
                 IElecContext context = null;
                 try
                 {
-                	context = new ElecContextMutualBk(studentId, calendarId);
-
-//                	if (Constants.PROJ_UNGRADUATE.equals(projectId))
-//                    {
-//                        context = new ElecContextMutualBk(studentId, calendarId);
-//                    }
-//                    else
-//                    {
-//                        context = new ElecContext(studentId, calendarId);
-//                    }
+                	context = new ElecContextMutual(studentId, calendarId);
                 	
                     context.setRequest(preloadRequest);
                     

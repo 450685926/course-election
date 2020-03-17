@@ -33,7 +33,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.util.WeekModeUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
@@ -47,10 +47,10 @@ import com.server.edu.util.CollectionUtil;
  * @since  [产品/模块版本]
  */
 @Component
-public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutualBk>
+public class MutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual>
 {
     //log日志记录
-    Logger logger = LoggerFactory.getLogger(BKMutualCourseGradeLoad.class);
+    Logger logger = LoggerFactory.getLogger(MutualCourseGradeLoad.class);
 
     @Autowired
     private ElcCourseTakeDao elcCourseTakeDao;
@@ -77,7 +77,7 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
     }
 
     @Override
-    public void load(ElecContextMutualBk context)
+    public void load(ElecContextMutual context)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
         String studentId = studentInfo.getStudentId();

@@ -12,8 +12,7 @@ import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
-import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 
 /**
  * 加载学生信息
@@ -25,7 +24,7 @@ import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
  * @since  [产品/模块版本]
  */
 @Component
-public class BKMutualStudentInfoLoad extends MutualDataProLoad<ElecContextMutualBk>
+public class MutualStudentInfoLoad extends MutualDataProLoad<ElecContextMutual>
 {
     @Override
     public int getOrder()
@@ -49,7 +48,7 @@ public class BKMutualStudentInfoLoad extends MutualDataProLoad<ElecContextMutual
     private ElcLoserDownStdsDao elcLoserDownStdsDao;
     
     @Override
-    public void load(ElecContextMutualBk context)
+    public void load(ElecContextMutual context)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
         

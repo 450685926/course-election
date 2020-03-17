@@ -13,7 +13,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.RulePriority;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.util.CollectionUtil;
 
@@ -36,7 +36,7 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
     }
     
     @Override
-    public boolean checkRule(ElecContextMutualBk context,TeachingClassCache courseClass)
+    public boolean checkRule(ElecContextMutual context,TeachingClassCache courseClass)
     {
     	Long teachClassId = courseClass.getTeachClassId();//通过teachingClassId查询时间
         if (teachClassId != null)

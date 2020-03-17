@@ -5,7 +5,7 @@ import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 
 /**
  * 本研互选选课请求的主入口
@@ -39,7 +39,7 @@ public interface StudentMutualElecService {
 	 * @param calendarId 
 	 * @return
 	 */
-	ElecContextMutualBk getData(ElecContextMutualBk c, ElectionRounds round, Long calendarId);
+	ElecContextMutual getData(ElecContextMutual c, ElectionRounds round, Long calendarId);
 
 	/**
 	 * 查询轮次学生信息

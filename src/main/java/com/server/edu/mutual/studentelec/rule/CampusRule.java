@@ -8,7 +8,7 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.RulePriority;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 
 /**
  * filter，过滤掉学生不能选的任务（校区不对），使得学生在界面上看不见
@@ -24,7 +24,7 @@ public class CampusRule extends AbstractMutualElecRuleExceutor
     }
     
     @Override
-    public boolean checkRule(ElecContextMutualBk context,
+    public boolean checkRule(ElecContextMutual context,
         TeachingClassCache courseClass)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();

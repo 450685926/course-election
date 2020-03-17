@@ -2,7 +2,7 @@ package com.server.edu.mutual.studentelec.rule;
 
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 
 /**
  *     本研互选-选课规则
@@ -12,7 +12,7 @@ import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
  * @since  [产品/模块版本]
  */
 public abstract class AbstractMutualElecRuleExceutor
-    extends AbstractRuleExceutor<ElecContextMutualBk, TeachingClassCache>
+    extends AbstractRuleExceutor<ElecContextMutual, TeachingClassCache>
 {
 	
 }

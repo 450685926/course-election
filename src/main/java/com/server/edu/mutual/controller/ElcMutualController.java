@@ -32,7 +32,7 @@ import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 import com.server.edu.mutual.studentelec.service.StudentMutualElecService;
 import com.server.edu.mutual.util.ProjectUtil;
 import com.server.edu.session.util.SessionUtils;
@@ -113,7 +113,7 @@ public class ElcMutualController {
     
     @ApiOperation(value = "获取本科生选课数据")
     @PostMapping("/{roundId}/getDataBk")
-    public RestResult<ElecContextMutualBk> getDataBk(
+    public RestResult<ElecContextMutual> getDataBk(
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
@@ -127,8 +127,8 @@ public class ElcMutualController {
         
         Long calendarId = round.getCalendarId();
         
-        ElecContextMutualBk c =
-            new ElecContextMutualBk(session.realUid(), calendarId);
+        ElecContextMutual c =
+            new ElecContextMutual(session.realUid(), calendarId);
 //        Set<SelectedCourse> courses = c.getSelectedCourses();
 //        courses.clear();
 //        courses.addAll(c.getSelectedMutualCourses());

@@ -4,14 +4,14 @@ import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.IElecContext;
-import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.studentelec.context.ElecContextMutual;
 
 /**
  * 本科生选课
  * @author xlluoc
  *
  */
-public interface MutualElecBkService {
+public interface MutualElecService {
 	
     /**
             * 进行选课
@@ -28,7 +28,7 @@ public interface MutualElecBkService {
      * @param teachClass
      * @see [类、类#方法、类#成员]
      */
-    void saveElc(ElecContextMutualBk context, TeachingClassCache teachClass,
+    void saveElc(ElecContextMutual context, TeachingClassCache teachClass,
         ElectRuleType type,boolean hasRetakeCourse);
 	
 }
