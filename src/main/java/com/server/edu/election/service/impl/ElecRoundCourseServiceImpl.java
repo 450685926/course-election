@@ -225,8 +225,9 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 
             //手动刷新
             if(condition.getRoundId() != null){
-
-                dataProvider.updateRoundCacheStuOrCourse(condition.getRoundId(),Constants.COURSE);
+                new Thread(()->{
+                    dataProvider.updateRoundCacheStuOrCourse(condition.getRoundId(),Constants.COURSE);
+                }).start();
             }
 
         }
