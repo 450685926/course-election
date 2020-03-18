@@ -152,11 +152,17 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
 
             if (CollectionUtil.isNotEmpty(listStudent))
             {
+                List<ElectionRoundsStu> list = new ArrayList<>();
                 for (Student4Elc info : listStudent)
                 {
-                    elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
+                    ElectionRoundsStu roundsStu = new ElectionRoundsStu();
+                    roundsStu.setRoundsId(stu.getRoundId());
+                    roundsStu.setStudentId(info.getStudentId());
+                    list.add(roundsStu);
                     updateCache.add(info.getStudentId());
                 }
+                elecRoundStuDao.batchInsert(list);
+                //elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
             } else {
                 throw new ParameterValidateException("没有匹配的学生");
             }
@@ -169,17 +175,24 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             stu.setTableName(tableName);
             List<String> stringList = elecRoundStuDao.notExistStudent(stu);
             if(CollectionUtil.isNotEmpty(stringList)){
+                List<ElectionRoundsStu> list = new ArrayList<>();
                 for (String s : stringList) {
-                    elecRoundStuDao.add(stu.getRoundId(), s);
+                    ElectionRoundsStu roundsStu = new ElectionRoundsStu();
+                    roundsStu.setRoundsId(stu.getRoundId());
+                    roundsStu.setStudentId(s);
+                    list.add(roundsStu);
                     updateCache.add(s);
                 }
+                elecRoundStuDao.batchInsert(list);
             } else {
                 throw new ParameterValidateException("没有匹配的学生");
             }
         }
 
         if(CollectionUtil.isNotEmpty(updateCache)){
-            dataProvider.updateRoundCacheStuOrCourse(stu.getRoundId(),Constants.STUDENT);
+            new Thread(() ->{
+                dataProvider.updateRoundCacheStuOrCourse(stu.getRoundId(),Constants.STUDENT);
+            }).start();
         }
     }
     

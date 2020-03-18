@@ -232,4 +232,18 @@
 			</if>
 		</where>
 	</select>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into election_rounds_stu_t(
+		ROUNDS_ID_,STUDENT_ID_
+		)
+		values
+		<foreach item="item" collection="list" index="index"
+				 separator=",">
+			(
+			#{item.roundsId},
+			#{item.studentId}
+			)
+		</foreach>
+	</insert>
 </mapper>

@@ -8,4 +8,6 @@
     <id column="ROUNDS_ID_" jdbcType="BIGINT" property="roundsId" />
     <id column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
   </resultMap>
+
+
 </mapper>
