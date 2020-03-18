@@ -87,7 +87,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         }
         Session session = SessionUtils.getCurrentSession();
        
-        List<String> listExistStu = elecRoundStuDao.listExistStu(studentCodes, session.getCurrentManageDptId());
+        //List<String> listExistStu = elecRoundStuDao.listExistStu(studentCodes, session.getCurrentManageDptId());
+        //mode 为 1，2  查找在校的学生 3，4 只要在库就行
+        List<String> listExistStu = elecRoundStuDao.listExistStuByMode(studentCodes, session.getCurrentManageDptId(),mode);
         List<String> listAddedStu =
             elecRoundStuDao.listAddedStu(roundId, studentCodes);
         Set<String> updateCache = new HashSet<>();

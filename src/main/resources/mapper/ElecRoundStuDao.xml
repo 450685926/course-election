@@ -213,4 +213,23 @@
    <select id="findStuByRoundId" resultType="java.lang.String">
 		select DISTINCT STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ =#{roundId}
 	</select>
+
+	<select id="listExistStuByMode" resultType="string">
+		select STUDENT_CODE_
+		from student_t
+		<where>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+				and MANAGER_DEPT_ID_ = #{projectId}
+			</if>
+			<if test=" mode == 1 or mode == 2 ">
+				and LEAVE_SCHOOL_ = 1
+			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCodes)">
+				and STUDENT_CODE_ IN
+				<foreach item="id" collection="studentCodes"  index="index" open="(" separator="," close=")">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</select>
 </mapper>
