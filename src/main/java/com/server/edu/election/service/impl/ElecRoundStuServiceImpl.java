@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
 
     @Autowired
     private RoundDataProvider dataProvider;
+
     
     @Override
     public PageResult<Student4Elc> listPage(
@@ -128,7 +130,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         }
         //更新轮此缓存学生信息
         if(CollectionUtil.isNotEmpty(updateCache)){
-            dataProvider.updateRoundCache(roundId);
+            dataProvider.updateRoundCacheStuOrCourse(roundId,Constants.STUDENT);
+
         }
 
         return StringUtils.join(notExistStu, ",");
@@ -176,7 +179,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         }
 
         if(CollectionUtil.isNotEmpty(updateCache)){
-            dataProvider.updateRoundCache(stu.getRoundId());
+            dataProvider.updateRoundCacheStuOrCourse(stu.getRoundId(),Constants.STUDENT);
         }
     }
     
@@ -252,7 +255,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             }
             elecRoundStuDao.deleteAll(roundId);
         }
-        dataProvider.updateRoundCache(roundId);
+        dataProvider.updateRoundCacheStuOrCourse(roundId,Constants.STUDENT);
     }
     
     @Transactional
@@ -269,6 +272,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                 throw new ParameterValidateException("无可移除名单");
             }
             elecRoundStuDao.deleteAll(stu.getRoundId());
+            dataProvider.updateRoundCacheStuOrCourse(stu.getRoundId(),Constants.STUDENT);
         }else{
             Page<Student4Elc> listStudent =
                     elecRoundStuDao.listPage(stu, stu.getRoundId());
@@ -281,6 +285,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                     studentCodes.add(info.getStudentId());
                 }
                 elecRoundStuDao.delete(stu.getRoundId(), studentCodes);
+                dataProvider.updateRoundCacheStuOrCourse(stu.getRoundId(),Constants.STUDENT);
+
             } else {
                 throw new ParameterValidateException("无可移除名单或没有匹配的学生");
             }

@@ -41,9 +41,9 @@ public class ElcCourseTakeAddDto
     private String courseCode;
 
     /**
-     * 模式
+     * 模式 为适配选课结果处理 mode  可以为空，所以注掉该注解
      * */
-    @NotNull(groups = {AddGroup.class,DelGroup.class})
+    //@NotNull(groups = {AddGroup.class,DelGroup.class})
     private Integer mode;
     
     private String studentId;
