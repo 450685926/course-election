@@ -241,8 +241,11 @@
                     #{projectId}
                 </foreach>
 		    </if>
+            <!-- 该mapper原本以课程为维度，但是当研究生选择本科生课程时应该以学生为维度-->
+             <!-- 所以当session中peojectId为2或者4时，则直接按照t4表即student_t中的projectId进行过滤，而不再按照open中的过滤 -->
+             <!-- 解决问题单 11838 -->
 			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
-				 and t5.PROJ_ID_ = #{projectId}
+				 and t4.MANAGER_DEPT_ID_ = #{projectId}
 			 </if>
 			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(collegeList)">
 				 and t4.FACULTY_ in

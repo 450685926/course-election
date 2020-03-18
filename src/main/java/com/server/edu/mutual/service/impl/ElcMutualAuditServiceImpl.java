@@ -91,13 +91,13 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     	if (!isAcdemicDean) {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
-
+        String projectId = session.getCurrentManageDptId();
 		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
 			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
-			projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
+			projectIds = ProjectUtil.getProjectIds(projectId);
 			dto.setByType(Constants.FIRST);
 		}
 
@@ -106,8 +106,16 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		//封装学院集合
 		packageCollegeList(session,dto);
 		//封装部门数据
-		dto.setProjectIds(projectIds);
-		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
+        //解决问题单 11838
+        if(org.apache.commons.lang3.StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)){
+            //如果是本科生封装为研究生的部门id列表
+            dto.setProjectIds(projectIds);
+        }else{
+            //如果是研究生则直接封装为研究生教务员当前的部门id
+            dto.setProjectId(projectId);
+        }
+
+		LOG.info("dto collegeList:" + dto.getCollegeList());
 		LOG.info("dto==condition.getCondition()?--->" + (dto == condition.getCondition()));
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyCourseList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
