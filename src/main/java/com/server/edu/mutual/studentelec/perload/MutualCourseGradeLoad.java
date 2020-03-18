@@ -232,6 +232,7 @@ public class MutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual>
                             }));
 
                     StringBuilder sb = new StringBuilder();
+                    StringBuilder tip = new StringBuilder();
                     for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
                             .entrySet())
                     {
@@ -253,10 +254,13 @@ public class MutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual>
                         sb.append(String
                                 .format("%s %s %s", teacherNames, weekStr, roomName))
                                 .append(" ");
+                        tip.append(String.format("[%s-%s节] %s;%s %s",
+                                un.getTimeStart(),un.getTimeEnd(),weekStr,teacherNames,roomName)).append(" ");
                     }
                     Collections.sort(weeks);
                     un.setValue(sb.toString());
                     un.setWeeks(weeks);
+                    un.setPopover(tip.toString());
                     times.add(un);
                 }
 
