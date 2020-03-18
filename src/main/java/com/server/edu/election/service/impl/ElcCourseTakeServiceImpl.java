@@ -14,7 +14,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.dto.StuHonorDto;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -48,22 +49,6 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.dao.CourseDao;
-import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.ElectionConstantsDao;
-import com.server.edu.election.dao.RetakeCourseCountDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dao.TeachingClassDao;
-import com.server.edu.election.dao.TeachingClassTeacherDao;
-import com.server.edu.election.dto.AddCourseDto;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElcCourseTakeAddDto;
-import com.server.edu.election.dto.ElcCourseTakeDto;
-import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
-import com.server.edu.election.dto.Student4Elc;
-import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -177,6 +162,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private StringRedisTemplate strTemplate;
+
+    @Autowired
+    private ElecRoundsDao roundsDao;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -385,6 +373,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                         .getTeachingClassInfo(calendarId, teachingClassId, null);
                 if (null != vo && vo.getCourseCode() != null)
                 {
+                    //mode为空 需要判断学生是哪个类型（选课结果处理时学生可以是任意类型的学生 结业 也可以 mode 就是3）
+                    if(mode == null){
+                        StudentDto studentRoundType = roundsDao.findStudentRoundType(studentId);
+                        if(studentRoundType != null){
+                            //结业生
+                            if(StringUtils.isNotBlank(studentRoundType.getGraduateStudent())){
+                                mode = Constants.THREE_MODE;
+                            }else if(StringUtils.isNotBlank(studentRoundType.getInternationalGraduates())){
+                                mode = Constants.FOUR_MODE;
+                            }else{
+                                mode = Constants.FIRST;
+                            }
+                        }
+                    }
                     addTake(date, calendarId, studentId, vo, mode);
                 }
                 else

@@ -132,4 +132,7 @@ public interface ElecRoundStuDao extends MySqlMapper<ElectionRoundsStu>
      */
 	List<String> getOverseasStus();
 
+
+    /**添加可选学生 判断学生来源*/
+    List<String> listExistStuByMode(@Param("studentCodes") List<String> studentCodes,@Param("projectId") String currentManageDptId, @Param("mode") Integer mode);
 }
