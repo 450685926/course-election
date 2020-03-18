@@ -1,9 +1,9 @@
 package com.server.edu.election.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.entity.Teacher;
@@ -202,6 +202,8 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     public void addAll(ElecRoundCourseQuery condition)
     {
         List<String> practicalCourse=new ArrayList<>();
+        ExecutorService executor = Executors.newFixedThreadPool(16);
+        List<ElectionRoundsCour> listCount = new ArrayList<>();
         if(condition.getMode()==2){//实践课
             practicalCourse = CultureSerivceInvoker.findPracticalCourse();
         }
@@ -213,21 +215,34 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 			listPage = roundCourseDao.listUnAddPageGraduate(condition);
 		}
         if(CollectionUtil.isNotEmpty(listPage)) {
-            List<ElectionRoundsCour> list = new ArrayList<>();
             for (CourseOpenDto courseOpenDto : listPage)
             {
                 ElectionRoundsCour electionRoundsCour = new ElectionRoundsCour();
                 electionRoundsCour.setRoundsId(condition.getRoundId());
                 electionRoundsCour.setTeachingClassId(courseOpenDto.getTeachingClassId());
-                list.add(electionRoundsCour);
+                listCount.add(electionRoundsCour);
             }
-            roundCourseDao.batchInsert(list);
+
+            List<List<ElectionRoundsCour>> lists = splitList(listCount, 500);
+
+            CountDownLatch down = new CountDownLatch(lists.size());
+            try {
+                for (List<ElectionRoundsCour> list : lists) {
+                    executor.execute(() ->{
+                        roundCourseDao.batchInsert(list);
+                        down.countDown();
+                    });
+                }
+                down.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             //手动刷新
             if(condition.getRoundId() != null){
-                new Thread(()->{
+                executor.execute(() ->{
                     dataProvider.updateRoundCacheStuOrCourse(condition.getRoundId(),Constants.COURSE);
-                }).start();
+                });
             }
 
         }
@@ -270,5 +285,28 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     	List<ElectionRoundsCour> list = roundCourseDao.selectByExample(example);
     	return list;
     }
-    
+
+
+    private List<List<ElectionRoundsCour>> splitList(List<ElectionRoundsCour>  list, int size) {
+        if (null == list || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        int listCount = (list.size() - 1) / size + 1;
+        int remaider = list.size() % listCount; // (先计算出余数)
+        int number = list.size() / listCount; // 然后是商
+        int offset = 0;// 偏移量
+        List<List<ElectionRoundsCour>> newList = new ArrayList<>(size);
+        for (int i = 0; i < listCount; i++) {
+            List<ElectionRoundsCour> value;
+            if (remaider > 0) {
+                value = list.subList(i * number + offset, (i + 1) * number + offset + 1);
+                remaider--;
+                offset++;
+            } else {
+                value = list.subList(i * number + offset, (i + 1) * number + offset);
+            }
+            newList.add(value);
+        }
+        return newList;
+    }
 }

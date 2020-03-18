@@ -204,9 +204,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         }
 
         if(CollectionUtil.isNotEmpty(updateCache)){
-            new Thread(() ->{
+            executor.execute(() ->{
                 dataProvider.updateRoundCacheStuOrCourse(stu.getRoundId(),Constants.STUDENT);
-            }).start();
+            });
         }
     }
     
