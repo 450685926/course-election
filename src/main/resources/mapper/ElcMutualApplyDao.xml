@@ -241,6 +241,9 @@
                     #{projectId}
                 </foreach>
 		    </if>
+			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+				 and t5.PROJ_ID_ = #{projectId}
+			 </if>
 			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(collegeList)">
 				 and t4.FACULTY_ in
 				 <foreach item="college" collection="collegeList" open="(" close=")" separator=",">
@@ -295,7 +298,7 @@
 		        and t2.IN_TYPE_  = #{inType}
 		    </if>
 			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
-				 and t5.PROJ_ID_ = #{projectId}
+				 and t4.MANAGER_DEPT_ID_ = #{projectId}
 			 </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
 		        and t5.PROJ_ID_ in  
