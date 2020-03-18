@@ -143,6 +143,7 @@ public class EmailSend {
 		List<EmailEntity> emailEntityList = new ArrayList<>(100);
 
 		Map<String, List<PaidMail>> collect = list.stream().
+				filter(s -> StringUtils.isNotBlank(s.getMail())).
 				collect(Collectors.groupingBy(
 						s -> s.getStudentName() + "(" + s.getStudentId()));
 		for (Map.Entry<String, List<PaidMail>> entry : collect.entrySet()) {
@@ -165,8 +166,8 @@ public class EmailSend {
 			emailEntity.setText(content);
 			List<String> emailList = new ArrayList<>(1);
 //			emailList.add(mail);
-			emailList.add("jysung@isoftstone.com");
-			emailList.add("nanzhangw@isoftstone.com");
+//			emailList.add("jysung@isoftstone.com");
+//			emailList.add("nanzhangw@isoftstone.com");
 			emailList.add("gmlic@isoftstone.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
