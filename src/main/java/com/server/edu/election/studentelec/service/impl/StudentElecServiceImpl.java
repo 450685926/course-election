@@ -361,6 +361,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
         if (CollectionUtil.isNotEmpty(noRetakeRules)){
             noRetakeRule = 1;
         }
+        if(CollectionUtil.isEmpty(onlyRetakeRules) && CollectionUtil.isEmpty(noRetakeRules)) {
+        	isShowCompletedTag = 1;
+        }
         Integer isPlan = 1;
         Integer isLimit = 1;
     	if(CollectionUtil.isEmpty(planRules)) {
