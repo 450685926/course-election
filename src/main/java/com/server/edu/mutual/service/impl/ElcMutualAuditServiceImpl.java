@@ -123,13 +123,24 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     	if (!isAcdemicDean) {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
-        List<String> projectIds = new ArrayList<>();
+        /**
+         * 功能描述: 修改bug 11838
+         * 说明：之前是按照开课课程表中课程所属的部门进行本研判断，研究生所选的课程是本科生的课程，反之亦然，故projectId需要切换。
+         * 后续追踪后，确认该接口应该是以学生为维度进行展示，故projectId应该是 student_t 视图中的 MANAGER_DEPT_ID_。
+         * 即：本科生申请记录对应的是 student_t 中的本科生；研究生申请记录对应的是 student_t 中的研究生，因此不需要切换。
+         *
+         * @params: [condition]
+         * @return: com.github.pagehelper.PageInfo<com.server.edu.mutual.vo.ElcMutualApplyVo>
+         * @author: zhaoerhu
+         * @date: 2020/3/18 8:34
+         */
+//        List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
 			dto.setInType(Constants.FIRST);
-			projectIds.add(Constants.PROJ_UNGRADUATE);
+//			projectIds.add(Constants.PROJ_UNGRADUATE);
 		}else {
 			dto.setByType(Constants.FIRST);
-            projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
+//            projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		}
 		/**
 		 * 解决本研互选bug10674 行政学院教务员要查询本学院或本学院管理的学生 2020-2-20
@@ -140,8 +151,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		 * @author: zhaoerhu
 		 * @date: 2020/2/21 14:29
 		 */
-//		dto.setProjectId(session.getCurrentManageDptId());
-		dto.setProjectIds(projectIds);
+		dto.setProjectId(session.getCurrentManageDptId());
+//		dto.setProjectIds(projectIds);
 		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyStuList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
