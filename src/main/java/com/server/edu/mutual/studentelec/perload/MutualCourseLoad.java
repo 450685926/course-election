@@ -426,7 +426,7 @@ public class MutualCourseLoad extends MutualDataProLoad<ElecContextMutual>{
             {
                 ctu.setValue(String.format("%s(%s) %s",
                     c.getCourseName(),
-                    c.getCourseCode(),
+                    c.getTeachClassCode(),
                     ctu.getValue()));
                 if(StringUtils.isNoneEmpty(ctu.getPopover())) {
                     String[] strings = ctu.getPopover().split(";");
