@@ -373,6 +373,7 @@ public class MutualCourseLoad extends MutualDataProLoad<ElecContextMutual>{
                 Collections.sort(weeks);
                 un.setValue(sb.toString());
                 un.setWeeks(weeks);
+                un.setPopover(tip.toString());
                 times.add(un);
             }
             
