@@ -1,9 +1,10 @@
 package com.server.edu.election.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
@@ -144,6 +145,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     	Session session = SessionUtils.getCurrentSession();
         stu.setProjectId(session.getCurrentManageDptId());
         Set<String> updateCache = new HashSet<>();
+        ExecutorService executor = Executors.newFixedThreadPool(32);
+        List<ElectionRoundsStu> listCount = new ArrayList<>();
         // 1普通选课 2实践选课
         if(RoundMode.NORMAL.eq(stu.getMode()) || RoundMode.ShiJian.eq(stu.getMode())){ //来源学生
 
@@ -152,16 +155,15 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
 
             if (CollectionUtil.isNotEmpty(listStudent))
             {
-                List<ElectionRoundsStu> list = new ArrayList<>();
+
                 for (Student4Elc info : listStudent)
                 {
                     ElectionRoundsStu roundsStu = new ElectionRoundsStu();
                     roundsStu.setRoundsId(stu.getRoundId());
                     roundsStu.setStudentId(info.getStudentId());
-                    list.add(roundsStu);
+                    listCount.add(roundsStu);
                     updateCache.add(info.getStudentId());
                 }
-                elecRoundStuDao.batchInsert(list);
                 //elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
             } else {
                 throw new ParameterValidateException("没有匹配的学生");
@@ -175,18 +177,30 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             stu.setTableName(tableName);
             List<String> stringList = elecRoundStuDao.notExistStudent(stu);
             if(CollectionUtil.isNotEmpty(stringList)){
-                List<ElectionRoundsStu> list = new ArrayList<>();
                 for (String s : stringList) {
                     ElectionRoundsStu roundsStu = new ElectionRoundsStu();
                     roundsStu.setRoundsId(stu.getRoundId());
                     roundsStu.setStudentId(s);
-                    list.add(roundsStu);
+                    listCount.add(roundsStu);
                     updateCache.add(s);
                 }
-                elecRoundStuDao.batchInsert(list);
             } else {
                 throw new ParameterValidateException("没有匹配的学生");
             }
+        }
+
+        List<List<ElectionRoundsStu>> lists = splitList(listCount, 500);
+        CountDownLatch down = new CountDownLatch(lists.size());
+        try {
+            for (List<ElectionRoundsStu> list : lists) {
+                executor.execute(() ->{
+                    elecRoundStuDao.batchInsert(list);
+                    down.countDown();
+                });
+            }
+            down.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         if(CollectionUtil.isNotEmpty(updateCache)){
@@ -328,6 +342,29 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     		result = elecRoundStuDao.insertList(electionRoundsStus);
     	}
     	return result;
+    }
+
+    private List<List<ElectionRoundsStu>> splitList(List<ElectionRoundsStu>  list, int size) {
+        if (null == list || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        int listCount = (list.size() - 1) / size + 1;
+        int remaider = list.size() % listCount; // (先计算出余数)
+        int number = list.size() / listCount; // 然后是商
+        int offset = 0;// 偏移量
+        List<List<ElectionRoundsStu>> newList = new ArrayList<>(size);
+        for (int i = 0; i < listCount; i++) {
+            List<ElectionRoundsStu> value;
+            if (remaider > 0) {
+                value = list.subList(i * number + offset, (i + 1) * number + offset + 1);
+                remaider--;
+                offset++;
+            } else {
+                value = list.subList(i * number + offset, (i + 1) * number + offset);
+            }
+            newList.add(value);
+        }
+        return newList;
     }
 
 }
