@@ -182,6 +182,11 @@ public interface Constants
     public static final Integer FOUR_MODE=4;
     
     public static final Integer FIFTH=5;
+
+    String STUDENT = "stu";
+
+    String COURSE = "course";
+
     
 
 }

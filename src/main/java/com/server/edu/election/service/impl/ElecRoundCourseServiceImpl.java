@@ -194,7 +194,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 
         //由于缓存更新过慢，添加课程时手动调用刷新
         if(CollectionUtil.isNotEmpty(list)){
-            dataProvider.updateRoundCache(roundId);
+            dataProvider.updateRoundCacheStuOrCourse(roundId,Constants.COURSE);
         }
     }
     
@@ -226,7 +226,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
             //手动刷新
             if(condition.getRoundId() != null){
 
-                dataProvider.updateRoundCache(condition.getRoundId());
+                dataProvider.updateRoundCacheStuOrCourse(condition.getRoundId(),Constants.COURSE);
             }
 
         }
@@ -244,7 +244,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
             roundCourseDao.deleteByExample(example);
             if(roundId != null){
 
-                dataProvider.updateRoundCache(roundId);
+                dataProvider.updateRoundCacheStuOrCourse(roundId,Constants.COURSE);
             }
         }
     }
@@ -256,7 +256,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 
         if(roundId != null){
 
-            dataProvider.updateRoundCache(roundId);
+            dataProvider.updateRoundCacheStuOrCourse(roundId,Constants.COURSE);
         }
 
     }

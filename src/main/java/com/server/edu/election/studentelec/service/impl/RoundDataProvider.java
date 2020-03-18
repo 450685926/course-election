@@ -469,5 +469,48 @@ public class RoundDataProvider
     	return roundCacheService
     			.containsMutualStuCondition(roundId, studentId, projectId);
     }
-    
+
+
+    /**
+     * 单独抽取实时刷新缓存的可选名单或 教学任务
+     * */
+    public void updateRoundCacheStuOrCourse(Long roundId,String type)
+    {
+        Assert.notNull(roundId, "roundId can not be null");
+        Date now = new Date();
+        ElectionRounds round = roundsDao.selectByPrimaryKey(roundId);
+        if (round != null
+                && Objects.equals(Constants.IS_OPEN, round.getOpenFlag())
+                && Objects.equals(Constants.DELETE_FALSE, round.getDeleteStatus())
+                && now.after(round.getBeginTime())
+                && now.before(round.getEndTime()))
+        {
+            this.cacheDataStuOrCourse(round,type);
+        }
+        else
+        {
+            this.roundCacheService.deleteRound(roundId);
+        }
+    }
+
+    private void cacheDataStuOrCourse(ElectionRounds round,String type)
+    {
+        Long roundId = round.getId();
+        Long calendarId = round.getCalendarId();
+
+        long timeout = 15;
+
+        //缓存轮次学生
+        if(Constants.STUDENT.equals(type)){
+            roundCacheService.cacheRoundStu(roundId, timeout);
+        }
+        if(Constants.COURSE.equals(type)){
+            String manageDptId = round.getProjectId();
+            // 缓存课程
+            roundCacheService
+                    .cacheCourse(timeout, roundId, calendarId, manageDptId);
+        }
+    }
+
+
 }
