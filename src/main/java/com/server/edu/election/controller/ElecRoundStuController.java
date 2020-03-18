@@ -114,7 +114,7 @@ public class ElecRoundStuController
         String add = elecRoundStuService.add(roundId, studentCodes, mode);
         if ((mode == 1 || mode == 2) && StringUtils.isNotBlank(add))
         {
-            add = "学号" + add + "已经添加或不存在";
+            add = "学号" + add + "已经添加或不在校";
             return RestResult.fail(add);
         }
         else if (StringUtils.isNotBlank(add))
