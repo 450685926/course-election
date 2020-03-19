@@ -1468,6 +1468,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		jsonObject.put("teacherId", teacherId);
 		jsonObject.put("teacherName", teacherName);
         jsonObject.put("learnType", 4);
+        jsonObject.put("isShow", Constants.ONE); // 是否显示（0或null-显示；1-不显示）
 		RestResult saveExemptionScore = ScoreServiceInvoker.saveExemptionScore(jsonObject);
 		logger.info("save score end -----------------------------"+saveExemptionScore.getCode());
 		return saveExemptionScore.getCode();
