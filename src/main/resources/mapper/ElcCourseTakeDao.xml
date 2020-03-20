@@ -2838,6 +2838,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isEmpty(semester)">
                 and t1.ACADEMIC_YEAR_ &lt; #{year}
             </if>
+            <if test=" mode == 1 ">
+                and  st.LEAVE_SCHOOL_ = 1
+            </if>
             <if test=" mode == 3 ">
                 and  EXISTS (select XH from tj_ungraduate where t1.STUDENT_NUM_ = XH)
             </if>
