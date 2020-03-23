@@ -1,5 +1,7 @@
 package com.server.edu.mutual.service.impl;
 
+import javax.validation.constraints.Null;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +38,7 @@ public class ElcMutualApplySwitchServiceImpl implements ElcMutualApplySwitchServ
 	@Override
 	@Transactional
 	public void save(ElcMutualApplyTurns elcMutualApplyTurns) {
-        if (elcMutualApplyTurns.getFail().intValue() == 1 && elcMutualApplyTurns.getGpa() == null) {
+        if (elcMutualApplyTurns.getFail() != null && elcMutualApplyTurns.getFail().intValue() == 1 && elcMutualApplyTurns.getGpa() == null) {
         	throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApplySwitch.gpa.notNUll")); 
 		}
 		
