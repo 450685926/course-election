@@ -708,7 +708,7 @@
   </select>
 
   <update id="increElcNumberAtomic">
-  	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ + 1 where id_ = #{teachingClassId} and NUMBER_ > ELC_NUMBER_
+  	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ + 1 where id_ = #{teachingClassId} and NUMBER_ &gt; ELC_NUMBER_
   </update>
 
   <update id="increElcNumber">
@@ -716,11 +716,11 @@
   </update>
 
   <update id="decrElcNumber">
-  	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - 1 where id_ = #{teachingClassId} and ELC_NUMBER_ > 0
+  	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - 1 where id_ = #{teachingClassId} and ELC_NUMBER_ &gt;= 0
   </update>
   
   <update id="decrElcThirdNumber">
-  	update teaching_class_t set THIRD_WITHDRAW_NUMBER = THIRD_WITHDRAW_NUMBER - 1 where id_ = #{teachingClassId} and THIRD_WITHDRAW_NUMBER > 0
+  	update teaching_class_t set THIRD_WITHDRAW_NUMBER = THIRD_WITHDRAW_NUMBER - 1 where id_ = #{teachingClassId} and THIRD_WITHDRAW_NUMBER &gt;= 0
   </update>
   
   <update id="increDrawNumber">
@@ -886,7 +886,7 @@
         id_ = #{id}
     </update>
     <update id="clearElcNumber">
-  	update teaching_class_t set ELC_NUMBER_ = 0 where id_ = #{teachingClassId} and ELC_NUMBER_ > 0
+  	update teaching_class_t set ELC_NUMBER_ = 0 where id_ = #{teachingClassId}
   </update>
    
    <update id="batchAddDrawNumber" parameterType="java.util.List">
