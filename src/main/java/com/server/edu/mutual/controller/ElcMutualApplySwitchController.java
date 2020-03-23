@@ -58,7 +58,7 @@ public class ElcMutualApplySwitchController {
     @ApiOperation(value = "保存选课申请开关")
     @PostMapping
     public RestResult<?> save(
-    		@RequestBody @Valid ElcMutualApplyTurns elcMutualApplyTurns)
+    		@RequestBody ElcMutualApplyTurns elcMutualApplyTurns)
         throws Exception
     {
         LOG.info("saveElcMutualApplySwitch.start");

@@ -53,7 +53,6 @@ public class ElcMutualApplyTurns implements Serializable {
     /**
      * 开启状态(1-开启；0-关闭)
      */
-    @NotNull
     @Column(name = "OPEN_")
     private Integer open;
 
@@ -73,7 +72,6 @@ public class ElcMutualApplyTurns implements Serializable {
     /**
      * 是否检测学生是否存在未及格的课程(1是，0否)
      */
-    @NotNull
     @Column(name = "FAIL")
     private Integer fail;
 
