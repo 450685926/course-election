@@ -2691,15 +2691,16 @@
         FROM elc_course_takes_t el
         left JOIN course_t c
         on el.COURSE_CODE_ = c.CODE_
-        WHERE
-        <if test=" graduation == false ">
-            and el.COURSE_TAKE_TYPE_ = 2
-        </if>
-        and el.CALENDAR_ID_ = #{calendarId}
-        and el.STUDENT_ID_ = #{studentCode}
-        <if test="paid !=null">
-            and el.PAID_ = #{paid}
-        </if>
+        <where>
+            el.CALENDAR_ID_ = #{calendarId}
+            and el.STUDENT_ID_ = #{studentCode}
+            <if test=" graduation == false ">
+                and el.COURSE_TAKE_TYPE_ = 2
+            </if>
+            <if test="paid !=null">
+                and el.PAID_ = #{paid}
+            </if>
+        </where>
     </select> 
     <select id="getRetakeNumber" resultType="java.lang.Integer">
         SELECT
