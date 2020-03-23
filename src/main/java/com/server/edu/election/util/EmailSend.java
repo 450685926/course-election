@@ -165,10 +165,10 @@ public class EmailSend {
 			emailEntity.setSubject("重修缴费邮件通知");
 			emailEntity.setText(content);
 			List<String> emailList = new ArrayList<>(1);
-//			emailList.add(mail);
+			String mail = value.get(0).getMail();
+			emailList.add(mail);
 //			emailList.add("jysung@isoftstone.com");
 //			emailList.add("nanzhangw@isoftstone.com");
-			emailList.add("gmlic@isoftstone.com");
 			emailEntity.setTos(emailList);
 			emailEntityList.add(emailEntity);
 		}
