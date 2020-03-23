@@ -1325,7 +1325,7 @@
 	        op.CALENDAR_ID_, op.CREDITS_, op.FACULTY_, t3.TERM_, t3.LABEL_, t4.PERIOD_,
 	        t3.ASSESSMENT_MODE_, t4.ID_ teachClassId, t4.CODE_ as teachClassCode,
 	        t4.NAME_ as teachClassName, t4.REMARK_, t4.COURSE_LABEL_ID_ courseLabel,
-	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(concat(te.TEACHER_NAME_)) teacherName
+	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(distinct te.TEACHER_NAME_) TEACHER_NAME_
         from elc_course_takes_t_0 t1
 	        join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
 	        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
@@ -1340,7 +1340,7 @@
 	        op.CALENDAR_ID_, op.CREDITS_, op.FACULTY_, t3.TERM_, t3.LABEL_, t4.PERIOD_,
 	        t3.ASSESSMENT_MODE_, t4.ID_ teachClassId, t4.CODE_ as teachClassCode,
 	        t4.NAME_ as teachClassName, t4.REMARK_, t4.COURSE_LABEL_ID_ courseLabel,
-	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(concat(te.TEACHER_NAME_)) teacherName
+	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(distinct te.TEACHER_NAME_) TEACHER_NAME_
         from elc_course_takes_t_1 t1
 	        join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
 	        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
@@ -1355,7 +1355,7 @@
 	        op.CALENDAR_ID_, op.CREDITS_, op.FACULTY_, t3.TERM_, t3.LABEL_, t4.PERIOD_,
 	        t3.ASSESSMENT_MODE_, t4.ID_ teachClassId, t4.CODE_ as teachClassCode,
 	        t4.NAME_ as teachClassName, t4.REMARK_, t4.COURSE_LABEL_ID_ courseLabel,
-	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(concat(te.TEACHER_NAME_)) teacherName
+	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(distinct te.TEACHER_NAME_) TEACHER_NAME_
         from elc_course_takes_t_2 t1
 	        join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
 	        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
@@ -1370,7 +1370,7 @@
 	        op.CALENDAR_ID_, op.CREDITS_, op.FACULTY_, t3.TERM_, t3.LABEL_, t4.PERIOD_,
 	        t3.ASSESSMENT_MODE_, t4.ID_ teachClassId, t4.CODE_ as teachClassCode,
 	        t4.NAME_ as teachClassName, t4.REMARK_, t4.COURSE_LABEL_ID_ courseLabel,
-	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(concat(te.TEACHER_NAME_)) teacherName
+	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(distinct te.TEACHER_NAME_) TEACHER_NAME_
         from elc_course_takes_t_3 t1
 	        join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
 	        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
@@ -1385,7 +1385,7 @@
 	        op.CALENDAR_ID_, op.CREDITS_, op.FACULTY_, t3.TERM_, t3.LABEL_, t4.PERIOD_,
 	        t3.ASSESSMENT_MODE_, t4.ID_ teachClassId, t4.CODE_ as teachClassCode,
 	        t4.NAME_ as teachClassName, t4.REMARK_, t4.COURSE_LABEL_ID_ courseLabel,
-	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(concat(te.TEACHER_NAME_)) teacherName
+	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(distinct te.TEACHER_NAME_) TEACHER_NAME_
         from elc_course_takes_t_4 t1
 	        join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
 	        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
@@ -1400,7 +1400,7 @@
 	        op.CALENDAR_ID_, op.CREDITS_, op.FACULTY_, t3.TERM_, t3.LABEL_, t4.PERIOD_,
 	        t3.ASSESSMENT_MODE_, t4.ID_ teachClassId, t4.CODE_ as teachClassCode,
 	        t4.NAME_ as teachClassName, t4.REMARK_, t4.COURSE_LABEL_ID_ courseLabel,
-	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(concat(te.TEACHER_NAME_)) teacherName
+	        op.IS_ELECTIVE_ as isPublicCourse, GROUP_CONCAT(distinct te.TEACHER_NAME_) TEACHER_NAME_
         from elc_course_takes_t_5 t1
 	        join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
 	        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
