@@ -18,10 +18,7 @@ import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
-import com.server.edu.election.dto.PayOrderDto;
-import com.server.edu.election.dto.PayResultDto;
-import com.server.edu.election.dto.RebuildCourseDto;
-import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
@@ -109,6 +106,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     @Autowired
     private ElcRebuildFeeStatisticsService feeStatisticsService;
+
+    @Autowired
+    private ElecRoundsDao elecRoundsDao;
 
     /**
      * @Description: 查询收费管理
@@ -300,13 +300,20 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+
         RebuildCourseDto dto = condition.getCondition();
         //查询校历时间
         SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(dto.getCalendarId());
         //获取上学期
         SchoolCalendarVo preTerm = BaseresServiceExamInvoker.getPreOrNextTerm(dto.getCalendarId(), false);
         dto.setIndex(TableIndexUtil.getIndex(dto.getCalendarId()));
-        List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
+        List<RebuildCourseNoChargeType> noStuPay = new ArrayList<>();
+        //结业和留学的都得收费
+        if(Constants.THREE_MODE.equals(dto.getMode()) || Constants.FOUR_MODE.equals(dto.getMode())){
+
+        }else{
+            noStuPay = noChargeTypeDao.selectAll();
+        }
         dto.setNoStuPay(noStuPay);
         dto.setDeptId(dptId);
         dto.setAbnormalEndTime(calendar.getEndDay());
@@ -890,11 +897,16 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         StudentRePaymentDto paymentDto = pageCondition.getCondition();
         String studentCode = paymentDto.getStudentCode();
         /**是否在不缴费学生类型中*/
-        // todo 因为毕业证书类型现在取不到，暂时无法判断是否需要收费
-        boolean retake = isNoNeedPayForRetake(studentCode,paymentDto.getCalendarId());
-        if(retake){
-            return null;
+        //判断是否是结业 （结业 和留学结业 都要收费）
+        Boolean graduation = isGraduation(studentCode);
+        if(!graduation){
+            boolean retake = isNoNeedPayForRetake(studentCode,paymentDto.getCalendarId());
+            if(retake){
+                return null;
+            }
         }
+        paymentDto.setGraduation(graduation);
+
         //去收费标准查询，是否需要缴费
         List<RebuildCourseCharge> rebuildCourseChargeList =  courseChargeDao.selectByStuId(paymentDto.getStudentCode());
         if (CollectionUtil.isNotEmpty(rebuildCourseChargeList) && rebuildCourseChargeList.get(0).getIsCharge().equals(1)){
@@ -936,6 +948,20 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 //            paymentDto.setPaid(courseTake.getPaid());
 //            paymentDtoList.add(paymentDto);
 //        }
+    }
+
+    //判断是否是结业生
+    private Boolean isGraduation(String studentCode) {
+        StudentDto studentType = elecRoundsDao.findStudentRoundType(studentCode);
+        if(studentType != null){
+            if(StringUtils.isNotBlank(studentType.getGraduateStudent()) ||
+                    StringUtils.isNotBlank(studentType.getInternationalGraduates())){
+                return true;
+            }
+        }else{
+            throw new ParameterValidateException("该学生不存在");
+        }
+        return false;
     }
 
     /**
