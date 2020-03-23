@@ -199,27 +199,6 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 		Set<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程
 		Set<SelectedCourse> unSelectedMutualCourses = c.getUnSelectedMutualCourses(); // 未选的互选课程
 		
-		// 获取轮次可选的互选课程
-//		PageCondition<ElecRoundCourseQuery> dto = new PageCondition<ElecRoundCourseQuery>();
-//		ElecRoundCourseQuery query = new ElecRoundCourseQuery();
-//		query.setCalendarId(calendarId);
-//		query.setMode(Constants.ONE);
-//		query.setRoundId(round.getId());
-//		query.setProjectId(round.getProjectId());
-//		dto.setCondition(query);
-//		dto.setPageSize_(99999);
-//		PageResult<CourseOpenDto> pageResult = elcMutualRoundCourseServiceImpl.listPage(dto);
-//		List<CourseOpenDto> list = pageResult.getList();
-		
-//		if (CollectionUtil.isNotEmpty(list)) {
-//			Set<String> courseCodes = list.stream().map(CourseOpenDto::getCourseCode).collect(Collectors.toSet());
-//			for (SelectedCourse unSelectedCourse : unSelectedMutualCourses) {
-//				if (courseCodes.contains(unSelectedCourse.getCourseCode())) {
-//					optionalCourses.add(unSelectedCourse);
-//				}
-//			}
-//		}
-		
 		// 获取轮次可选的互选课程优化
 		ElecRoundCourseQuery query = new ElecRoundCourseQuery();
 		query.setCalendarId(calendarId);
