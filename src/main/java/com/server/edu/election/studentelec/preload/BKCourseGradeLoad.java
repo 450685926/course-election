@@ -347,7 +347,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             }
         }
 
-        if(CollectionUtil.isNotEmpty(stuScore) && CollectionUtil.isNotEmpty(openCourse)){
+        if(CollectionUtil.isNotEmpty(stuScore) && CollectionUtil.isNotEmpty(openAndSubCourse)){
             stuScore = stuScore.stream().filter(vo -> openAndSubCourse.contains(vo.getCourseCode())).collect(Collectors.toList());
         }
 
