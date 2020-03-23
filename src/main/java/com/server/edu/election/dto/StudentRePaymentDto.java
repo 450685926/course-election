@@ -24,6 +24,17 @@ public class StudentRePaymentDto{
     private Double price;
     private String billNum;
 
+    /**标识符 是否结业生*/
+    private Boolean graduation;
+
+    public Boolean getGraduation() {
+        return graduation;
+    }
+
+    public void setGraduation(Boolean graduation) {
+        this.graduation = graduation;
+    }
+
     public String getBillNum() {
         return billNum;
     }
