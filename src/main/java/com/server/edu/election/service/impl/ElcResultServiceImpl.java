@@ -678,8 +678,18 @@ public class ElcResultServiceImpl implements ElcResultService
     			throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error"));
     		}
 		}else {
-			int classNumber = Integer.parseInt(teachingClassVo.getClassNumberStr());  // 教室容量
-			boolean flag = elcNumber <= number && number <= classNumber;
+            String classNumberStr = teachingClassVo.getClassNumberStr();
+            int classNumber = 0;
+            if (StringUtils.isNotBlank(classNumberStr)) {
+                classNumber = Integer.parseInt(classNumberStr);
+            }
+            boolean flag;
+            if (classNumber > 0) {
+                // 教室容量
+                flag = elcNumber <= number && number <= classNumber;
+            } else {
+                flag = elcNumber <= number;
+            }
 			if (!flag) {
 				throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error")); 
 			}
@@ -693,12 +703,12 @@ public class ElcResultServiceImpl implements ElcResultService
     		criteria.andEqualTo("calendarId", teachingClassVo.getCalendarId());
     		criteria.andEqualTo("status", Constants.ZERO);
     		ElcClassEditAuthority editAuthority =elcClassEditAuthorityDao.selectOneByExample(example);
-    		
-    		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
-    				&& !session.isAdmin() 
+
+    		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+    				&& !session.isAdmin()
     				&& session.isAcdemicDean()
     				&& editAuthority!=null) {
-    			throw new ParameterValidateException(I18nUtil.getMsg("election.noClassEditAuthority")); 
+    			throw new ParameterValidateException(I18nUtil.getMsg("election.noClassEditAuthority"));
     		}
     	}
     	
