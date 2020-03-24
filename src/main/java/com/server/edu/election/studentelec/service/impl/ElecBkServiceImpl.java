@@ -411,11 +411,9 @@ public class ElecBkServiceImpl implements ElecBkService
 //                }
 //            }
             // 判断是否有重修课
-            if (!hasRetakeCourse && RetakeCourseUtil
+             hasRetakeCourse = RetakeCourseUtil
                 .isRetakeCourseBk(context, teachClass.getCourseCode()))
-            {
-                hasRetakeCourse = true;
-            }
+
             StudentInfoCache studentInfo = context.getStudentInfo();
             ElecRequest request = context.getRequest();
             int index = TableIndexUtil.getIndex(request.getCalendarId());
