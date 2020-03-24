@@ -412,7 +412,7 @@ public class ElecBkServiceImpl implements ElecBkService
 //            }
             // 判断是否有重修课
              hasRetakeCourse = RetakeCourseUtil
-                .isRetakeCourseBk(context, teachClass.getCourseCode()))
+                .isRetakeCourseBk(context, teachClass.getCourseCode());
 
             StudentInfoCache studentInfo = context.getStudentInfo();
             ElecRequest request = context.getRequest();
