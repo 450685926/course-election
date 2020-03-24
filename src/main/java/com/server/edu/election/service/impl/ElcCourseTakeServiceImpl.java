@@ -181,10 +181,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             cond.setCourseFaculty("000268");
         }
         Session session = SessionUtils.getCurrentSession();
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            if (StringUtils.isBlank(cond.getFaculty())) {
-                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-                cond.setFaculties(deptIds);
+
+        //针对选课结果 中通过教学班要查看所有学生，所以 teachingClassId == null ,是上课名单数据，取学院分权数据，否则取所有
+        if(cond.getTeachingClassId() == null){
+            if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+                if (StringUtils.isBlank(cond.getFaculty())) {
+                    List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                    cond.setFaculties(deptIds);
+                }
             }
         }
         PageHelper.startPage(page.getPageNum_() ,page.getPageSize_());
