@@ -90,6 +90,16 @@ public class RebuildCourseDto {
     //学期
     private Integer semester;
 
+    private List<String> courseCodes;
+
+    public List<String> getCourseCodes() {
+        return courseCodes;
+    }
+
+    public void setCourseCodes(List<String> courseCodes) {
+        this.courseCodes = courseCodes;
+    }
+
     public Integer getYear() {
         return year;
     }
