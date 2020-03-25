@@ -74,6 +74,12 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 		        and t4.FACULTY_ = #{faculty} 
 		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(facultys)">
+				and t4.FACULTY_ in
+				<foreach collection="facultys" item="faculty" open="(" separator="," close=")">
+					#{faculty}
+				</foreach>
+			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
 		        and t4.PROFESSION_ = #{profession}
 		    </if>
