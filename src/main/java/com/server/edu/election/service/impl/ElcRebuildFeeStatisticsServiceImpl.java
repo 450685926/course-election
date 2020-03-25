@@ -63,7 +63,13 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 		SchoolCalendarVo preTerm = BaseresServiceExamInvoker.getPreOrNextTerm(dto.getCalendarId(), false);
 
 		dto.setManageDptId(dptId);
-        List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
+		List<RebuildCourseNoChargeType> noStuPay = new ArrayList<>();
+		//结业和留学结业的所有课程都属于缴费数据
+		if(Constants.THREE_MODE.equals(dto.getMode()) || Constants.FOUR_MODE.equals(dto.getMode())){
+
+		}else{
+			 noStuPay = noChargeTypeDao.selectAll();
+		}
 		dto.setNoPayStudentType(noStuPay);
 		dto.setAbnormalStatuEndTime(calendar.getEndDay());
         dto.setAbnormalStatuStartTime(preTerm.getBeginDay());

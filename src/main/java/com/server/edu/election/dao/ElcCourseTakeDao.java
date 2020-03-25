@@ -421,4 +421,14 @@ public interface ElcCourseTakeDao
     /**退课校验重修缴费*/
     ElcCourseTake findRebuildFee(@Param("take") ElcCourseTake take,@Param("index") int index);
 
+    /**获取结业和留学结业新修门数*/
+    List<StudentVo> getGraduateStuCouNumber(@Param("calendarId") Long calendarId,@Param("stuCodes") List<String> stuCodes);
+
+
+    /**获取不及格课程代码*/
+    List<String> findAllCourseNotPass(RebuildCourseDto rebuildCourseDto);
+
+    List<String> findGraduateCourse(@Param("calendarId")Long calendarId,@Param("studentId") String studentId);
+
+    Page<RebuildCourseNoChargeList> findNoChargeListByStuIdAndCoudes(RebuildCourseDto rebuildCourseDto);
 }
