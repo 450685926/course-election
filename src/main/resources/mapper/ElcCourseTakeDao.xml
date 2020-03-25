@@ -192,6 +192,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
                 and t3.FACULTY_ = #{query.courseFaculty}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFacultys)">
+                and t3.FACULTY_ in
+                <foreach collection="query.courseFacultys" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
                 and t3.COURSE_NAME_ = #{query.courseName}
             </if>

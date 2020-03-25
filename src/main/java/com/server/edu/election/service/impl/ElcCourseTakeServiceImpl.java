@@ -184,9 +184,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
         //针对选课结果 中通过教学班要查看所有学生，所以 teachingClassId == null ,是上课名单数据，取学院分权数据，否则取所有
         if(cond.getTeachingClassId() == null){
-            if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-                if (StringUtils.isBlank(cond.getFaculty())) {
-                    List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+            //走的非体育或英语上课名单
+            if (StringUtils.isBlank(cond.getCourseFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                if(deptIds.contains("000293") || deptIds.contains("000268")){
+                    cond.setCourseFacultys(deptIds);
+                }else{
                     cond.setFaculties(deptIds);
                 }
             }

@@ -46,6 +46,8 @@ public class ElcCourseTakeQuery
     /**开课学院*/
     private String courseFaculty;
 
+    private List<String> courseFacultys;
+
     /**学生专业*/
     private String profession;
     
@@ -115,6 +117,14 @@ public class ElcCourseTakeQuery
 
     /*部门id*/
     private String projId;
+
+    public List<String> getCourseFacultys() {
+        return courseFacultys;
+    }
+
+    public void setCourseFacultys(List<String> courseFacultys) {
+        this.courseFacultys = courseFacultys;
+    }
 
     public String getProjId() {
         return projId;
