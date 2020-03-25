@@ -187,10 +187,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             //走的非体育或英语上课名单
             if (StringUtils.isBlank(cond.getCourseFaculty())) {
                 List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-                if(deptIds.contains("000293") || deptIds.contains("000268")){
-                    cond.setCourseFacultys(deptIds);
-                }else{
-                    cond.setFaculties(deptIds);
+                if(CollectionUtil.isNotEmpty(deptIds)){
+                    if(deptIds.contains("000293") || deptIds.contains("000268")){
+                        cond.setCourseFacultys(deptIds);
+                    }else{
+                        cond.setFaculties(deptIds);
+                    }
                 }
             }
         }
