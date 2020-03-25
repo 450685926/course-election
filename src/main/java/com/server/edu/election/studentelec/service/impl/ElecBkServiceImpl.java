@@ -675,23 +675,25 @@ public class ElecBkServiceImpl implements ElecBkService
             //正常学生重修已缴费的只有管理员能退课
             Integer paid = elcCourseTakeVo.getPaid();
             String electionObj = round.getElectionObj();
-            if(stu.isGraduate() || stu.isAboardGraduate()) {
-                if(Constants.NORMAL_MODEL.equals(paid) && !Constants.MANAGER_ADMIN.equals(electionObj)){
-                    respose.getFailedReasons()
-                            .put(teachClassCode + courseName,
-                                    "该课程已经缴费,如要退课请联系管理员退课");
-                    return;
-                }
-            }else {
-                if(hasRetakeCourse){
+            if(elcCourseTake ==null) {
+                if(stu.isGraduate() || stu.isAboardGraduate()) {
                     if(Constants.NORMAL_MODEL.equals(paid) && !Constants.MANAGER_ADMIN.equals(electionObj)){
                         respose.getFailedReasons()
                                 .put(teachClassCode + courseName,
                                         "该课程已经缴费,如要退课请联系管理员退课");
                         return;
                     }
+                }else {
+                    if(hasRetakeCourse){
+                        if(Constants.NORMAL_MODEL.equals(paid) && !Constants.MANAGER_ADMIN.equals(electionObj)){
+                            respose.getFailedReasons()
+                                    .put(teachClassCode + courseName,
+                                            "该课程已经缴费,如要退课请联系管理员退课");
+                            return;
+                        }
+                    }
+                	
                 }
-            	
             }
             turn = elcCourseTakeVo.getTurn();
             logType = ElcLogVo.TYPE_2;
