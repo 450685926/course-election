@@ -6,6 +6,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 
 /**
  * 本科生选课
@@ -29,7 +30,7 @@ public interface ElecBkService
      * @see [类、类#方法、类#成员]
      */
     void saveElc(ElecContextBk context, TeachingClassCache teachClass,
-        ElectRuleType type,boolean hasRetakeCourse);
+        ElectRuleType type,boolean hasRetakeCourse,ElcCourseTakeVo elcCourseTake);
 
     RestResult<?> syncRemindTime(Long calendarId,Integer num, String studentId, String studentName, String courseNameAndCode);
 }

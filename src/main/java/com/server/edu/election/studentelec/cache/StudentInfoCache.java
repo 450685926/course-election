@@ -67,9 +67,19 @@ public class StudentInfoCache
 
     /**专业*/
     private String bkMajor;
-
     
-    public Integer getIsArrears() {
+    /**留学结业生*/
+    private boolean isAboardGraduate;
+    
+    public boolean isAboardGraduate() {
+		return isAboardGraduate;
+	}
+
+	public void setAboardGraduate(boolean isAboardGraduate) {
+		this.isAboardGraduate = isAboardGraduate;
+	}
+
+	public Integer getIsArrears() {
 		return isArrears;
 	}
 
