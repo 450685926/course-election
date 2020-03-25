@@ -653,6 +653,8 @@ public class ElecBkServiceImpl implements ElecBkService
             if(elcCourseTake !=null) {
             	take.setBillId(elcCourseTake.getBillId());
             	take.setPaid(elcCourseTake.getPaid());
+            	teachClass.setBillId(elcCourseTake.getBillId());
+            	teachClass.setPaid(elcCourseTake.getPaid());
             }
             count = courseTakeDao.insertSelective(take);
             if (count == 0)
