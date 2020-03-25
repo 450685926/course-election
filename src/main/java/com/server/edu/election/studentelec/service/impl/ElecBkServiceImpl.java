@@ -186,7 +186,7 @@ public class ElecBkServiceImpl implements ElecBkService
         //针对重修换班
 
         // 退课
-        doWithdraw(context, cancelExceutors, withdrawClassList);
+        doWithdraw(context, cancelExceutors, withdrawClassList,elecList);
         
         // 选课
         ElectionRounds round = dataProvider.getRound(roundId);
@@ -449,8 +449,9 @@ public class ElecBkServiceImpl implements ElecBkService
                 context.getSelectedCourses().add(course);
                 respose.getSuccessCourses().add(teachClassId);
             }else{
-            	ElcCourseTakeVo  elcCourseTake = new ElcCourseTakeVo();
+            	ElcCourseTakeVo  elcCourseTake = null;
             	if(CollectionUtil.isNotEmpty(withdrawList)&& withdrawList.contains(teachClass.getCourseCode())) {
+            		elcCourseTake = new ElcCourseTakeVo();
             		elcCourseTake = selectedCourses.stream().filter(c->teachClass.getCourseCode().equals(c.getCourseCode())).findFirst().orElse(null);
             	}
                 this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse,elcCourseTake);
@@ -467,7 +468,7 @@ public class ElecBkServiceImpl implements ElecBkService
     /**退课*/
     private void doWithdraw(ElecContextBk context,
         List<AbstractWithdrwRuleExceutorBk> exceutors,
-        List<ElecTeachClassDto> teachClassIds)
+        List<ElecTeachClassDto> teachClassIds,List<String> elecList)
     {
         if (CollectionUtil.isEmpty(teachClassIds))
         {
@@ -482,22 +483,26 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRequest request = context.getRequest();
         Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
-        boolean hasRetakeCourse = false;
         for (ElecTeachClassDto data : teachClassIds)
         {
+        	boolean hasRetakeCourse = false;
             Long teachClassId = data.getTeachClassId();
             SelectedCourse teachClass = null;
             Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-            for (SelectedCourse selectCourse : selectedCourses)
-            {
-                if (selectCourse.getCourse()
-                    .getTeachClassId()
-                    .equals(teachClassId))
-                {
-                    teachClass = selectCourse;
-                    break;
-                }
+//            for (SelectedCourse selectCourse : selectedCourses)
+//            {
+//                if (selectCourse.getCourse()
+//                    .getTeachClassId()
+//                    .equals(teachClassId))
+//                {
+//                    teachClass = selectCourse;
+//                    break;
+//                }
+//            }
+            if(CollectionUtil.isNotEmpty(selectedCourses)) {
+            	teachClass = selectedCourses.stream().filter(c->teachClassId.equals(c.getCourse().getTeachClassId())).findFirst().orElse(null);
             }
+            
             if (teachClass == null)
             {
 
@@ -568,9 +573,15 @@ public class ElecBkServiceImpl implements ElecBkService
                     // 更新缓存中教学班人数
                     teachClassCacheService.updateTeachingClassNumber(teachClassId);
                 }else{
+                	ElcCourseTakeVo  elcCourseTake = null;
+                	if(CollectionUtil.isNotEmpty(elecList)&& elecList.contains(teachClass.getCourse().getCourseCode())) {
+                		elcCourseTake = new ElcCourseTakeVo();
+                		TeachingClassCache teachingClassCache = teachClass.getCourse();
+                		BeanUtils.copyProperties(teachingClassCache, elcCourseTake);
+                	}
                     this.saveElc(context,
                             teachClass.getCourse(),
-                            ElectRuleType.WITHDRAW,hasRetakeCourse,null);
+                            ElectRuleType.WITHDRAW,hasRetakeCourse,elcCourseTake);
                 }
             }
         }
@@ -750,13 +761,15 @@ public class ElecBkServiceImpl implements ElecBkService
         	rebuildCourseRecycle.setType(Constants.FIRST);
         	rebuildCourseRecycle.setScreenLabel(null);
             //结业生、留学结业生退课进入回收站，正常学生重修进入回收站
-            if(stu.isGraduate() || stu.isAboardGraduate()) {
-            	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
-            }else {
-                if(hasRetakeCourse) {
+        	if(elcCourseTake ==null) {
+                if(stu.isGraduate() || stu.isAboardGraduate()) {
                 	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
+                }else {
+                    if(hasRetakeCourse) {
+                    	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
+                    }
                 }
-            }
+        	}
         }
         // 添加选课日志
         ElcLog log = new ElcLog();

@@ -539,6 +539,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setFaculty(c.getFaculty());
                 lesson.setTerm(c.getTerm());
                 lesson.setCompulsory(map.get(c.getCourseCode()));
+                lesson.setPaid(c.getPaid());
+                lesson.setBillId(c.getBillId());
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
                 course.setCourse(lesson);

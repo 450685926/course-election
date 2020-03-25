@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.Column;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -92,8 +94,34 @@ public class TeachingClassCache extends ElecCourse implements Serializable
 
     @Code2Text(DictTypeEnum.X_YX)
     private String replaceFaculty;
+    
+    /**
+     * 重修费是否支付(0否，1是)
+     */
+    private Integer paid;
+    
+    /**
+     * 账单ID
+     */
+    private Long billId;
+    
+    public Integer getPaid() {
+		return paid;
+	}
 
-    public String getReplaceFaculty() {
+	public void setPaid(Integer paid) {
+		this.paid = paid;
+	}
+
+	public Long getBillId() {
+		return billId;
+	}
+
+	public void setBillId(Long billId) {
+		this.billId = billId;
+	}
+
+	public String getReplaceFaculty() {
         return replaceFaculty;
     }
 
