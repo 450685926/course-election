@@ -1020,7 +1020,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuIdAndCoudes(rebuildCourseDto);
         if(CollectionUtil.isNotEmpty(courseNoChargeList)){
             for (RebuildCourseNoChargeList rebuildCourseNoChargeList : courseNoChargeList) {
-                if(retake){
+                if(retake && rebuildCourseNoChargeList.getPaid() != null){
                     //无需缴费类型
                     rebuildCourseNoChargeList.setPaid(2);
                 }
@@ -1254,8 +1254,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                         value = "已缴费";
                     } else if (Constants.UN_PAID.toString().equals(value)){
                         value = "未缴费";
-                    }else {
+                    }else if(Constants.REBUILD_CALSS.equals(value)){
                         value = "无需缴费";
+                    }else{
+                        value = "";
                     }
                     return value;
                 });
