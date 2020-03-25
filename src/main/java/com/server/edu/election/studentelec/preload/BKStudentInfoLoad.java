@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcLoserDownStdsDao;
 import com.server.edu.election.dao.ElcNoGraduateStdsDao;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.ElcLoserDownStds;
 import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.Student;
@@ -48,6 +50,9 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
     @Autowired
     private ElcLoserDownStdsDao elcLoserDownStdsDao;
     
+    @Autowired
+    private ElecRoundsDao elecRoundsDao;
+    
     @Override
     public void load(ElecContextBk context)
     {
@@ -82,17 +87,27 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
         studentInfo
             .setAboard(Constants.IS_OVERSEAS.equals(stu.getIsOverseas()));
         //是否结业生
-        ElcNoGraduateStds elcNoGraduateStds =
-            elcNoGraduateStdsDao.findStudentByCode(studentInfo.getStudentId());
-        studentInfo.setGraduate(elcNoGraduateStds == null ? false : true);
-        
+//        ElcNoGraduateStds elcNoGraduateStds =
+//            elcNoGraduateStdsDao.findStudentByCode(studentInfo.getStudentId());
+//        studentInfo.setGraduate(elcNoGraduateStds == null ? false : true);
+        StudentDto studentDto = elecRoundsDao.findStudentRoundType(studentInfo.getStudentId());
+        boolean isGraduate = false;
+        boolean isAboardGraduate = false;
+        if(StringUtils.isNotEmpty(studentDto.getGraduateStudent())) {
+        	isGraduate =true;
+        }
+        if(StringUtils.isNotEmpty(studentDto.getInternationalGraduates())) {
+        	isAboardGraduate =true;
+        }
+        studentInfo.setGraduate(isGraduate);
+        studentInfo.setAboardGraduate(isAboardGraduate);
         // 否为留降级学生
-
         ElcLoserDownStds loserDownStds = elcLoserDownStdsDao
             .findLoserDownStds(request.getRoundId(), stu.getStudentCode());
         studentInfo.setRepeater(loserDownStds == null ? false : true);
         //是否欠费
         studentInfo.setIsArrears(stu.getIsArrears());
+       
         
     }
     

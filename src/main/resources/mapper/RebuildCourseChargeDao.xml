@@ -209,6 +209,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
                 and re.MODE_ = #{mode,jdbcType=INTEGER}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(paid)">
+                and re.PAID_ = #{paid,jdbcType=INTEGER}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
                 and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') or st.NAME_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
             </if>

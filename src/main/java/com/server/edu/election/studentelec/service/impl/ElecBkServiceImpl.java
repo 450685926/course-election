@@ -183,13 +183,14 @@ public class ElecBkServiceImpl implements ElecBkService
             elecClassList = elecClassMap.values().stream().collect(Collectors.toList());
         }
 
+        //针对重修换班
 
         // 退课
         doWithdraw(context, cancelExceutors, withdrawClassList);
         
         // 选课
         ElectionRounds round = dataProvider.getRound(roundId);
-        doElec(context, elecExceutors, elecClassList, round);
+        doElec(context, elecExceutors, elecClassList, round,withdrawList);
         
         return context;
     }
@@ -244,10 +245,28 @@ public class ElecBkServiceImpl implements ElecBkService
                         teachClass.setChooseObj(c.getChooseObj());
                         teachClass.setCourseTakeType(c.getCourseTakeType());
                         teachClass.setTurn(c.getTurn());
+//                        //如果是重修，退课需要考虑是否缴费。缴过费的只有管理员可以退
+//                        Integer paid = c.getPaid();
+//                        boolean hasRetakeCourse = false;
+//                        if (!hasRetakeCourse && RetakeCourseUtil
+//                                .isRetakeCourseBk(context, teachClass.getCourse().getCourseCode()))
+//                            {
+//                                hasRetakeCourse = true;
+//                            }
+//                        if(hasRetakeCourse){
+//                            String electionObj = round.getElectionObj();
+//                            if(Constants.NORMAL_MODEL.equals(paid) && !Constants.MANAGER_ADMIN.equals(electionObj)){
+//                                respose.getFailedReasons()
+//                                        .put(c.getTeacherCodes() + c.getCourseName(),
+//                                                "该课程已经缴费,如需更换教学班请联系管理员");
+//                                continue;
+//                            }
+//                        }
+                        
                     }else{
                         failedReasons.put(String.format("%s[%s]",
                                 withdrawTeachClass.getCourseCode(),
-                                withdrawTeachClass.getTeachClassCode()), "教学班不存在无法退课");
+                                withdrawTeachClass.getTeachClassCode()), "选课记录不存在无法退课");
                         continue;
                     }
                     
@@ -277,7 +296,7 @@ public class ElecBkServiceImpl implements ElecBkService
             }
             if(withdrawSuccess){
                 //再校验选课
-                boolean hasRetakeCourse = false;
+//                boolean hasRetakeCourse = false;
                 //拿到退课的教学班
                 ElecTeachClassDto data = elecClassMap.get(courseCode);
                 Collections.sort(elecExceutors);
@@ -341,7 +360,7 @@ public class ElecBkServiceImpl implements ElecBkService
     /**选课*/
     private void doElec(ElecContextBk context,
         List<AbstractElecRuleExceutorBk> exceutors,
-        List<ElecTeachClassDto> teachClassIds, ElectionRounds round)
+        List<ElecTeachClassDto> teachClassIds, ElectionRounds round,List<String> withdrawList)
     {
         if (CollectionUtil.isEmpty(teachClassIds))
         {
@@ -352,8 +371,11 @@ public class ElecBkServiceImpl implements ElecBkService
         
         ElecRespose respose = context.getRespose();
         //Map<String, String> failedReasons = respose.getFailedReasons();
-        boolean hasRetakeCourse = false;
-        List<TeachingClassCache> teachingClassCaches = getNoEnglishPassRuleClass(context, teachClassIds,round,exceutors);
+//        boolean hasRetakeCourse = false;
+        Long calendarId = round.getCalendarId();
+        StudentInfoCache studentInfo = context.getStudentInfo();
+        List<ElcCourseTakeVo> selectedCourses = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+        List<TeachingClassCache> teachingClassCaches = getNoEnglishPassRuleClass(context, teachClassIds,round,exceutors,selectedCourses);
         for (TeachingClassCache teachClass : teachingClassCaches)
         {
             Long teachClassId = teachClass.getTeachClassId();
@@ -411,13 +433,11 @@ public class ElecBkServiceImpl implements ElecBkService
 //                }
 //            }
             // 判断是否有重修课
-             hasRetakeCourse = RetakeCourseUtil
+            boolean hasRetakeCourse = RetakeCourseUtil
                 .isRetakeCourseBk(context, teachClass.getCourseCode());
-
-            StudentInfoCache studentInfo = context.getStudentInfo();
             ElecRequest request = context.getRequest();
-            int index = TableIndexUtil.getIndex(request.getCalendarId());
-            List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), round.getCalendarId(),index, teachClass.getCourseCode());
+//            int index = TableIndexUtil.getIndex(request.getCalendarId());
+            List<ElcCourseTakeVo> elcCourseTakeVo = selectedCourses.stream().filter(c->teachClass.getTeachClassId().equals(c.getTeachingClassId())).collect(Collectors.toList());
             if (CollectionUtil.isNotEmpty(elcCourseTakeVo)){
                 Integer courseTakeType = hasRetakeCourse==true?2:1;
                 // 更新缓存中教学班人数
@@ -429,7 +449,11 @@ public class ElecBkServiceImpl implements ElecBkService
                 context.getSelectedCourses().add(course);
                 respose.getSuccessCourses().add(teachClassId);
             }else{
-                this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse);
+            	ElcCourseTakeVo  elcCourseTake = new ElcCourseTakeVo();
+            	if(CollectionUtil.isNotEmpty(withdrawList)&& withdrawList.contains(teachClass.getCourseCode())) {
+            		elcCourseTake = selectedCourses.stream().filter(c->teachClass.getCourseCode().equals(c.getCourseCode())).findFirst().orElse(null);
+            	}
+                this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse,elcCourseTake);
             }
         }
         // 判断学生是否要重修缴费（暂时注掉，逻辑有点问题）
@@ -501,7 +525,7 @@ public class ElecBkServiceImpl implements ElecBkService
                     }else{
                         failedReasons.put(String.format("%s[%s]",
                                 data.getCourseCode(),
-                                data.getTeachClassCode()), "教学班不存在无法退课");
+                                data.getTeachClassCode()), "选课信息不存在无法退课");
                         continue;
                     }
 
@@ -546,7 +570,7 @@ public class ElecBkServiceImpl implements ElecBkService
                 }else{
                     this.saveElc(context,
                             teachClass.getCourse(),
-                            ElectRuleType.WITHDRAW,hasRetakeCourse);
+                            ElectRuleType.WITHDRAW,hasRetakeCourse,null);
                 }
             }
         }
@@ -555,7 +579,7 @@ public class ElecBkServiceImpl implements ElecBkService
     @Transactional
     @Override
     public void saveElc(ElecContextBk context, TeachingClassCache teachClass,
-        ElectRuleType type,boolean hasRetakeCourse)
+        ElectRuleType type,boolean hasRetakeCourse,ElcCourseTakeVo elcCourseTake)
     {
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
@@ -573,7 +597,6 @@ public class ElecBkServiceImpl implements ElecBkService
         Integer logType = ElcLogVo.TYPE_1;
         
         int count = 0; 
-        
 //        Integer courseTakeType =
 //            Constants.REBUILD_CALSS.equals(teachClass.getTeachClassType())
 //                ? CourseTakeType.RETAKE.type()
@@ -606,7 +629,6 @@ public class ElecBkServiceImpl implements ElecBkService
                     return;
                 }
             }
-            
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(round.getCalendarId());
             take.setChooseObj(request.getChooseObj());
@@ -617,6 +639,10 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTeachingClassId(teachClassId);
             take.setMode(round.getMode());
             take.setTurn(round.getTurn());
+            if(elcCourseTake !=null) {
+            	take.setBillId(elcCourseTake.getBillId());
+            	take.setPaid(elcCourseTake.getPaid());
+            }
             count = courseTakeDao.insertSelective(take);
             if (count == 0)
             {
@@ -634,18 +660,28 @@ public class ElecBkServiceImpl implements ElecBkService
         {
             List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.findElcCourse(studentId, round.getCalendarId(),TableIndexUtil.getIndex(round.getCalendarId()), teachClass.getCourseCode());
             ElcCourseTakeVo elcCourseTakeVo = elcCourseTakeVos.get(0);
-            //如果是重修，退课需要考虑是否缴费。缴过费的只有管理员可以退
+            //结业生、留学结业生已缴费的只有管理员能退课
+            //正常学生重修已缴费的只有管理员能退课
             Integer paid = elcCourseTakeVo.getPaid();
-            if(hasRetakeCourse){
-                String electionObj = round.getElectionObj();
+            String electionObj = round.getElectionObj();
+            if(stu.isGraduate() || stu.isAboardGraduate()) {
                 if(Constants.NORMAL_MODEL.equals(paid) && !Constants.MANAGER_ADMIN.equals(electionObj)){
                     respose.getFailedReasons()
                             .put(teachClassCode + courseName,
                                     "该课程已经缴费,如要退课请联系管理员退课");
                     return;
                 }
+            }else {
+                if(hasRetakeCourse){
+                    if(Constants.NORMAL_MODEL.equals(paid) && !Constants.MANAGER_ADMIN.equals(electionObj)){
+                        respose.getFailedReasons()
+                                .put(teachClassCode + courseName,
+                                        "该课程已经缴费,如要退课请联系管理员退课");
+                        return;
+                    }
+                }
+            	
             }
-
             turn = elcCourseTakeVo.getTurn();
             logType = ElcLogVo.TYPE_2;
             ElcCourseTake take = new ElcCourseTake();
@@ -699,23 +735,27 @@ public class ElecBkServiceImpl implements ElecBkService
                  }
                  dataProvider.incrementDrawNumber(teachClassId);
             }
-            //如果是重修退课退课数据进入选课回收站
-            if(hasRetakeCourse) {
-            	RebuildCourseRecycle rebuildCourseRecycle = new RebuildCourseRecycle();
-            	rebuildCourseRecycle.setCalendarId(round.getCalendarId());
-            	rebuildCourseRecycle.setStudentCode(studentId);
-            	rebuildCourseRecycle.setCourseCode(courseCode);
-            	rebuildCourseRecycle.setTeachingClassId(teachClassId);
-            	rebuildCourseRecycle.setCourseTakeType(courseTakeType);
-            	//取选课对象（不是退课对象）
-            	rebuildCourseRecycle.setChooseObj(elcCourseTakeVo.getChooseObj());
-            	rebuildCourseRecycle.setTurn(turn);
-            	//取选课模式
-            	rebuildCourseRecycle.setMode(elcCourseTakeVo.getMode());
-            	rebuildCourseRecycle.setPaid(paid);
-            	rebuildCourseRecycle.setType(Constants.FIRST);
-            	rebuildCourseRecycle.setScreenLabel(null);
+        	RebuildCourseRecycle rebuildCourseRecycle = new RebuildCourseRecycle();
+        	rebuildCourseRecycle.setCalendarId(round.getCalendarId());
+        	rebuildCourseRecycle.setStudentCode(studentId);
+        	rebuildCourseRecycle.setCourseCode(courseCode);
+        	rebuildCourseRecycle.setTeachingClassId(teachClassId);
+        	rebuildCourseRecycle.setCourseTakeType(courseTakeType);
+        	//取选课对象（不是退课对象）
+        	rebuildCourseRecycle.setChooseObj(elcCourseTakeVo.getChooseObj());
+        	rebuildCourseRecycle.setTurn(turn);
+        	//取选课模式
+        	rebuildCourseRecycle.setMode(elcCourseTakeVo.getMode());
+        	rebuildCourseRecycle.setPaid(paid);
+        	rebuildCourseRecycle.setType(Constants.FIRST);
+        	rebuildCourseRecycle.setScreenLabel(null);
+            //结业生、留学结业生退课进入回收站，正常学生重修进入回收站
+            if(stu.isGraduate() || stu.isAboardGraduate()) {
             	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
+            }else {
+                if(hasRetakeCourse) {
+                	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
+                }
             }
         }
         // 添加选课日志
@@ -906,6 +946,7 @@ public class ElecBkServiceImpl implements ElecBkService
         }
         //本学期已选公共外语课
         Set<SelectedCourse> engLishselectedcourse = selectedCourses.stream().filter(c->asList.contains(c.getCourse())).collect(Collectors.toSet());
+        
         if(CollectionUtil.isEmpty(engLishselectedcourse)) {
         	return true;
         }
@@ -992,7 +1033,7 @@ public class ElecBkServiceImpl implements ElecBkService
     }
     
     
-    private List<TeachingClassCache> getNoEnglishPassRuleClass(ElecContextBk context, List<ElecTeachClassDto> teachClassIds,ElectionRounds round,List<AbstractElecRuleExceutorBk> exceutors) {
+    private List<TeachingClassCache> getNoEnglishPassRuleClass(ElecContextBk context, List<ElecTeachClassDto> teachClassIds,ElectionRounds round,List<AbstractElecRuleExceutorBk> exceutors,List<ElcCourseTakeVo> selectedCourses) {
     	
     	List<TeachingClassCache> teachingClassCaches = new ArrayList<TeachingClassCache>();
         ElecRespose respose = context.getRespose();
@@ -1002,9 +1043,9 @@ public class ElecBkServiceImpl implements ElecBkService
         
         //为了数据准确性，会对这个学期已经选取的课程进行查库操作
         //重修英语课不能超过三门（当前学期已经选择重修英语课最多只能两门，新修一门）
-        StudentInfoCache studentInfo = context.getStudentInfo();
-        Long calendarId = round.getCalendarId();
-        List<ElcCourseTakeVo> selectedCourses = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+//        StudentInfoCache studentInfo = context.getStudentInfo();
+//        Long calendarId = round.getCalendarId();
+//        List<ElcCourseTakeVo> selectedCourses = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
 //        List<String> asList =
 //                courseOpenDao.getEnglishCourses(round.getCalendarId(), "000268",Constants.FIRST);
         List<String> asList =
