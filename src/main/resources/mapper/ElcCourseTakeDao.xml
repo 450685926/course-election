@@ -2505,7 +2505,10 @@
             t1.CALENDAR_ID_ = #{calendarId}
              and t7.DELETE_STATUS_ = 0
             <if test=" mode == 1 ">
-                AND t1.COURSE_TAKE_TYPE_ = 2
+                AND t1.COURSE_TAKE_TYPE_ = 2 and t1.MODE_ = 1
+            </if>
+            <if test=" mode != 1 ">
+                and t1.MODE_ = #{mode}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
                 and t5.CODE_ = #{teachingClassCode}
