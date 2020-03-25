@@ -2957,7 +2957,7 @@
     </select>
 
     <select id="getGraduateStuCouNumber" resultType="com.server.edu.election.vo.StudentVo">
-        select STUDENT_ID_,COUNT(DISTINCT COURSE_CODE_)from
+        select STUDENT_ID_ studentCode,COUNT(DISTINCT COURSE_CODE_) rebuildNumber from
         elc_course_takes_t
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
