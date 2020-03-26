@@ -163,6 +163,8 @@ public class ElecBkServiceImpl implements ElecBkService
 
         //拿到换班的课程
         List<String> withdrawAndElecList = new ArrayList<>();
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        Set<SelectedCourse> copyselectedCourses = new HashSet<>(selectedCourses);
         if(CollectionUtil.isNotEmpty(withdrawList) && CollectionUtil.isNotEmpty(elecList)){
             withdrawAndElecList = withdrawList.stream().filter(item -> elecList.contains(item)).collect(Collectors.toList());
         }
@@ -170,7 +172,7 @@ public class ElecBkServiceImpl implements ElecBkService
             Map<String, ElecTeachClassDto> withdrawClassMap = withdrawClassList.stream().collect(Collectors.toMap(ElecTeachClassDto::getCourseCode, elecTeachClass -> elecTeachClass));
             Map<String, ElecTeachClassDto> elecClassMap = elecClassList.stream().collect(Collectors.toMap(ElecTeachClassDto::getCourseCode, elecTeachClass -> elecTeachClass));
             //返回可以退课后可以选课的集合
-            List<String> goodList =  checkWithdrawAndEleRule(withdrawAndElecList,withdrawClassMap,cancelExceutors,elecClassMap,elecExceutors,context,roundId);
+            List<String> goodList =  checkWithdrawAndEleRule(withdrawAndElecList,withdrawClassMap,cancelExceutors,elecClassMap,elecExceutors,context,roundId,selectedCourses);
             //拿到不能完成完整加退课流程的集合
             List<String> badList = withdrawAndElecList.stream().filter(item -> !goodList.contains(item)).collect(Collectors.toList());
             //移除这些不能完成换班的课程
@@ -186,16 +188,16 @@ public class ElecBkServiceImpl implements ElecBkService
         //针对重修换班
 
         // 退课
-        doWithdraw(context, cancelExceutors, withdrawClassList,elecList);
+        doWithdraw(context, cancelExceutors, withdrawClassList,elecList,copyselectedCourses);
         
         // 选课
         ElectionRounds round = dataProvider.getRound(roundId);
-        doElec(context, elecExceutors, elecClassList, round,withdrawList);
+        doElec(context, elecExceutors, elecClassList, round,withdrawList,copyselectedCourses);
         
         return context;
     }
 
-    private List<String> checkWithdrawAndEleRule(List<String> withdrawAndElecList, Map<String, ElecTeachClassDto> withdrawClassMap, List<AbstractWithdrwRuleExceutorBk> cancelExceutors, Map<String, ElecTeachClassDto> elecClassMap, List<AbstractElecRuleExceutorBk> elecExceutors, ElecContextBk context,Long roundId) {
+    private List<String> checkWithdrawAndEleRule(List<String> withdrawAndElecList, Map<String, ElecTeachClassDto> withdrawClassMap, List<AbstractWithdrwRuleExceutorBk> cancelExceutors, Map<String, ElecTeachClassDto> elecClassMap, List<AbstractElecRuleExceutorBk> elecExceutors, ElecContextBk context,Long roundId,Set<SelectedCourse> selectedCourses) {
         ElecRespose respose = context.getRespose();
         ElectionRounds round = dataProvider.getRound(roundId);
 
@@ -212,7 +214,6 @@ public class ElecBkServiceImpl implements ElecBkService
             ElecTeachClassDto withdrawTeachClass = withdrawClassMap.get(courseCode);
             Long withdrawTeachClassId = withdrawTeachClass.getTeachClassId();
             SelectedCourse teachClass = null;
-            Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
             for (SelectedCourse selectCourse : selectedCourses)
             {
                 if (selectCourse.getCourse()
@@ -360,7 +361,7 @@ public class ElecBkServiceImpl implements ElecBkService
     /**选课*/
     private void doElec(ElecContextBk context,
         List<AbstractElecRuleExceutorBk> exceutors,
-        List<ElecTeachClassDto> teachClassIds, ElectionRounds round,List<String> withdrawList)
+        List<ElecTeachClassDto> teachClassIds, ElectionRounds round,List<String> withdrawList,Set<SelectedCourse> selectedCourses)
     {
         if (CollectionUtil.isEmpty(teachClassIds))
         {
@@ -372,10 +373,7 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRespose respose = context.getRespose();
         //Map<String, String> failedReasons = respose.getFailedReasons();
 //        boolean hasRetakeCourse = false;
-        Long calendarId = round.getCalendarId();
-        StudentInfoCache studentInfo = context.getStudentInfo();
-        List<ElcCourseTakeVo> selectedCourses = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
-        List<TeachingClassCache> teachingClassCaches = getNoEnglishPassRuleClass(context, teachClassIds,round,exceutors,selectedCourses);
+        List<TeachingClassCache> teachingClassCaches = getNoEnglishPassRuleClass(context, teachClassIds,round,exceutors);
         for (TeachingClassCache teachClass : teachingClassCaches)
         {
             Long teachClassId = teachClass.getTeachClassId();
@@ -436,9 +434,10 @@ public class ElecBkServiceImpl implements ElecBkService
             boolean hasRetakeCourse = RetakeCourseUtil
                 .isRetakeCourseBk(context, teachClass.getCourseCode());
             ElecRequest request = context.getRequest();
+            StudentInfoCache studentInfo = context.getStudentInfo();
 //            int index = TableIndexUtil.getIndex(request.getCalendarId());
-            List<ElcCourseTakeVo> elcCourseTakeVo = selectedCourses.stream().filter(c->teachClass.getTeachClassId().equals(c.getTeachingClassId())).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(elcCourseTakeVo)){
+            int count = courseTakeDao.findCount(studentInfo.getStudentId(), round.getCalendarId(),teachClass.getTeachClassId());
+            if (count>0){
                 Integer courseTakeType = hasRetakeCourse==true?2:1;
                 // 更新缓存中教学班人数
                 teachClassCacheService.updateTeachingClassNumber(teachClassId);
@@ -452,7 +451,9 @@ public class ElecBkServiceImpl implements ElecBkService
             	ElcCourseTakeVo  elcCourseTake = null;
             	if(CollectionUtil.isNotEmpty(withdrawList)&& withdrawList.contains(teachClass.getCourseCode())) {
             		elcCourseTake = new ElcCourseTakeVo();
-            		elcCourseTake = selectedCourses.stream().filter(c->teachClass.getCourseCode().equals(c.getCourseCode())).findFirst().orElse(null);
+            		SelectedCourse selectedCourse = selectedCourses.stream().filter(c->teachClass.getCourseCode().equals(c.getCourse().getCourseCode())).findFirst().orElse(null);
+            		TeachingClassCache teachingClassCache = selectedCourse.getCourse();
+            		BeanUtils.copyProperties(teachingClassCache, elcCourseTake);
             	}
                 this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse,elcCourseTake);
             }
@@ -468,7 +469,7 @@ public class ElecBkServiceImpl implements ElecBkService
     /**退课*/
     private void doWithdraw(ElecContextBk context,
         List<AbstractWithdrwRuleExceutorBk> exceutors,
-        List<ElecTeachClassDto> teachClassIds,List<String> elecList)
+        List<ElecTeachClassDto> teachClassIds,List<String> elecList,Set<SelectedCourse> selectedCourses)
     {
         if (CollectionUtil.isEmpty(teachClassIds))
         {
@@ -488,7 +489,6 @@ public class ElecBkServiceImpl implements ElecBkService
         	boolean hasRetakeCourse = false;
             Long teachClassId = data.getTeachClassId();
             SelectedCourse teachClass = null;
-            Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
 //            for (SelectedCourse selectCourse : selectedCourses)
 //            {
 //                if (selectCourse.getCourse()
@@ -653,6 +653,8 @@ public class ElecBkServiceImpl implements ElecBkService
             if(elcCourseTake !=null) {
             	take.setBillId(elcCourseTake.getBillId());
             	take.setPaid(elcCourseTake.getPaid());
+            	teachClass.setBillId(elcCourseTake.getBillId());
+            	teachClass.setPaid(elcCourseTake.getPaid());
             }
             count = courseTakeDao.insertSelective(take);
             if (count == 0)
@@ -1048,7 +1050,7 @@ public class ElecBkServiceImpl implements ElecBkService
     }
     
     
-    private List<TeachingClassCache> getNoEnglishPassRuleClass(ElecContextBk context, List<ElecTeachClassDto> teachClassIds,ElectionRounds round,List<AbstractElecRuleExceutorBk> exceutors,List<ElcCourseTakeVo> selectedCourses) {
+    private List<TeachingClassCache> getNoEnglishPassRuleClass(ElecContextBk context, List<ElecTeachClassDto> teachClassIds,ElectionRounds round,List<AbstractElecRuleExceutorBk> exceutors) {
     	
     	List<TeachingClassCache> teachingClassCaches = new ArrayList<TeachingClassCache>();
         ElecRespose respose = context.getRespose();
@@ -1058,9 +1060,9 @@ public class ElecBkServiceImpl implements ElecBkService
         
         //为了数据准确性，会对这个学期已经选取的课程进行查库操作
         //重修英语课不能超过三门（当前学期已经选择重修英语课最多只能两门，新修一门）
-//        StudentInfoCache studentInfo = context.getStudentInfo();
-//        Long calendarId = round.getCalendarId();
-//        List<ElcCourseTakeVo> selectedCourses = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+        StudentInfoCache studentInfo = context.getStudentInfo();
+        Long calendarId = round.getCalendarId();
+        List<ElcCourseTakeVo> selectedCourses = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
 //        List<String> asList =
 //                courseOpenDao.getEnglishCourses(round.getCalendarId(), "000268",Constants.FIRST);
         List<String> asList =

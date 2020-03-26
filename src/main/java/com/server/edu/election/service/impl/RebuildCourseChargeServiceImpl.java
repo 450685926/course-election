@@ -1191,6 +1191,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         Example example = new Example(ElcCourseTake.class);
         example.createCriteria().andIn("id",ids);
         courseTakeDao.updateByExampleSelective(courseTake,example);
+        applicationContext
+        .publishEvent(new ElectLoadEvent(elcCourseTake.getCalendarId(), studentId));
+        
     }
 
     /**
