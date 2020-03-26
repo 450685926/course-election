@@ -360,25 +360,25 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 rebuildCourseDto.setSemester(term);
             }
         }
+        int index = TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId());
+        rebuildCourseDto.setIndex(index);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        /*Page<StudentVo> courseNoChargeStudentList = courseTakeDao
-                .findCourseNoChargeStudentList(condition.getCondition());*/
         Page<StudentVo> courseNoChargeStudentList = courseTakeDao.ListRebuildCourseNumber(rebuildCourseDto);
         //针对留学结业和结业还要统计非重修课程
-        if(!Constants.NORMAL_MODEL.equals(rebuildCourseDto.getMode()) && CollectionUtil.isNotEmpty(courseNoChargeStudentList)){
-            List<StudentVo> result = courseNoChargeStudentList.getResult();
-            List<String> stuCodes = result.stream().map(StudentVo::getStudentCode).collect(Collectors.toList());
-            List<StudentVo> studentVos = courseTakeDao.getGraduateStuCouNumber(rebuildCourseDto.getCalendarId(),stuCodes);
-            if(CollectionUtil.isNotEmpty(studentVos)){
-                Map<String, List<StudentVo>> map = studentVos.stream().collect(Collectors.groupingBy(StudentVo::getStudentCode));
-                for (StudentVo studentVo : result) {
-                    List<StudentVo> vos = map.get(studentVo.getStudentCode());
-                    if(CollectionUtil.isNotEmpty(vos)){
-                        studentVo.setRebuildNumber(studentVo.getRebuildNumber() + vos.get(0).getRebuildNumber());
-                    }
-                }
-            }
-        }
+//        if(!Constants.NORMAL_MODEL.equals(rebuildCourseDto.getMode()) && CollectionUtil.isNotEmpty(courseNoChargeStudentList)){
+//            List<StudentVo> result = courseNoChargeStudentList.getResult();
+//            List<String> stuCodes = result.stream().map(StudentVo::getStudentCode).collect(Collectors.toList());
+//            List<StudentVo> studentVos = courseTakeDao.getGraduateStuCouNumber(rebuildCourseDto.getCalendarId(),stuCodes);
+//            if(CollectionUtil.isNotEmpty(studentVos)){
+//                Map<String, List<StudentVo>> map = studentVos.stream().collect(Collectors.groupingBy(StudentVo::getStudentCode));
+//                for (StudentVo studentVo : result) {
+//                    List<StudentVo> vos = map.get(studentVo.getStudentCode());
+//                    if(CollectionUtil.isNotEmpty(vos)){
+//                        studentVo.setRebuildNumber(studentVo.getRebuildNumber() + vos.get(0).getRebuildNumber());
+//                    }
+//                }
+//            }
+//        }
         return new PageResult<>(courseNoChargeStudentList);
     }
 
@@ -1002,21 +1002,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 rebuildCourseDto.setSemester(term);
             }
         }
-        //List<String> codes = courseTakeDao.findAllCourseNotPass(rebuildCourseDto);
         Boolean retake = false;
-        Boolean graduation = isGraduation(rebuildCourseDto.getStudentId());
         //是结业生 就得加上新修的课程
-        List<String> graduateCourse = new ArrayList<>();
-        if(graduation){
-             graduateCourse =  courseTakeDao.findGraduateCourse(rebuildCourseDto.getCalendarId(),rebuildCourseDto.getStudentId());
-            //codes.addAll(graduateCourse);
-        }else{
+        if(Constants.NORMAL_MODEL.equals(rebuildCourseDto.getMode())){
             retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId(),rebuildCourseDto.getCalendarId());
         }
-        rebuildCourseDto.setCourseCodes(graduateCourse);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         rebuildCourseDto.setIndex(TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId()));
-        //Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuIdAndCoudes(rebuildCourseDto);
         if(CollectionUtil.isNotEmpty(courseNoChargeList)){
             for (RebuildCourseNoChargeList rebuildCourseNoChargeList : courseNoChargeList) {
