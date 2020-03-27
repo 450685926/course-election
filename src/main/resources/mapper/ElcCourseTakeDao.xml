@@ -1793,7 +1793,7 @@
         join teaching_class_arrange_time_t tt on t3.ID_ = tt.TEACHING_CLASS_ID_
 		join teaching_class_arrange_room_t tm on tt.ID_ = tm.ARRANGE_TIME_ID_
         join course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
-        where t3.DEPLOY_FLAG_ &gt; 0 and t2.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId} and t1.DELETE_STATUS_ = 0
+        where t3.DEPLOY_FLAG_ &gt; 0 and tm.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId} and t1.DELETE_STATUS_ = 0
         and t3.DELETE_STATUS_ = 0
         GROUP BY t3.ID_
     </select>
