@@ -1731,7 +1731,7 @@
         op.NATURE_ nature,
         op.FACULTY_ faculty,
         tc.ID_ teachingClassId,
-        ti.SEX sex
+        ti.SEX_ sex
         from course_open_t op
         join teaching_task_t tk on op.ID_ = tk.COURSE_OPEN_ID_
         join teaching_class_t tc on (tk.ID_ = tc.TASK_ID_ and tc.DELETE_STATUS_ = 0)
