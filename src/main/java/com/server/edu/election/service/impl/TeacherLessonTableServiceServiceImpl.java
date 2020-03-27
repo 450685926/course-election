@@ -138,17 +138,18 @@ public class TeacherLessonTableServiceServiceImpl
         if (CollectionUtil.isEmpty(teacherTimeTable)) {
             return new PageResult<ClassCodeToTeacher>(teacherTimeTable);
         }
-        Set<String> set = teacherTimeTable.stream().map(ClassCodeToTeacher::getTeacherCode).collect(Collectors.toSet());
-        List<TeachingClassTeacherVo> teachers = teachingClassTeacherDao.findTeachers(set);
-        Map<String, TeachingClassTeacherVo> map = teachers.stream().collect(Collectors.toMap(TeachingClassTeacherVo::getTeacherCode, s -> s));
-        for (ClassCodeToTeacher codeToTeacher : teacherTimeTable) {
-            TeachingClassTeacherVo teachingClassTeacherVo = map.get(codeToTeacher.getTeacherCode());
-            if (teachingClassTeacherVo != null){
-                codeToTeacher.setSex(teachingClassTeacherVo.getSex());
-                codeToTeacher.setTeacherName(teachingClassTeacherVo.getTeacherName());
-            }
-//            codeToTeacher.setFaculty(teachingClassTeacherVo.getFaculty());
-        }
+        //教师性别已在上面关联查询
+//        Set<String> set = teacherTimeTable.stream().map(ClassCodeToTeacher::getTeacherCode).collect(Collectors.toSet());
+//        List<TeachingClassTeacherVo> teachers = teachingClassTeacherDao.findTeachers(set);
+//        Map<String, TeachingClassTeacherVo> map = teachers.stream().collect(Collectors.toMap(TeachingClassTeacherVo::getTeacherCode, s -> s));
+//        for (ClassCodeToTeacher codeToTeacher : teacherTimeTable) {
+//            TeachingClassTeacherVo teachingClassTeacherVo = map.get(codeToTeacher.getTeacherCode());
+//            if (teachingClassTeacherVo != null){
+//                codeToTeacher.setSex(teachingClassTeacherVo.getSex());
+//                codeToTeacher.setTeacherName(teachingClassTeacherVo.getTeacherName());
+//            }
+////            codeToTeacher.setFaculty(teachingClassTeacherVo.getFaculty());
+//        }
         return new PageResult<ClassCodeToTeacher>(teacherTimeTable);
     }
 

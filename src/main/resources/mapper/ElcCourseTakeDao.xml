@@ -1720,7 +1720,7 @@
             resultType="com.server.edu.election.dto.ClassCodeToTeacher">
         select
         distinct tt.TEACHER_CODE_ teacherCode,
-        -- tt.TEACHER_NAME_ teacherName,
+        ti.TEACHER_NAME_ teacherName,
         op.CALENDAR_ID_ calendarId,
         op.IS_ELECTIVE_ isElective,
         tc.CODE_ classCode,
@@ -1730,12 +1730,14 @@
         op.COURSE_NAME_ courseName,
         op.NATURE_ nature,
         op.FACULTY_ faculty,
-        tc.ID_ teachingClassId
+        tc.ID_ teachingClassId,
+        ti.SEX sex
         from course_open_t op
         join teaching_task_t tk on op.ID_ = tk.COURSE_OPEN_ID_
         join teaching_class_t tc on (tk.ID_ = tc.TASK_ID_ and tc.DELETE_STATUS_ = 0)
          join teaching_class_arrange_time_t ta on (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
          join teaching_class_arrange_room_t tt on ta.ID_ = tt.ARRANGE_TIME_ID_
+        join teacher_t_info ti on tt.TEACHER_CODE_ = ti.TEACHER_CODE_
         <where>
             op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             and op.PROJ_ID_ = #{projectId} and op.DELETE_STATUS_ = 0
@@ -1761,7 +1763,7 @@
                 and op.COURSE_NAME_ like CONCAT( '%', #{courseName}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-                and (tt.TEACHER_CODE_ like CONCAT( '%', #{keyWord}, '%') or tt.TEACHER_NAME_ like CONCAT( '%',
+                and (tt.TEACHER_CODE_ like CONCAT( '%', #{keyWord}, '%') or ti.TEACHER_NAME_ like CONCAT( '%',
                 #{keyWord}, '%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
