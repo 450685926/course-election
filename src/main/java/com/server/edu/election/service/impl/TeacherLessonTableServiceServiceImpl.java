@@ -145,6 +145,7 @@ public class TeacherLessonTableServiceServiceImpl
             TeachingClassTeacherVo teachingClassTeacherVo = map.get(codeToTeacher.getTeacherCode());
             if (teachingClassTeacherVo != null){
                 codeToTeacher.setSex(teachingClassTeacherVo.getSex());
+                codeToTeacher.setTeacherName(teachingClassTeacherVo.getTeacherName());
             }
 //            codeToTeacher.setFaculty(teachingClassTeacherVo.getFaculty());
         }
