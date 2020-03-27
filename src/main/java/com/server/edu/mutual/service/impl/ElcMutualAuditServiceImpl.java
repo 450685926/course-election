@@ -268,6 +268,12 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 		dto.setMode(ProjectUtil.convertMode(dto.getMode()));
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.openCollegeApplyStuList(condition.getCondition());
+		//校验学生是否已经选课
+		long calendarId = dto.getCalendarId();
+		for(ElcMutualApplyVo vo : list){
+			ElcCourseTake take = checkStudentElcCourse(vo.getStudentId(), vo.getCourseCode(), calendarId);
+			vo.setSelectCourse(take != null ? Boolean.TRUE : Boolean.FALSE);
+		}
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
 	}
@@ -454,12 +460,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 				String studentId = vo.getStudentId();
 				String courseCode = vo.getCourseCode();
 				Long calendarId = vo.getCalendarId();
-				Example example = new Example(ElcCourseTake.class);
-				Example.Criteria criteria = example.createCriteria();
-				criteria.andEqualTo("studentId", studentId);
-				criteria.andEqualTo("courseCode", courseCode);
-				criteria.andEqualTo("calendarId", calendarId);
-				ElcCourseTake take = elcCourseTakeDao.selectOneByExample(example);
+				ElcCourseTake take = checkStudentElcCourse(studentId, courseCode, calendarId);
 				if (take != null) {
 					//如果该学生该学期已经选择该门课，则放入集合（随便构造一个空对象放入即可，把点打进去）
 					//下述封装无实质作用，只是让该对象看起来丰富一点。
@@ -582,5 +583,23 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		dto.setSemester(semester.longValue() + 1);
 		//更新培养计划
 		dto.setStatus(elcMutualApply.getStatus());
+	}
+
+	/**
+	 * 功能描述: 根据学号、课程code、学期校验学生是否已经选课
+	 *
+	 * @params: [studentId, courseCode, calendarId]
+	 * @return: boolean
+	 * @author: zhaoerhu
+	 * @date: 2020/3/26 17:53
+	 */
+	private ElcCourseTake checkStudentElcCourse(String studentId, String courseCode, long calendarId) {
+		Example example = new Example(ElcCourseTake.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("studentId", studentId);
+		criteria.andEqualTo("courseCode", courseCode);
+		criteria.andEqualTo("calendarId", calendarId);
+		ElcCourseTake take = elcCourseTakeDao.selectOneByExample(example);
+		return take;
 	}
 }
