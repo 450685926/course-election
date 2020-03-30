@@ -1281,4 +1281,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         }
         return false;
     }
+
+    @Override
+    public List<String> selectScreenLabelName(Long calendarId) {
+        List<String> list = courseRecycleDao.selectScreenLabelName(calendarId);
+        return list;
+    }
 }
