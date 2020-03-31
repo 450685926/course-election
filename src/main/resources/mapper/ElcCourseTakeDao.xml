@@ -625,6 +625,9 @@
             left JOIN (select DISTINCT sa.STUDENT_ID_ from student.student_abnormal_apply_t sa
             where  sa.STATUS_ = 3 and sa.CLASS_ID_ = '300015'
             and ( sa.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+            and  not EXISTS(
+            select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = sa.STUDENT_ID_ and CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+            )
             ) ff on  ff.STUDENT_ID_ = el.STUDENT_ID_
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
