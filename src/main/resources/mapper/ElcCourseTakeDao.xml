@@ -654,7 +654,7 @@
                     <if test= " item.registrationStatus == 300015 ">
                         and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
                         and  not EXISTS(
-                        select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+                        select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
                         )
                     </if>
                     <if test= " item.registrationStatus != 300015 ">
@@ -2577,7 +2577,7 @@
                         <if test= " item.registrationStatus == 300015 ">
                             and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime} )
                             and  not EXISTS(
-                            select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime} )
+                            select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime} )
                             )
                         </if>
                         <if test= " item.registrationStatus != 300015 ">
