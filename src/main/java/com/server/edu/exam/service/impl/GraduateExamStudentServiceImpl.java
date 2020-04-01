@@ -230,17 +230,17 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         ExamStudentAddDto addDto = new ExamStudentAddDto();
         if(examInfo.getExamType().equals(ApplyStatus.FINAL_EXAM)){
             //查询该学生是否已经有成绩
-           int i =  examStudentDao.findStudentScoreByCondition(condition);
-           if(i > 0){
-               throw new ParameterValidateException("该学生该课程已经有成绩，不能添加应考学生");
-           }
+//           int i =  examStudentDao.findStudentScoreByCondition(condition);
+//           if(i > 0){
+//               throw new ParameterValidateException("该学生该课程已经有成绩，不能添加应考学生");
+//           }
             //查询该学生是否修读该课程
             addDto = examInfoDao.findStudentElcCourseTake(condition);
             if(addDto == null){
                 throw new ParameterValidateException("该学生没有修读这个课程，不能添加应考学生");
             }
             //查询是否没有排考，但是申请了缓考
-            i = applyExaminationDao.findMakeUpCourse(condition);
+           int i = applyExaminationDao.findMakeUpCourse(condition);
             if(i > 0){
                 throw new ParameterValidateException("该学生已经申请缓考，不能再次添加应考学生");
             }
