@@ -151,6 +151,29 @@ public class CultureSerivceInvokerToMutual {
 	}
 	
 	/**
+	 * 功能描述: 更新学生培养计划
+	 *
+	 * @params: [elcMutualApply]
+	 * @return: com.server.edu.common.rest.RestResult
+	 * @author: zn
+	 * @date: 2020/4/2 15:11
+	 */
+	public static RestResult deleteCulturePlan4Stu(ElcMutualApplyDto elcMutualApply) {
+		String studentID = elcMutualApply.getStudentId();
+		String courseCode = elcMutualApply.getCourseCode();
+		Long semester = elcMutualApply.getSemester();
+		Long calendarId = elcMutualApply.getCalendarId();
+		LOG.info("deleteCulturePlan4Stu studentID:" + studentID);
+		LOG.info("deleteCulturePlan4Stu courseCode:" + courseCode);
+		LOG.info("deleteCulturePlan4Stu semester:" + semester);
+		LOG.info("deleteCulturePlan4Stu calendarId:" + calendarId);
+		RestResult restResult = ServicePathEnum.CULTURESERVICE.
+				getForObject("/bclCulturePlan/deleteCourseToPlan?studentID={studentID}&courseCode={courseCode}&semester={semester}&calendarId={calendarId}",
+						RestResult.class, studentID, courseCode, semester,calendarId);
+		return restResult;
+	}
+	
+	/**
 	 * 获取本科生培养方案获取模板id
 	 * @param studentId
 	 * @return

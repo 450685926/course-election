@@ -544,13 +544,21 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	 */
 	private void updateCultureStuPlanRpc(ElcMutualApplyDto elcMutualApply) {
 		if (elcMutualApply.getStatus().equals(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.AUDITED_APPROVED.status())))) {
-			LOG.info("updateCultureStuPlanRpc rpc begin");
+			LOG.info("addCultureStuPlanRpc rpc begin");
 			RestResult result = CultureSerivceInvokerToMutual.updateCulturePlan4Stu(elcMutualApply);
-			if (null == result || result.getCode() != ResultStatus.SUCCESS.code()) {//更新培养计划异常，则手动抛出运行时异常，事务回滚
+			if (null == result || result.getCode() != ResultStatus.SUCCESS.code()) {//新增培养计划异常，则手动抛出运行时异常，事务回滚
 				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApplyAudit.planFail"));
 			}
 			LOG.info("code --- > " + result.getCode());
-			LOG.info("updateCultureStuPlanRpc rpc end");
+			LOG.info("addCultureStuPlanRpc rpc end");
+		} else if(elcMutualApply.getStatus().equals(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.AUDITED_UN_APPROVED.status())))){
+			LOG.info("deleteCultureStuPlanRpc rpc begin");
+			RestResult result = CultureSerivceInvokerToMutual.deleteCulturePlan4Stu(elcMutualApply);
+			if (null == result || result.getCode() != ResultStatus.SUCCESS.code()) {//删除培养计划异常，则手动抛出运行时异常，事务回滚
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApplyAudit.planFail"));
+			}
+			LOG.info("code --- > " + result.getCode());
+			LOG.info("deleteCultureStuPlanRpc rpc end");
 		}
 	}
 
