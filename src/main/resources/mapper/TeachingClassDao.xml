@@ -970,6 +970,9 @@
 	            #{item}
 	        </foreach>
 		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(xjydType)">
+		 and v.xjbdlx  = #{xjydType}
+		</if>
         and v.xh=#{studentId}
         </where> 
     </select>
@@ -1004,10 +1007,8 @@
         JOIN teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
         JOIN course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ AND t3.PROJ_ID_ = 1)
         <where>
-        	t1.ID_ = #{teachingClassId}
-        	<if test="isDeploy">
-        		and t1.DEPLOY_FLAG_ &gt; 0
-        	</if>
+            t1.DEPLOY_FLAG_ &gt; 0
+            and t1.ID_ = #{teachingClassId}
         </where>
     </select>
 

@@ -180,7 +180,7 @@
     <foreach collection="list" item="item" separator="or">
       (t2.COURSE_CODE_ = #{item.courseCode}  and t1.STUDENT_CODE_ = #{item.studentCode} )
     </foreach>
-    and t2.EXAM_TYPE_ = #{examType} and t2.CALENDAR_ID_ = #{calendarId} and t1.EXAM_SITUATION_ = 1
+    and t2.EXAM_TYPE_ = 1 and t2.CALENDAR_ID_ = #{calendarId} and t1.EXAM_SITUATION_ = 1
   </select>
 
   <update id="updateSituationByIds" >
@@ -492,15 +492,5 @@
     select CODE_ courseCode,LABEL_ label,SCORE_TYPE_ scoreType
     from course_t
     where CODE_ = #{courseCode} and MANAGER_DEPT_ID_ = #{projId}
-  </select>
-
-  <select id="findSlowStuDelete" resultType="java.lang.Long">
-    select t1.ID_ from graduate_exam_info_t t2
-    left join graduate_exam_student_t t1 on t1.EXAM_INFO_ID_ = t2.ID_
-    where
-    <foreach collection="list" item="item" separator="or">
-      (t2.COURSE_CODE_ = #{item.courseCode}  and t1.STUDENT_CODE_ = #{item.studentCode} )
-    </foreach>
-    and t2.EXAM_TYPE_ = 1 and t2.CALENDAR_ID_ = #{calendarId} and t1.EXAM_SITUATION_ = 2
   </select>
 </mapper>
