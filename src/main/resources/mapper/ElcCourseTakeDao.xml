@@ -192,6 +192,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
                 and t3.FACULTY_ = #{query.courseFaculty}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFacultys)">
+                and t3.FACULTY_ in
+                <foreach collection="query.courseFacultys" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
                 and t3.COURSE_NAME_ = #{query.courseName}
             </if>
@@ -619,6 +625,9 @@
             left JOIN (select DISTINCT sa.STUDENT_ID_ from student.student_abnormal_apply_t sa
             where  sa.STATUS_ = 3 and sa.CLASS_ID_ = '300015'
             and ( sa.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+            and  not EXISTS(
+            select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = sa.STUDENT_ID_ and CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+            )
             ) ff on  ff.STUDENT_ID_ = el.STUDENT_ID_
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
@@ -648,7 +657,7 @@
                     <if test= " item.registrationStatus == 300015 ">
                         and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
                         and  not EXISTS(
-                        select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+                        select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
                         )
                     </if>
                     <if test= " item.registrationStatus != 300015 ">
@@ -1714,7 +1723,7 @@
             resultType="com.server.edu.election.dto.ClassCodeToTeacher">
         select
         distinct tt.TEACHER_CODE_ teacherCode,
-        tt.TEACHER_NAME_ teacherName,
+        ti.NAME_ teacherName,
         op.CALENDAR_ID_ calendarId,
         op.IS_ELECTIVE_ isElective,
         tc.CODE_ classCode,
@@ -1724,12 +1733,14 @@
         op.COURSE_NAME_ courseName,
         op.NATURE_ nature,
         op.FACULTY_ faculty,
-        tc.ID_ teachingClassId
+        tc.ID_ teachingClassId,
+        ti.SEX_ sex
         from course_open_t op
         join teaching_task_t tk on op.ID_ = tk.COURSE_OPEN_ID_
         join teaching_class_t tc on (tk.ID_ = tc.TASK_ID_ and tc.DELETE_STATUS_ = 0)
-        left join teaching_class_arrange_time_t ta on (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
-        join teaching_class_teacher_t tt on tc.ID_ = tt.TEACHING_CLASS_ID_
+         join teaching_class_arrange_time_t ta on (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
+         join teaching_class_arrange_room_t tt on ta.ID_ = tt.ARRANGE_TIME_ID_
+        join  baseres.teacher_t ti on tt.TEACHER_CODE_ = ti.CODE_
         <where>
             op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             and op.PROJ_ID_ = #{projectId} and op.DELETE_STATUS_ = 0
@@ -1755,7 +1766,7 @@
                 and op.COURSE_NAME_ like CONCAT( '%', #{courseName}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-                and (tt.TEACHER_CODE_ like CONCAT( '%', #{keyWord}, '%') or tt.TEACHER_NAME_ like CONCAT( '%',
+                and (tt.TEACHER_CODE_ like CONCAT( '%', #{keyWord}, '%') or ti.NAME_ like CONCAT( '%',
                 #{keyWord}, '%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
@@ -1765,7 +1776,7 @@
                 and tt.TEACHER_CODE_ =#{teacherCode}
             </if>
         </where>
-        group by tc.ID_
+        group by tc.ID_,tt.TEACHER_CODE_
     </select>
 
 
@@ -1784,10 +1795,12 @@
         FROM
         teaching_class_t t3
         join teaching_task_t t4 on t3.TASK_ID_=t4.ID_
-        JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
+        join teaching_class_arrange_time_t tt on t3.ID_ = tt.TEACHING_CLASS_ID_
+		join teaching_class_arrange_room_t tm on tt.ID_ = tm.ARRANGE_TIME_ID_
         join course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
-        where t3.DEPLOY_FLAG_ &gt; 0 and t2.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId} and t1.DELETE_STATUS_ = 0
+        where t3.DEPLOY_FLAG_ &gt; 0 and tm.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId} and t1.DELETE_STATUS_ = 0
         and t3.DELETE_STATUS_ = 0
+        GROUP BY t3.ID_
     </select>
 
     <select id="findSexNumber" resultType="com.server.edu.election.dto.ElcCourseLimitDto">
@@ -2496,8 +2509,14 @@
         JOIN `course_open_t` t7
         ON t6.`COURSE_OPEN_ID_` = t7.`ID_`
         <where>
-            t1.`CALENDAR_ID_` = #{calendarId}
-            AND t1.`COURSE_TAKE_TYPE_` = 2 and t7.DELETE_STATUS_ = 0
+            t1.CALENDAR_ID_ = #{calendarId}
+             and t7.DELETE_STATUS_ = 0
+            <if test=" mode == 1 ">
+                AND t1.COURSE_TAKE_TYPE_ = 2 and t1.MODE_ = 1
+            </if>
+            <if test=" mode != 1 ">
+                and t1.MODE_ = #{mode}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
                 and t5.CODE_ = #{teachingClassCode}
             </if>
@@ -2561,7 +2580,7 @@
                         <if test= " item.registrationStatus == 300015 ">
                             and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime} )
                             and  not EXISTS(
-                            select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime} )
+                            select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime} )
                             )
                         </if>
                         <if test= " item.registrationStatus != 300015 ">
@@ -2820,36 +2839,47 @@
 
 
     <select id="ListRebuildCourseNumber" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.vo.StudentVo">
-        SELECT t1.STUDENT_NUM_ studentCode,
+        SELECT st.STUDENT_CODE_ studentCode,
         st.NAME_ name,
         st.GRADE_ grade,
         st.FACULTY_ faculty,
         st.PROFESSION_ profession,
         st.STUDENT_CATEGORY_ studentCategory,
-        COUNT( DISTINCT t1.COURSE_CODE_) rebuildNumber,
+        COUNT( DISTINCT tt.courseCode) rebuildNumber,
         st.SEX_ sex
-        FROM student_undergraduate_score_info_t t1
-        LEFT join student_t st on t1.STUDENT_NUM_ = st.STUDENT_CODE_
+        FROM (
+            SELECT t1.STUDENT_NUM_ studentCode,
+            t1.COURSE_CODE_ courseCode
+            FROM student_undergraduate_score_info_t t1
+            <where>
+                t1.IS_PASS_ = 'N' and not EXISTS
+                (
+                select STUDENT_NUM_ from student_undergraduate_score_info_t where IS_PASS_ = 'Y' and t1.STUDENT_NUM_ = STUDENT_NUM_ and t1.COURSE_CODE_ = COURSE_CODE_
+                )
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(semester)">
+                    and ( t1.ACADEMIC_YEAR_  &lt; #{year} or (t1.ACADEMIC_YEAR_ = #{year} and t1.SEMESTER_ = #{semester}))
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isEmpty(semester)">
+                    and t1.ACADEMIC_YEAR_ &lt; #{year}
+                </if>
+                <if test=" mode == 3 ">
+                    and  EXISTS (select XH from tj_ungraduate where t1.STUDENT_NUM_ = XH)
+                </if>
+                <if test=" mode == 4 ">
+                    and  EXISTS (select XH from tj_ungraduate_foreign where t1.STUDENT_NUM_ = XH)
+                </if>
+            </where>
+            <if test=" mode == 3 or mode == 4 ">
+                UNION
+                select STUDENT_ID_ studentCode,COURSE_CODE_ courseCode
+                from elc_course_takes_t_${index}
+                where CALENDAR_ID_ = #{calendarId} and MODE_ = #{mode} and COURSE_TAKE_TYPE_ = 1
+            </if>
+        ) tt
+       join student_t st on tt.studentCode = st.STUDENT_CODE_
         <where>
-            t1.IS_PASS_ = 'N' and not EXISTS
-            (
-             select STUDENT_NUM_ from student_undergraduate_score_info_t where IS_PASS_ = 'Y' and t1.STUDENT_NUM_ = STUDENT_NUM_ and t1.COURSE_CODE_ = COURSE_CODE_
-            )
-
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(semester)">
-                and ( t1.ACADEMIC_YEAR_  &lt; #{year} or (t1.ACADEMIC_YEAR_ = #{year} and t1.SEMESTER_ = #{semester}))
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isEmpty(semester)">
-                and t1.ACADEMIC_YEAR_ &lt; #{year}
-            </if>
             <if test=" mode == 1 ">
                 and  st.LEAVE_SCHOOL_ = 1
-            </if>
-            <if test=" mode == 3 ">
-                and  EXISTS (select XH from tj_ungraduate where t1.STUDENT_NUM_ = XH)
-            </if>
-            <if test=" mode == 4 ">
-                and  EXISTS (select XH from tj_ungraduate_foreign where t1.STUDENT_NUM_ = XH)
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
                 and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
@@ -2880,7 +2910,7 @@
                 and st.SEX_ =#{sex,jdbcType=VARCHAR}
             </if>
         </where>
-        GROUP BY t1.STUDENT_NUM_
+        GROUP BY tt.studentCode
     </select>
 
     <select id="listTeachingCourse" resultType="java.lang.String">
@@ -2945,5 +2975,128 @@
     <select id="findRebuildFee"  resultMap="BaseResultMap">
       select * from elc_course_takes_t_${index}
       where CALENDAR_ID_ = #{take.calendarId} and STUDENT_ID_ = #{take.studentId} and TEACHING_CLASS_ID_ =#{take.teachingClassId}
+    </select>
+
+    <select id="getGraduateStuCouNumber" resultType="com.server.edu.election.vo.StudentVo">
+        select STUDENT_ID_ studentCode,COUNT(DISTINCT COURSE_CODE_) rebuildNumber from
+        elc_course_takes_t
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+               and  CALENDAR_ID_ = #{calendarId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuCodes)">
+                and STUDENT_ID_ in
+                <foreach collection="stuCodes" item="stuCode" open="(" separator="," close=")">
+                    #{stuCode}
+                </foreach>
+            </if>
+            <if test="true">
+                and COURSE_TAKE_TYPE_ = 1
+            </if>
+        </where>
+        group by STUDENT_ID_
+    </select>
+
+
+    <select id="findAllCourseNotPass" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="java.lang.String">
+        SELECT
+         DISTINCT t1.COURSE_CODE_
+        FROM student_undergraduate_score_info_t t1
+        <where>
+            t1.IS_PASS_ = 'N' and not EXISTS
+            (
+            select STUDENT_NUM_ from student_undergraduate_score_info_t where IS_PASS_ = 'Y' and t1.STUDENT_NUM_ = STUDENT_NUM_ and t1.COURSE_CODE_ = COURSE_CODE_
+            )
+
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(semester)">
+                and ( t1.ACADEMIC_YEAR_  &lt; #{year} or (t1.ACADEMIC_YEAR_ = #{year} and t1.SEMESTER_ = #{semester}))
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isEmpty(semester)">
+                and t1.ACADEMIC_YEAR_ &lt; #{year}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+                and t1.STUDENT_NUM_ = #{studentId}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findGraduateCourse" resultType="java.lang.String">
+        select DISTINCT COURSE_CODE_ from
+        elc_course_takes_t
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and  CALENDAR_ID_ = #{calendarId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+                and STUDENT_ID_  = #{studentId}
+            </if>
+            <if test="true">
+                and COURSE_TAKE_TYPE_ = 1
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findNoChargeListByStuIdAndCoudes" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
+        SELECT ct.ID_ id,
+        st.STUDENT_CODE_ studentCode,
+        st.NAME_ studentName,
+        st.TRAINING_LEVEL_ trainingLevel,
+        te.CODE_ teachingClassCode,
+        ct.NAME_ courseName,
+        ct.CODE_ courseCode,
+        ct.IS_ELECTIVE_ nature,
+        CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr,
+        ct.CREDITS_ credits,
+        el.PAID_ paid,
+        CASE WHEN  el.ID_ is null THEN 0 ELSE 1 END as chooseObj
+        FROM
+        (SELECT t1.STUDENT_NUM_ studentCode,
+         t1.COURSE_CODE_ courseCode
+        FROM student_undergraduate_score_info_t t1
+        <where>
+            t1.IS_PASS_ = 'N' and not EXISTS
+            (
+            select STUDENT_NUM_ from student_undergraduate_score_info_t where IS_PASS_ = 'Y' and t1.STUDENT_NUM_ = STUDENT_NUM_ and t1.COURSE_CODE_ = COURSE_CODE_
+            )
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(semester)">
+                and ( t1.ACADEMIC_YEAR_  &lt; #{year} or (t1.ACADEMIC_YEAR_ = #{year} and t1.SEMESTER_ = #{semester}))
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isEmpty(semester)">
+                and t1.ACADEMIC_YEAR_ &lt; #{year}
+            </if>
+
+            <if test=" mode == 3 ">
+                and  EXISTS (select XH from tj_ungraduate where t1.STUDENT_NUM_ = XH)
+            </if>
+            <if test=" mode == 4 ">
+                and  EXISTS (select XH from tj_ungraduate_foreign where t1.STUDENT_NUM_ = XH)
+            </if>
+        </where>
+        <if test=" mode == 3 or mode == 4 ">
+            UNION
+            select STUDENT_ID_ studentCode,COURSE_CODE_ courseCode
+            from elc_course_takes_t_${index}
+            where CALENDAR_ID_ = #{calendarId} and MODE_ = #{mode} and COURSE_TAKE_TYPE_ = 1
+        </if>
+        ) tt
+        JOIN  student_t st on tt.studentCode = st.STUDENT_CODE_
+        LEFT JOIN course_t ct on tt.courseCode = ct.CODE_
+        left join elc_course_takes_t_${index} el on tt.studentCode = el.STUDENT_ID_ and tt.courseCode = el.COURSE_CODE_ and el.CALENDAR_ID_ = #{calendarId}
+        left JOIN teaching_class_t te
+        on el.TEACHING_CLASS_ID_= te.ID_
+        <where>
+            tt.studentCode = #{studentId}
+            <if test=" mode == 1 ">
+                and  st.LEAVE_SCHOOL_ = 1
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(planCourseIds)">
+                and ct.ID_ in
+                <foreach collection="planCourseIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
     </select>
 </mapper>

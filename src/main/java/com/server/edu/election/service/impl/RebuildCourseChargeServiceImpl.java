@@ -360,10 +360,25 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 rebuildCourseDto.setSemester(term);
             }
         }
+        int index = TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId());
+        rebuildCourseDto.setIndex(index);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        /*Page<StudentVo> courseNoChargeStudentList = courseTakeDao
-                .findCourseNoChargeStudentList(condition.getCondition());*/
         Page<StudentVo> courseNoChargeStudentList = courseTakeDao.ListRebuildCourseNumber(rebuildCourseDto);
+        //针对留学结业和结业还要统计非重修课程
+//        if(!Constants.NORMAL_MODEL.equals(rebuildCourseDto.getMode()) && CollectionUtil.isNotEmpty(courseNoChargeStudentList)){
+//            List<StudentVo> result = courseNoChargeStudentList.getResult();
+//            List<String> stuCodes = result.stream().map(StudentVo::getStudentCode).collect(Collectors.toList());
+//            List<StudentVo> studentVos = courseTakeDao.getGraduateStuCouNumber(rebuildCourseDto.getCalendarId(),stuCodes);
+//            if(CollectionUtil.isNotEmpty(studentVos)){
+//                Map<String, List<StudentVo>> map = studentVos.stream().collect(Collectors.groupingBy(StudentVo::getStudentCode));
+//                for (StudentVo studentVo : result) {
+//                    List<StudentVo> vos = map.get(studentVo.getStudentCode());
+//                    if(CollectionUtil.isNotEmpty(vos)){
+//                        studentVo.setRebuildNumber(studentVo.getRebuildNumber() + vos.get(0).getRebuildNumber());
+//                    }
+//                }
+//            }
+//        }
         return new PageResult<>(courseNoChargeStudentList);
     }
 
@@ -972,14 +987,32 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<RebuildCourseNoChargeList> findNoChargeListByStuId(PageCondition<RebuildCourseDto> condition) {
         RebuildCourseDto rebuildCourseDto = condition.getCondition();
-        boolean retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId(),rebuildCourseDto.getCalendarId());
+
+        //查询所有成绩不及格课程
+        if(rebuildCourseDto.getCalendarId() != null){
+            SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(rebuildCourseDto.getCalendarId());
+            Integer year = calendar.getYear();
+            Integer term = calendar.getTerm();
+            if(term.intValue() == 2){
+                year = year + 1 ;
+                rebuildCourseDto.setYear(year);
+            }
+            if(term.intValue() == 1){
+                rebuildCourseDto.setYear(year);
+                rebuildCourseDto.setSemester(term);
+            }
+        }
+        Boolean retake = false;
+        //是结业生 就得加上新修的课程
+        if(Constants.NORMAL_MODEL.equals(rebuildCourseDto.getMode())){
+            retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId(),rebuildCourseDto.getCalendarId());
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-               // int mode = TableIndexUtil.getMode(c.getCalendarId());
         rebuildCourseDto.setIndex(TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId()));
-        Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
+        Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuIdAndCoudes(rebuildCourseDto);
         if(CollectionUtil.isNotEmpty(courseNoChargeList)){
             for (RebuildCourseNoChargeList rebuildCourseNoChargeList : courseNoChargeList) {
-                if(retake){
+                if(retake && rebuildCourseNoChargeList.getPaid() != null){
                     //无需缴费类型
                     rebuildCourseNoChargeList.setPaid(2);
                 }
@@ -995,15 +1028,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public ExcelWriterUtil exportByStuId(RebuildCourseDto rebuildCourseDto) throws Exception {
-        boolean retake = isNoNeedPayForRetake(rebuildCourseDto.getStudentId(),rebuildCourseDto.getCalendarId());
-        rebuildCourseDto.setIndex(TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId()));
-        Page<RebuildCourseNoChargeList> list = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
-        for (RebuildCourseNoChargeList rebuildCourseNoChargeList : list) {
-            if(retake){
-                //无需缴费类型
-                rebuildCourseNoChargeList.setPaid(2);
-            }
-        }
+        PageCondition<RebuildCourseDto> condition = new PageCondition<>();
+        condition.setCondition(rebuildCourseDto);
+        condition.setPageNum_(0);
+        condition.setPageSize_(0);
+        PageResult<RebuildCourseNoChargeList> chargeListByStuId = findNoChargeListByStuId(condition);
+        List<RebuildCourseNoChargeList> list = chargeListByStuId.getList();
         GeneralExcelDesigner design = getDesignByStuId();
         List<JSONObject> convertList = JacksonUtil.convertList(list);
         design.setDatas(convertList);
@@ -1219,8 +1249,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                         value = "已缴费";
                     } else if (Constants.UN_PAID.toString().equals(value)){
                         value = "未缴费";
-                    }else {
+                    }else if(Constants.REBUILD_CALSS.equals(value)){
                         value = "无需缴费";
+                    }else{
+                        value = "";
                     }
                     return value;
                 });
@@ -1248,5 +1280,11 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             }
         }
         return false;
+    }
+
+    @Override
+    public List<String> selectScreenLabelName(Long calendarId) {
+        List<String> list = courseRecycleDao.selectScreenLabelName(calendarId);
+        return list;
     }
 }
