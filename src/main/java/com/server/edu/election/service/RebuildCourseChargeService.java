@@ -118,8 +118,6 @@ public interface RebuildCourseChargeService {
 
     boolean hasRetakeCourseNoPay(Long calendarId, String studentId);
 
-    /**选课回收站筛选标签*/
-    List<String> selectScreenLabelName(Long calendarId);
 
 }
 

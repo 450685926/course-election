@@ -163,12 +163,13 @@
         te.COURSE_LABEL_ID_ label,
         co.CREDITS_ credits,
         co.IS_ELECTIVE_ nature,
-        re.SCREEN_LABEL labelName,
+        esl.LABEL_NAME_ labelName,
         CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr
         FROM rebuild_course_recycle_t re
         LEFT JOIN student_t st on re.STUDENT_CODE_=st.STUDENT_CODE_
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_
         left join teaching_class_t te on te.ID_=re.TEACHING_CLASS_ID_
+        left join elc_screening_label_t esl on re.CALENDAR_ID_ = esl.CALENDAR_ID_
         left  join  (
                     select
                             TURN_,NAME_ ,
@@ -236,7 +237,7 @@
                 and re.COURSE_TAKE_TYPE_ = #{courseTakeType}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(labelName)">
-                and re.SCREEN_LABEL = #{labelName,jdbcType=VARCHAR}
+                and esl.LABEL_NAME_ = #{labelName,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and st.FACULTY_ = #{faculty,jdbcType=VARCHAR}

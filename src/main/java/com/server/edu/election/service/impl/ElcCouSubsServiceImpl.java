@@ -56,8 +56,6 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
     {
         ElcCouSubsDto dto = condition.getCondition();
         dto.setProjectId(dto.getProjectId());
-        List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-        dto.setFacultys(deptIds);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<ElcCouSubsVo> page =
             elcCouSubsDao.selectElcNoGradCouSubs(dto);

@@ -255,40 +255,9 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
             }
         }
 
-        //定义研究生Map
-        Map<String,StudentSchoolTimetabVo>  mapYJS = new HashMap<>();
         List<ElcMutualListVo> selectElcMutualListVoList = elcMutualListDao.getMutualStuList(dto);
-        //List<ElcMutualListVo> list = elcMutualListDao.getMutualStuList(dto);
-        //获取学生列表
-        List<String> stuIds = selectElcMutualListVoList.stream().map(ElcMutualListVo::getStudentId).collect(Collectors.toList());
-        for (String id : stuIds) {
-            //研究生教学安排
-            if(null==mapYJS.get(id)){
-                StudentSchoolTimetabVo schoolTimetab =
-                        managementService.findSchoolTimetab2(dto.getCalendarId(), id);
-                mapYJS.put(id, schoolTimetab);
-            }
-        }
-
         try
         {
-            //组装、获取教学安排 time
-            for(ElcMutualListVo vo:selectElcMutualListVoList) {
-                if(StringUtils.isNotEmpty(String.valueOf(dto.getCalendarId())) && StringUtils.isNotEmpty(vo.getStudentId())
-                        && StringUtils.isNotEmpty(vo.getCourseCode())){
-                    //研究生导出
-                    if(dto.getProjectIds().contains(Constants.PROJ_GRADUATE)) {
-                        StudentSchoolTimetabVo schoolTimetab = mapYJS.get(vo.getStudentId());
-                        List<StudentSchoolTimetab> listTables = schoolTimetab.getList();
-                        for (StudentSchoolTimetab st : listTables) {
-                            if (vo.getCourseCode().equals(st.getCourseCode())) {
-                                vo.setTime(st.getTime());
-                            }
-                        }
-                    }
-                }
-            }
-            //数据转换
             List<ElcMutualListVo> exportElcMutualCrossList = SpringUtils.convert(selectElcMutualListVoList);
             String path ;
             // 本科生名单

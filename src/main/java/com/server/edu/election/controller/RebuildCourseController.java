@@ -423,12 +423,4 @@ public class RebuildCourseController
         List<StudentRePaymentDto> result = service.payDetailById(id);
         return RestResult.successData(result);
     }
-
-
-    @ApiOperation(value = "查询筛选标签 ")
-    @GetMapping("/selectScreenLabelName")
-    public RestResult<List<String>> selectScreenLabelName(@RequestParam  Long calendarId) {
-        List<String> list = service.selectScreenLabelName(calendarId);
-        return RestResult.successData(list);
-    }
 }

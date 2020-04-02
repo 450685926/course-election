@@ -102,8 +102,6 @@ public class ElcMutualApplyVo extends ElcMutualApply {
     
     /**是否必修*/
     private String compulsory;
-
-    private Boolean selectCourse;
     
 	public String getCompulsory() {
 		return compulsory;
@@ -240,12 +238,5 @@ public class ElcMutualApplyVo extends ElcMutualApply {
 	public void setTeachingClassId(String teachingClassId) {
 		this.teachingClassId = teachingClassId;
 	}
-
-	public Boolean getSelectCourse() {
-		return selectCourse;
-	}
-
-	public void setSelectCourse(Boolean selectCourse) {
-		this.selectCourse = selectCourse;
-	}
+	
 }

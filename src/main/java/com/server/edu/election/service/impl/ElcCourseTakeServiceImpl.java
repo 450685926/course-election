@@ -184,15 +184,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
         //针对选课结果 中通过教学班要查看所有学生，所以 teachingClassId == null ,是上课名单数据，取学院分权数据，否则取所有
         if(cond.getTeachingClassId() == null){
-            //走的非体育或英语上课名单
-            if (StringUtils.isBlank(cond.getCourseFaculty())) {
-                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-                if(CollectionUtil.isNotEmpty(deptIds)){
-                    if(deptIds.contains("000293") || deptIds.contains("000268")){
-                        cond.setCourseFacultys(deptIds);
-                    }else{
-                        cond.setFaculties(deptIds);
-                    }
+            if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+                if (StringUtils.isBlank(cond.getFaculty())) {
+                    List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                    cond.setFaculties(deptIds);
                 }
             }
         }
@@ -2339,7 +2334,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Transactional
 	public void withdrawByTeachingClassId(Long teachingClassId, String status) {
         logger.info("--------------------------withdrawByTeachingClassId:"+teachingClassId+"------------------------------");
-        TeachingClassVo teachingClass = teachingClassDao.getTeachingClassVo(teachingClassId,false);
+        TeachingClassVo teachingClass = teachingClassDao.getTeachingClassVo(teachingClassId);
         if(teachingClass==null) {
             throw new ParameterValidateException("教学班信息不存在");
         }

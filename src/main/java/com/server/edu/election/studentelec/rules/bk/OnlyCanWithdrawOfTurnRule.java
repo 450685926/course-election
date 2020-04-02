@@ -35,19 +35,31 @@ public class OnlyCanWithdrawOfTurnRule extends AbstractWithdrwRuleExceutorBk {
     @Override
     public boolean checkRule(ElecContextBk context, SelectedCourse selectedCourse) {
         ElecRequest request = context.getRequest();
-
         Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
-        // 退课需要校验turn是否与本轮的turn一样
-        if (!round.getTurn().equals(selectedCourse.getTurn()))
+
+        Integer chooseObj = request.getChooseObj();
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        TeachingClassCache co = selectedCourse.getCourse();
+        String courseCode = co.getCourseCode();
+        if (StringUtils.isNotBlank(courseCode) && chooseObj != null)
         {
-            TeachingClassCache co = selectedCourse.getCourse();
-            ElecRespose respose = context.getRespose();
-            respose.getFailedReasons()
-                    .put(co.getTeachClassCode() + co.getCourseName(),
-                            I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
-            return false;
+            for (SelectedCourse selectedCours : selectedCourses) {
+                TeachingClassCache course = selectedCours.getCourse();
+                if (courseCode.equals(course.getCourseCode())) {
+                    Integer obj = selectedCours.getChooseObj();
+                    if (obj != null && obj.intValue() == chooseObj.intValue()) {
+                        if (round.getTurn() != null && selectedCours.getTurn() != null && round.getTurn().intValue() == selectedCours.getTurn()){
+                            return true;
+                        }
+                    }
+                }
+            }
         }
-        return true;
+        ElecRespose respose = context.getRespose();
+        respose.getFailedReasons()
+                .put(co.getTeachClassCode() + co.getCourseName(),
+                        I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
+        return false;
     }
 }

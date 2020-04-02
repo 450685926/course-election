@@ -140,20 +140,6 @@ public class ElcMutualListVo extends ElcMutualApply{
      */
     private Integer stuNumber;
 
-	/**
-	 * 教学安排
-	 * @return
-	 */
-	private String time;
-
-	public String getTime() {
-		return time;
-	}
-
-	public void setTime(String time) {
-		this.time = time;
-	}
-
 	public String getStudentId()
     {
         return studentId;
@@ -341,65 +327,5 @@ public class ElcMutualListVo extends ElcMutualApply{
 
 	public void setStudnetTimeTable(List<StudnetTimeTable> studnetTimeTable) {
 		this.studnetTimeTable = studnetTimeTable;
-	}
-
-	public ElcMutualListVo() {
-	}
-
-	public ElcMutualListVo(String studentName, String studentId, Integer grade, String college, String openCollege, String profession, String stuTrainingLevel, String courseTrainingLevel, String studentCategory, String trainingCategory, String degreeType, String formLearning, String courseCode, String courseName, String nature, String isElective, List<TimeAndRoom> timeTableList, List<StudnetTimeTable> studnetTimeTable, List<StudentSchoolTimetab> schoolTimetab, Double credits, Integer courseTakeType, String courseTakeTypeName, Integer stuNumber, String time) {
-		this.studentName = studentName;
-		this.studentId = studentId;
-		this.grade = grade;
-		this.college = college;
-		this.openCollege = openCollege;
-		this.profession = profession;
-		this.stuTrainingLevel = stuTrainingLevel;
-		this.courseTrainingLevel = courseTrainingLevel;
-		this.studentCategory = studentCategory;
-		this.trainingCategory = trainingCategory;
-		this.degreeType = degreeType;
-		this.formLearning = formLearning;
-		this.courseCode = courseCode;
-		this.courseName = courseName;
-		this.nature = nature;
-		this.isElective = isElective;
-		this.timeTableList = timeTableList;
-		this.studnetTimeTable = studnetTimeTable;
-		this.schoolTimetab = schoolTimetab;
-		this.credits = credits;
-		this.courseTakeType = courseTakeType;
-		this.courseTakeTypeName = courseTakeTypeName;
-		this.stuNumber = stuNumber;
-		this.time = time;
-	}
-
-	@Override
-	public String toString() {
-		return "ElcMutualListVo{" +
-				"studentName='" + studentName + '\'' +
-				", studentId='" + studentId + '\'' +
-				", grade=" + grade +
-				", college='" + college + '\'' +
-				", openCollege='" + openCollege + '\'' +
-				", profession='" + profession + '\'' +
-				", stuTrainingLevel='" + stuTrainingLevel + '\'' +
-				", courseTrainingLevel='" + courseTrainingLevel + '\'' +
-				", studentCategory='" + studentCategory + '\'' +
-				", trainingCategory='" + trainingCategory + '\'' +
-				", degreeType='" + degreeType + '\'' +
-				", formLearning='" + formLearning + '\'' +
-				", courseCode='" + courseCode + '\'' +
-				", courseName='" + courseName + '\'' +
-				", nature='" + nature + '\'' +
-				", isElective='" + isElective + '\'' +
-				", timeTableList=" + timeTableList +
-				", studnetTimeTable=" + studnetTimeTable +
-				", schoolTimetab=" + schoolTimetab +
-				", credits=" + credits +
-				", courseTakeType=" + courseTakeType +
-				", courseTakeTypeName='" + courseTakeTypeName + '\'' +
-				", stuNumber=" + stuNumber +
-				", time='" + time + '\'' +
-				'}';
 	}
 }

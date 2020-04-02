@@ -31,7 +31,7 @@
 
   <select id="findTeachers" resultType="com.server.edu.election.vo.TeachingClassTeacherVo">
     select
-        TEACHER_CODE_ teacherCode, SEX sex, FACULTY_ faculty,TEACHER_NAME_ teacherName
+        TEACHER_CODE_ teacherCode, SEX sex, FACULTY_ faculty
     from teacher_t_info
     where TEACHER_CODE_ in
     <foreach item="item" collection="teacherCodes" separator="," open="(" close=")" >

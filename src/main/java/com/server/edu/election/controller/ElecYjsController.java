@@ -2,6 +2,7 @@ package com.server.edu.election.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +49,7 @@ import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.election.vo.RedisVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -281,6 +283,67 @@ public class ElecYjsController
         dataProvider.load();
     	return RestResult.success();
     } 
+    
+    @ApiOperation(value = "手动操作redis中的数据")
+    @PostMapping("/operatorRedisKeys")
+    public RestResult<?> operatorRedisKeys(@RequestBody RedisVo redisVo)
+    {
+    	String key = redisVo.getKey();
+    	String pattern = redisVo.getPattern();
+    	List<String> list = redisVo.getList();
+    	String method = redisVo.getMethod();
+    	
+    	RestResult<?> result = null;
+    	
+    	Session session = SessionUtils.getCurrentSession();
+    	Boolean isAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin(); 
+    	if (!isAdmin) {
+			return new RestResult().error();
+		}
+    	
+    	if (StringUtils.equalsIgnoreCase(method, Constants.QUERY)) { // 查询
+    		/** 支持精确查询和模糊匹配查询
+    		 *  elec-stdstatus-109_1931454
+    		 *  elec-stdstatus-109_*
+    		 */
+    		if (StringUtils.isNotBlank(key)) {
+    			Set<String> keys = strTemplate.keys(key);
+    			return RestResult.successData(keys);
+			}else {
+				return RestResult.error("key不能为空！");
+			}
+		}else if (StringUtils.equalsIgnoreCase(method, Constants.DELETE)) { // 删除
+			/**
+			 * key值不为空则直接使用key删除(可精确删除也可模糊删除)
+			 *    elec-stdstatus-109_1931454
+			 *    elec-stdstatus-109_*
+			 */
+			if (StringUtils.isNotBlank(key)) {
+				Set<String> keys = strTemplate.keys(key);
+				strTemplate.delete(keys);
+				return RestResult.successData(keys);
+			}
+			
+			/** key为空则直接使用pattern和list组合删除 */
+			if (StringUtils.isNotBlank(pattern)) {
+				if (CollectionUtil.isNotEmpty(list)) {
+					Set<String> patternSet = new HashSet<String>();
+					for (String studnetId : redisVo.getList()) {
+						String keyString = redisVo.getPattern() + studnetId;
+						patternSet.add(keyString);
+					}
+					strTemplate.delete(patternSet);
+					return RestResult.successData(patternSet);
+				}else {
+					result = RestResult.error("list不能为空！");
+				}
+			}else {
+				result = RestResult.error("pattern不能为空！");
+			}
+		}
+    	
+    	return result;
+    }
     
     @ApiOperation(value = "学生培养计划发生修改时删除redis中的选课状态")
     @PostMapping("/deleteRedisSelectedStatus")
