@@ -154,20 +154,6 @@ public class ElcMutualListVo extends ElcMutualApply{
 		this.time = time;
 	}
 
-	/**
-	 * 教学安排
-	 * @return
-	 */
-	private String time;
-
-	public String getTime() {
-		return time;
-	}
-
-	public void setTime(String time) {
-		this.time = time;
-	}
-
 	public String getStudentId()
     {
         return studentId;
