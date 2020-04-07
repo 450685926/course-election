@@ -237,7 +237,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     {
         ElcCourseTakeQuery cond = page.getCondition();
         Session session = SessionUtils.getCurrentSession();
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+        if (StringUtils.equals(session.getCurrentRole(), "1")) {
             if (StringUtils.isBlank(cond.getFaculty())) {
                 List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
                 cond.setFaculties(deptIds);

@@ -38,7 +38,7 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		Session session = SessionUtils.getCurrentSession();
-		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+		if (StringUtils.equals(session.getCurrentRole(), "1")) {
 			if (StringUtils.isBlank(elcMedWithdrawRuleRefCourDto.getFaculty())) {
 				List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
 				elcMedWithdrawRuleRefCourDto.setFaculties(deptIds);

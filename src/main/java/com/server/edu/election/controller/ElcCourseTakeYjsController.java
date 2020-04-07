@@ -96,7 +96,7 @@ public class ElcCourseTakeYjsController
         ElcCourseTakeQuery query = condition.getCondition();
         ValidatorUtil.validateAndThrow(query);
         Session session = SessionUtils.getCurrentSession();
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+        if (StringUtils.equals(session.getCurrentRole(), "1")) {
             List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
             query.setFaculties(deptIds);
         }
