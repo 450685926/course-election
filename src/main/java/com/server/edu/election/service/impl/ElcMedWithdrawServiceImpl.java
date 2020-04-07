@@ -36,6 +36,7 @@ import com.server.edu.election.entity.ElectionConstants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcMedWithdrawService;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.TableIndexUtil;
@@ -195,8 +196,23 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
             throw new ParameterValidateException(
                     I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.elcinfo")));
 		}
+		TeachingClassCache teachingClassCache = teachClassCacheService.getTeachClassByTeachClassId(elcMedWithdraw.getTeachingClassId());
+		//保存期中退课日志
+		ElcLog elcLog = new ElcLog();
+        BeanUtils.copyProperties(elcMedWithdraw, elcLog);
+        elcLog.setId(null);
+        elcLog.setCourseCode(teachingClassCache.getCourseCode());
+        elcLog.setCourseName(teachingClassCache.getCourseName());
+        elcLog.setTeachingClassCode(teachingClassCache.getTeachClassCode());
+        elcLog.setType(Constants.FOUR_MODE);
+        elcLog.setCreateBy(SessionUtils.getCurrentSession().getUid());
+        String ip  = SessionUtils.getCurrentSession().getIp();
+        elcLog.setCreateIp(ip);
+        result = elcLogDao.insertSelective(elcLog);
+		
         // 增加选课人数
 		teachingClassDao.increElcNumber(elcCourseTake.getTeachingClassId());
+		
         // 更新缓存中教学班人数
         teachClassCacheService.updateTeachingClassNumber(elcCourseTake.getTeachingClassId());
 		result = elcMedWithdrawDao.deleteByPrimaryKey(medWithdrawId);

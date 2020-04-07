@@ -66,7 +66,7 @@ public class ElcLog implements Serializable {
     private Long calendarId;
 
     /**
-     * 操作类型（1选课，2退课，3中期退课...）
+     * 操作类型（1选课，2退课，3中期退课, 4取消退课...）
      */
     @Code2Text(DictTypeEnum.K_CZLX)
     @Column(name = "TYPE_")
