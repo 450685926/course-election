@@ -765,7 +765,7 @@ public class ElecBkServiceImpl implements ElecBkService
         	rebuildCourseRecycle.setType(Constants.FIRST);
         	rebuildCourseRecycle.setScreenLabel(null);
             //结业生、留学结业生退课进入回收站，正常学生重修进入回收站
-        	if(elcCourseTake ==null) {
+        	if(elcCourseTake ==null && paid !=null && Constants.FIRST.equals(paid)) {
                 if(stu.isGraduate() || stu.isAboardGraduate()) {
                 	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
                 }else {
