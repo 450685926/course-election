@@ -612,7 +612,7 @@
         st.TRAINING_LEVEL_ trainingLevel,
         CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr,
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
-            if(tt.STUDENT_ID_ is NULL ,el.PAID_,2) paid
+            if(tt.STUDENT_ID_ is NULL ,el.PAID_,(if(el.PAID_ = 1,1,2))) paid
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isEmpty(noStuPay)">
             el.PAID_ paid
