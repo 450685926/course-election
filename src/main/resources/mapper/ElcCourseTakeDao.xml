@@ -2670,7 +2670,10 @@
          left JOIN teaching_class_t te
          on el.TEACHING_CLASS_ID_= te.ID_
          <where>
-              el.STUDENT_ID_ = #{studentId} and el.CALENDAR_ID_ = #{calendarId} and el.COURSE_TAKE_TYPE_ =2
+              el.STUDENT_ID_ = #{studentId} and el.CALENDAR_ID_ = #{calendarId}
+             <if test=" mode == 1 ">
+                 and el.COURSE_TAKE_TYPE_ =2
+             </if>
              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(planCourseIds)">
               and el.ID_ in
                  <foreach collection="planCourseIds" item="id" open="(" separator="," close=")">
@@ -2845,41 +2848,17 @@
         st.FACULTY_ faculty,
         st.PROFESSION_ profession,
         st.STUDENT_CATEGORY_ studentCategory,
-        COUNT( DISTINCT tt.courseCode) rebuildNumber,
+        COUNT( DISTINCT t1.COURSE_CODE_) rebuildNumber,
         st.SEX_ sex
-        FROM (
-            SELECT t1.STUDENT_NUM_ studentCode,
-            t1.COURSE_CODE_ courseCode
-            FROM student_undergraduate_score_info_t t1
-            <where>
-                t1.IS_PASS_ = 'N' and not EXISTS
-                (
-                select STUDENT_NUM_ from student_undergraduate_score_info_t where IS_PASS_ = 'Y' and t1.STUDENT_NUM_ = STUDENT_NUM_ and t1.COURSE_CODE_ = COURSE_CODE_
-                )
-                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(semester)">
-                    and ( t1.ACADEMIC_YEAR_  &lt; #{year} or (t1.ACADEMIC_YEAR_ = #{year} and t1.SEMESTER_ = #{semester}))
-                </if>
-                <if test="@com.server.edu.util.MybatisUtil@isEmpty(semester)">
-                    and t1.ACADEMIC_YEAR_ &lt; #{year}
-                </if>
-                <if test=" mode == 3 ">
-                    and  EXISTS (select XH from tj_ungraduate where t1.STUDENT_NUM_ = XH)
-                </if>
-                <if test=" mode == 4 ">
-                    and  EXISTS (select XH from tj_ungraduate_foreign where t1.STUDENT_NUM_ = XH)
-                </if>
-            </where>
-            <if test=" mode == 3 or mode == 4 ">
-                UNION
-                select STUDENT_ID_ studentCode,COURSE_CODE_ courseCode
-                from elc_course_takes_t_${index}
-                where CALENDAR_ID_ = #{calendarId} and MODE_ = #{mode} and COURSE_TAKE_TYPE_ = 1
-            </if>
-        ) tt
-       join student_t st on tt.studentCode = st.STUDENT_CODE_
+        from
+        elc_course_takes_t_${index} t1
+        join student_t st on t1.STUDENT_ID_ = st.STUDENT_CODE_
         <where>
             <if test=" mode == 1 ">
-                and  st.LEAVE_SCHOOL_ = 1
+                and  t1.MODE_ = 1 and t1.COURSE_TAKE_TYPE_ = 2
+            </if>
+            <if test=" mode == 3 or mode == 4 ">
+                and  t1.MODE_ = #{mode}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
                 and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
@@ -2909,8 +2888,11 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(sex)">
                 and st.SEX_ =#{sex,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and t1.CALENDAR_ID_ = #{calendarId}
+            </if>
         </where>
-        GROUP BY tt.studentCode
+        GROUP BY st.STUDENT_CODE_
     </select>
 
     <select id="listTeachingCourse" resultType="java.lang.String">
