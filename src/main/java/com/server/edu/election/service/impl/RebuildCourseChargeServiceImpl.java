@@ -321,17 +321,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(dto);
 
-       /* if (courseNoChargeList != null) {
-            List<RebuildCourseNoChargeList> list = courseNoChargeList.getResult();
-            for (RebuildCourseNoChargeList rebuildList : list) {
-                String courseArr = "";
-                DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
-                String format = decimalFormat.format(rebuildList.getPeriod());
-                courseArr = rebuildList.getStartWeek() + "-" + rebuildList.getEndWeek() + "周" + format + "学时";
-                rebuildList.setCourseArr(courseArr);
-            }
-
-        }*/
         return new PageResult<>(courseNoChargeList);
     }
 
@@ -968,7 +957,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
         if(CollectionUtil.isNotEmpty(courseNoChargeList)){
             for (RebuildCourseNoChargeList rebuildCourseNoChargeList : courseNoChargeList) {
-                if(retake){
+                if(retake && !Constants.NORMAL_MODEL.equals(rebuildCourseNoChargeList.getPaid())){
                     //无需缴费类型
                     rebuildCourseNoChargeList.setPaid(Constants.PE_MODEL);
                 }
