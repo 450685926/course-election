@@ -588,6 +588,11 @@
 
     <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCourseDto"
             resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
+        select id id,calendarId calendarId,studentCode studentCode,studentName studentName,courseCode courseCode,
+        courseName courseName,nature nature,credits credits,label label,billId billId,weekHour weekHour,courseTakeType,
+        mode mode,turn turn,chooseObj chooseObj,endWeek endWeek,startWeek startWeek,period period,teachingClassId teachingClassId,
+        teachingClassCode teachingClassCode,trainingLevel trainingLevel,courseArr courseArr,paid paid
+        from (
         SELECT
         DISTINCT(el.ID_) id,
         el.CALENDAR_ID_ calendarId,
@@ -623,19 +628,20 @@
         JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(hasChangeGrade)">
             left JOIN (select DISTINCT sa.STUDENT_ID_ from student.student_abnormal_apply_t sa
-            where  sa.STATUS_ = 3 and sa.CLASS_ID_ = '300015'
+            where sa.STATUS_ = 3 and sa.CLASS_ID_ = '300015'
             and ( sa.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
-            and  not EXISTS(
-            select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = sa.STUDENT_ID_ and CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+            and not EXISTS(
+            select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = sa.STUDENT_ID_ and CLASS_ID_ = '300006'
+            and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
             )
-            ) ff on  ff.STUDENT_ID_ = el.STUDENT_ID_
+            ) ff on ff.STUDENT_ID_ = el.STUDENT_ID_
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
             left join
-            (select DISTINCT t8.STUDENT_ID_  from elc_course_takes_t t8
+            (select DISTINCT t8.STUDENT_ID_ from elc_course_takes_t t8
             left join student_t t10 on t8.STUDENT_ID_ = t10.STUDENT_CODE_
             left join student_abnormal_apply_v t9 on t8.STUDENT_ID_ = t9.STUDENT_ID_ and t9.STATUS_ = 3
-            where  t8.CALENDAR_ID_ = #{calendarId} and t8.COURSE_TAKE_TYPE_ = 2 and t10.MANAGER_DEPT_ID_ = #{deptId} and
+            where t8.CALENDAR_ID_ = #{calendarId} and t8.COURSE_TAKE_TYPE_ = 2 and t10.MANAGER_DEPT_ID_ = #{deptId} and
             <foreach collection="noStuPay" item="item" separator="or" open="(" close=")">
                 (
                 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingLevel)">
@@ -654,14 +660,18 @@
                     and t10.IS_OVERSEAS_ = #{item.isOverseas}
                 </if>
                 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
-                    <if test= " item.registrationStatus == 300015 ">
-                        and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
-                        and  not EXISTS(
-                        select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+                    <if test=" item.registrationStatus == 300015 ">
+                        and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN
+                        #{abnormalStartTime} and #{abnormalEndTime} )
+                        and not EXISTS(
+                        select STUDENT_ID_ from student_abnormal_apply_v WHERE STUDENT_ID_ = t9.STUDENT_ID_ and
+                        CLASS_ID_ = '300006' and STATUS_ = 3 and ( EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and
+                        #{abnormalEndTime} )
                         )
                     </if>
-                    <if test= " item.registrationStatus != 300015 ">
-                        and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime} )
+                    <if test=" item.registrationStatus != 300015 ">
+                        and t9.CLASS_ID_ = #{item.registrationStatus} and ( t9.EFFECTIVE_TIME_ BETWEEN
+                        #{abnormalStartTime} and #{abnormalEndTime} )
                     </if>
                 </if>
                 )
@@ -679,9 +689,7 @@
                 and el.PAID_ = #{isCharge,jdbcType=INTEGER}
             </if>
             <!--我也不知道上面那个是干嘛的，我也不敢删-->
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(paid)">
-                and el.PAID_ = #{paid,jdbcType=INTEGER}
-            </if>
+
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
                 and el.MODE_ = #{mode,jdbcType=INTEGER}
             </if>
@@ -725,6 +733,12 @@
                 and (ff.STUDENT_ID_ is null or el.PAID_ = 0)
             </if>
 
+        </where>
+        ) yy
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(paid)">
+                and yy.paid = #{paid,jdbcType=INTEGER}
+            </if>
         </where>
     </select>
 
