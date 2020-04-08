@@ -47,7 +47,7 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	public PageInfo<Student> getUnLimitStudents(PageCondition<StudentDto> condition) {
 		StudentDto studentDto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
-		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+		if (StringUtils.equals(session.getCurrentRole(), "1")) {
 			List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
 			studentDto.setFaculties(deptIds);
 		}
@@ -85,7 +85,7 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	public PageInfo<ElcStudentLimitVo> getLimitStudents(PageCondition<ElcStudentLimitDto> condition) {
 		ElcStudentLimitDto dto  = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
-		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+		if (StringUtils.equals(session.getCurrentRole(), "1")) {
 			List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
 			dto.setFaculties(deptIds);
 		}
@@ -133,7 +133,7 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 		int result = 0;
 		elcStudentLimitDto.setIndex(TableIndexUtil.getIndex(elcStudentLimitDto.getCalendarId()));
 		Session session = SessionUtils.getCurrentSession();
-		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+		if (StringUtils.equals(session.getCurrentRole(), "1")) {
 			List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
 			elcStudentLimitDto.setFaculties(deptIds);
 		}

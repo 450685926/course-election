@@ -158,8 +158,7 @@ public class ElecAgentYjsController
         // 教务员
         NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
         LOG.info("*****xwmr*****the parames of noSelectCourseStds is :{}",JSONObject.toJSONString(noSelectCourseStds));
-        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
-            && !session.isAdmin() && session.isAcdemicDean())
+        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)))
         {
             /*if(StringUtils.isNotEmpty(noSelectCourseStds.getFaculty())) {
                 noSelectCourseStds.setFaculty(noSelectCourseStds.getFaculty());

@@ -361,7 +361,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             throw new ParameterValidateException("学号" + studentId + "不存在");
         }
         // 判断是不是教务员
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+        if (StringUtils.equals(session.getCurrentRole(), "1")) {
             List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
             String faculty = student.getFaculty();
             // 教务员只能对其管理学院的学生进行代选

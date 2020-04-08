@@ -91,7 +91,7 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         }
 
         // 教务员查看本学院申请了本研互选选课的学生和申请了本学院开设课程的学生
-        boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
+        boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE));
         if (isAcdemicDean) {
             List<String> deptIds = SessionUtils.getCurrentSession().
                     getGroupData().get(GroupDataEnum.department.getValue());

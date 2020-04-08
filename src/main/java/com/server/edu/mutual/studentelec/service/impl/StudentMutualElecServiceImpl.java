@@ -235,7 +235,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 //            stu.setProfession(major);
             result.setData(stu);
             
-            if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.equals(session.getCurrentRole(), "1")) {
             	List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
             	if (stu.getFaculty() == null || !deptIds.contains(stu.getFaculty())) {
             		result.setMsg(I18nUtil.getMsg("mutualAgent.studentFautyJuge"));

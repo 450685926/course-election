@@ -567,7 +567,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 }
                 stu.setProfession(major);
             	Session session = SessionUtils.getCurrentSession();
-                if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+                if (StringUtils.equals(session.getCurrentRole(), "1")) {
                     List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
                     // 如果教务员是英语学院或体育学院，则可以给全校学生代选英语体育课
                     if ((stu.getFaculty() != null && deptIds.contains(stu.getFaculty()))

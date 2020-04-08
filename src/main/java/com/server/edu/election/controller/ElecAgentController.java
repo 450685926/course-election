@@ -106,7 +106,7 @@ public class ElecAgentController
                 Long id = round.getId();
                 // 教务员过滤
                 Session session = SessionUtils.getCurrentSession();
-                if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+                if (StringUtils.equals(session.getCurrentRole(), "1")) {
                     List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
                     ElcRoundCondition roundCondition = dataProvider.getRoundCondition(id);
                     String facultys = roundCondition.getFacultys();
