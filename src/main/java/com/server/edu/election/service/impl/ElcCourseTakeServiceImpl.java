@@ -53,6 +53,7 @@ import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElcResultSwitch;
+import com.server.edu.election.entity.RebuildCourseRecycle;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -142,8 +143,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Autowired
     private DictionaryService dictionaryService;
 
-    @Autowired
-    private ElcAffinityCoursesStdsDao elcAffinityCoursesStdsDao;
+	@Autowired
+	private RebuildCourseRecycleDao rebuildCourseRecycleDao;
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -165,6 +166,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private ElecRoundsDao roundsDao;
+    
+    @Autowired
+    private ElecRoundsDao elecRoundsDao;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -1058,7 +1062,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
         for (ElcCourseTake take : value)
         {
-            this.canWithdrawByFee(take,admin);
             Long calendarId = take.getCalendarId();
             String studentId = take.getStudentId();
             Long teachingClassId = take.getTeachingClassId();
@@ -1070,7 +1073,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .andEqualTo("studentId", studentId)
                 .andEqualTo("teachingClassId", teachingClassId);
             ElcCourseTake elcCourseTake = courseTakeDao.selectOneByExample(example);
-
+            this.canWithdrawByFee(elcCourseTake,admin);
             //更新选课申请数据
             electionApplyService
                     .update(studentId, calendarId, elcCourseTake.getCourseCode(),ElectRuleType.WITHDRAW);
@@ -1078,6 +1081,32 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             example1.createCriteria().andEqualTo("code",elcCourseTake.getCourseCode());
             Course course = courseDao.selectOneByExample(example1);
             courseTakeDao.deleteByExample(example);
+            Integer paid = take.getPaid();
+        	RebuildCourseRecycle rebuildCourseRecycle = new RebuildCourseRecycle();
+        	rebuildCourseRecycle.setCalendarId(calendarId);
+        	rebuildCourseRecycle.setStudentCode(studentId);
+        	rebuildCourseRecycle.setCourseCode(elcCourseTake.getCourseCode());
+        	rebuildCourseRecycle.setTeachingClassId(elcCourseTake.getTeachingClassId());
+        	rebuildCourseRecycle.setCourseTakeType(elcCourseTake.getCourseTakeType());
+        	//取选课对象（不是退课对象）
+        	rebuildCourseRecycle.setChooseObj(elcCourseTake.getChooseObj());
+        	rebuildCourseRecycle.setTurn(turn);
+        	//取选课模式
+        	rebuildCourseRecycle.setMode(elcCourseTake.getMode());
+        	rebuildCourseRecycle.setPaid(elcCourseTake.getPaid());
+        	rebuildCourseRecycle.setType(Constants.FIRST);
+        	rebuildCourseRecycle.setScreenLabel(null);
+            //结业生、留学结业生退课进入回收站，正常学生重修进入回收站
+        	if(paid !=null && Constants.FIRST.equals(paid)) {
+        		StudentDto studentDto = elecRoundsDao.findStudentRoundType(studentId);
+                if(StringUtils.isNotEmpty(studentDto.getGraduateStudent()) || StringUtils.isNotEmpty(studentDto.getInternationalGraduates())) {
+                	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
+                }else {
+                    if(Constants.SECOND.equals(elcCourseTake.getCourseTakeType())) {
+                    	rebuildCourseRecycleDao.insertSelective(rebuildCourseRecycle);
+                    }
+                }
+        	}
             //减少选课人数
             int count =classDao.decrElcNumber(teachingClassId);
             //保存第三、四轮退课人数
@@ -2479,9 +2508,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         return result;
 	};
     
-    private void canWithdrawByFee(ElcCourseTake take,Boolean isAdmin){
-        int index = TableIndexUtil.getIndex(take.getCalendarId());
-        ElcCourseTake courseTake = courseTakeDao.findRebuildFee(take,index);
+    private void canWithdrawByFee(ElcCourseTake courseTake,Boolean isAdmin){
         if(courseTake != null){
             Integer courseTakeType = courseTake.getCourseTakeType();
             Integer paid = courseTake.getPaid();
