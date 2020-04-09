@@ -214,10 +214,7 @@ public class ElcResultServiceImpl implements ElcResultService
 
         List<String> deptIds = session.getGroupData().get(GroupDataEnum.department.getValue());
 
-        String key = session.getSessionid()+"_"+session.realUid();
-        String currentAuthId = session.getCurrentAuthId().get(key);
-        logger.info("listPage session Info authKey : {},  === currentAuth:{}, === innerRoles: {}",
-                key,currentAuthId,session.getMenuAuthority().get(currentAuthId));
+        logger.info("listPage session Info >>> {}", session);
         logger.info("listPage deptIds info >>>>>> {}", deptIds);
         condition.setFaculties(deptIds);
         Page<TeachingClassVo> listPage = null;
