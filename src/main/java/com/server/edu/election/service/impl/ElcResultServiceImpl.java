@@ -213,6 +213,7 @@ public class ElcResultServiceImpl implements ElcResultService
     	Session session = SessionUtils.getCurrentSession();
 
         List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+        logger.info("listPage deptIds info >>>>>> {}", deptIds);
         condition.setFaculties(deptIds);
         Page<TeachingClassVo> listPage = null;
         listPage = getListPage(condition, listPage, page);
