@@ -66,6 +66,8 @@ public class RedisQueueService extends AbstractElecQueue
             }
             else
             {
+                //执行的是父类的task.run方法
+                //comsumer.consume(take)，是task.run方法的内容（实现），lambada写法
                 super.execute(() -> {
                     comsumer.consume(take);
                 });
